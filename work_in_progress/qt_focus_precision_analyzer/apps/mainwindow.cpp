@@ -442,25 +442,6 @@ bool MainWindow::maybeSave()
 
 void MainWindow::loadLogFile(const QString &file_name)
 {
-//     QFile file(fileName);
-//     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-//         QMessageBox::warning(this, tr("Application"),
-//                              tr("Cannot read file %1:\n%2.")
-//                              .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-//         return;
-//     }
-// 
-//     QTextStream in(&file);
-// #ifndef QT_NO_CURSOR
-//     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-// #endif
-//     text_edit_->setPlainText(in.readAll());
-// #ifndef QT_NO_CURSOR
-//     QGuiApplication::restoreOverrideCursor();
-// #endif
-// 
-//     setCurrentFile(fileName);
-//     statusBar()->showMessage(tr("File loaded"), 2000);
     QFile log_file(file_name);
     if (!log_file.open(QFile::ReadOnly | QFile::Text)) {
         showMessage(
@@ -627,146 +608,104 @@ void MainWindow::loadLogFile(const QString &file_name)
     // Reset stream position to begining of the file
     in.seek(0);
 
+    // Initialize flag to keep track of if we encountered any errors now on
+    bool fail_status = false;
+
     if( 0 < invalid_row_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+        fail_status = true;
         showMessage(
                 tr("%1 invalid rows read.").arg(invalid_row_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (1200 > row_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Verify if we have a complete dataset. Check if we have enough lines of
+    // data
+    if (1200 > row_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 1200 lines od data "
                     "(%1 lines read)").arg(row_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (200 > x1_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Check if we have enough data points in the X1-1 data array
+    if (200 > x1_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 200 data points for "
                     "'X1-1' (%1 data points read)").arg(x1_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (200 > x2_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Check if we have enough data points in the X1-2 data array
+    if (200 > x2_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 200 data points for "
                     "'X1-2' (%1 data points read)").arg(x2_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (200 > y1_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Check if we have enough data points in the Y1-1 data array
+    if (200 > y1_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 200 data points for "
                     "'Y1-1' (%1 data points read)").arg(y1_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (200 > y2_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Check if we have enough data points in the Y1-2 data array
+    else if (200 > y2_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 200 data points for "
                     "'Y1-2' (%1 data points read)").arg(y2_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
-
-    } else if (200 > z1_count) {
-        showMessage(
-            tr("Data integrity check for \"%1\": FAILED").arg(
-                QDir::toNativeSeparators(file_name)
-                ),
-            MainWindow::Error
-        );
+    // Check if we have enough data points in the Z1-1 data array
+    if (200 > z1_count) {
+        fail_status = true;
         showMessage(
                 tr("Incomplete dataset. Expected at least 200 data points for "
                     "'Z1-1' (%1 data points read)").arg(z1_count),
                 MainWindow::Error
                 );
+    }
 
-        return;
+    // Check if we have enough data points in the Z1-2 data array
+    if (200 > z2_count) {
+        fail_status = true;
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'Z1-2' (%1 data points read)").arg(z2_count),
+                MainWindow::Error
+                );
+    }
 
-    } else if (200 > z2_count) {
+    if(fail_status) {
         showMessage(
             tr("Data integrity check for \"%1\": FAILED").arg(
                 QDir::toNativeSeparators(file_name)
                 ),
             MainWindow::Error
         );
+    } else {
         showMessage(
-                tr("Incomplete dataset. Expected at least 200 data points for "
-                    "'Z1-2' (%1 data points read)").arg(z2_count),
-                MainWindow::Error
-                );
-
-        return;
-
+            tr("Data integrity check for \"%1\": PASSED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Info
+        );
+        showMessage(tr("%1 rows read.").arg(row_count), MainWindow::Info);
     }
-
-
-    showMessage(
-        tr("Data integrity check for \"%1\": PASSED").arg(
-            QDir::toNativeSeparators(file_name)
-            ),
-        MainWindow::Info
-    );
-    showMessage(tr("%1 rows read.").arg(row_count), MainWindow::Info);
-
-    // while (!in.atEnd()) {
-    //     QString record = "| ";
-    //     QString line = in.readLine();
-    //     QStringList fields = line.split(", ");
-    //     for (int i = 0; i < fields.size(); ++i) {
-    //         record += fields.at(i) + " |";
-    //     }
-    //     showMessage(record, MainWindow::Info);
-
-    // }
 }
 
 bool MainWindow::saveSessionLog(const QString &file_name)
