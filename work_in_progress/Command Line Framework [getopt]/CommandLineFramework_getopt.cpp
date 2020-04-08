@@ -145,6 +145,8 @@ unsigned int GetoptOption::HasArgument() const {
 }
 
 std::string GetoptOption::OptionString() const {
+    //
+    // Assign the switch string to a temporary container.
     std::string result = std::string(sw);
 
     if (required_argument == arg) {

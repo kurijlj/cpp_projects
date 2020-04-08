@@ -145,7 +145,7 @@ unsigned int GetoptOption::HasArgument() const {
 }
 
 std::string GetoptOption::OptionString() const {
-    std::string result = string(sw);
+    std::string result = std::string(sw);
 
     if (required_argument == arg) {
         result += ":";
@@ -174,7 +174,7 @@ const lest::test tests_specs[] = {
                 "h",
                 optional_argument).OptionString());
         EXPECT("V" == GetoptOption('V', no_argument).OptionString());
-        EXPECT("q::" == string(
+        EXPECT("q::" == std::string(
             GetoptOption('q', optional_argument).OptionAsCstr()));
         // EXPECT ("h" == GetoptOption("h", 3).OptionString());
     },
