@@ -4,10 +4,8 @@ SHELL = /bin/bash
 CPP   = clang++
 #CPP   = g++
 
-#NAME = hello_world
-NAME = hello_string
-#CAPITALIZED_NAME = HelloWorld
-CAPITALIZED_NAME = HelloString
+NAME = clf_boost
+CAPITALIZED_NAME = Command Line Framework [boost]
 
 FLAGS        = -std=c++11
 #CFLAGS       = -pedantic -Wall -Wextra -march=native -ggdb3
@@ -16,12 +14,12 @@ EXTRAFLAGS   = -v -O0 -g -pedantic -Wall -Wextra -fcolor-diagnostics
 #RELEASEFLAGS = -O2 -w
 
 TARGET  = $(NAME)
-LIBS    =
-#SOURCES = $(wildcard *.cpp)
-SOURCES = $(NAME).cpp
+LIBS    = -lboost_program_options
+SOURCES = $(wildcard *.cpp)
 #COMMON  = include/definitions.h include/debug.h
 COMMON  =
 #HEADERS = $(shell echo include/*.h)
+HEADERS =
 OBJECTS = $(SOURCES:.cpp=.o)
 
 #PREFIX = $(DESTDIR)/usr/local
