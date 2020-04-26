@@ -1,9 +1,9 @@
 // ============================================================================
-// Copyright (C) <yyyy> <Author Name> <author@mail.com>
+// simplehexdump - Application to dump hexadecimal values of the input string.
 //
-// This file is part of <program name>.
+//  Copyright (C) 2020 Ljubomir Kurij <kurijlj@gmail.com>
 //
-// <program name> is free software: you can redistribute it and/or modify
+// This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -21,23 +21,9 @@
 
 // ============================================================================
 //
-// <Put documentation here>
+// 2020-04-26 Ljubomir Kurij <kurijlj@gmail.com>
 //
-// 2020-04-19 Ljubomir Kurij <kurijlj@mail.com>
-//
-// * main.cpp: created.
-//
-// ============================================================================
-
-
-// ============================================================================
-//
-// TODO:
-//
-// * Implement table model classs for manipulation and view of measured data.
-//   Splint input by channels. Every row should inlcude all other relevant
-//   data, e.g.: date of measurement, time of measurement, electrometer's
-//   serial number, ...
+// * simplehexdump.cpp: created.
 //
 // ============================================================================
 
@@ -60,20 +46,12 @@
 // Headers include section
 // ============================================================================
 
-// Standard Library Headers
-#include <string>  // self explanatory ...
 #include <cstdlib>  // required by EXIT_SUCCESS, EXIT_FAILURE
 #include <iostream>  // required by cin, cout, ...
-
-// Qt Library Headers
-#include <QFile>  // required for testing file existance
-#include <QString>  // required for storing data file's name
-
-// Boost Library Headers
+#include <iomanip>  // required by setfiil, setw, ...
+#include <string>  // self explanatory ...
+#include <fstream>  // requird by ifstream
 #include <boost/program_options.hpp>  // self explanatory ...
-
-// Custom Code Headers
-#include "logreader.hpp"  // This is our main window
 
 
 // ============================================================================
@@ -87,7 +65,7 @@ namespace ap = boost::program_options;  // 'ap' as arguments parsing
 // Global constants section
 // ============================================================================
 
-const std::string kAppName = "pcelogread";
+const std::string kAppName = "clf_boost";
 const std::string kVersionString = "0.1";
 const std::string kYearString = "yyyy";
 const std::string kAuthorName = "Ljubomir Kurij";
@@ -119,7 +97,7 @@ void PrintVersionInfo();
 
 int main(int argc, char *argv[])
 {
-    QString fn; // We store data file's name here.
+    std::string input;  // We store input string here;
 
     // Determine the exec name under wich program is beeing executed.
     std::string fullpath = argv[0];
@@ -140,8 +118,7 @@ int main(int argc, char *argv[])
         ap::options_description gnrl_opts("General options");
         ap::options_description all_opts("All options");
         ap::options_description visible_opts("\
-Framework for application development implementing Boost's program_options\n\
-command line arguments parsing library.\n\n\
+Application to dump hexadecimal values of the input string.\n\n\
 Mandatory arguments to long options are mandatory for short options too.\n\n\
 Supported options are");
 
@@ -150,8 +127,8 @@ Supported options are");
         // value<> class. Third parameter must be a short description of
         // that option.
         pos_opts.add_options()
-            ("DATA_FILE", ap::value<std::string>(),
-                "(mandatory) a CSV file containg data to be analysed")
+            ("STRING", ap::value<std::string>(),
+                "(mandatory) string to be dumped as hex")
         ;
         optnl_opts.add_options()
             ("help,h", "show this help message and exit")
@@ -165,7 +142,7 @@ Supported options are");
 
         // Add positional options.
         ap::positional_options_description p;
-        p.add("DATA_FILE", 1);
+        p.add("STRING", 1);
 
         // Variable to store our command line arguments.
         ap::variables_map vmap;
@@ -182,25 +159,19 @@ Supported options are");
             PrintVersionInfo();
         } else if (vmap.count("help")) {
             PrintUsage();
-            std::cout << "\n" << visible_opts << std::endl;
+            std::cout << "\n" << visible_opts << "\n";
             PrintPositionalArgumentsHelp();
             PrintReportBugsTo();
         } else if (vmap.count("usage")) {
             PrintUsage();
             PrintShortHelp();
         } else {
-            if (!vmap.count("DATA_FILE")) {
+            if (!vmap.count("STRING")) {
                 PrintUsage();
                 PrintShortHelp();
                 return EXIT_FAILURE;
             } else {
-                fn = vmap["DATA_FILE"].as<std::string>().c_str();
-                QFile data_file(fn);
-                if (!data_file.exists()) {
-                    std::cerr << exec_name << ": File '" << fn.toStdString()
-                        << "' does not exist!" << std::endl;
-                    return EXIT_FAILURE;
-                }
+                input = vmap["STRING"].as<std::string>();
             }
         }
     }
@@ -215,36 +186,26 @@ Supported options are");
 
     // Handle unknown exceptions.
     catch(...) {
-        std::cerr << exec_name << ": Exception of unknown type!" << std::endl;
+        std::cerr << exec_name << ": " << "Exception of unknown type!"
+            << std::endl;
         PrintUsage();
         PrintShortHelp();
         return EXIT_FAILURE;
     }
 
-    // Read the file.
-    // return lest::run (specification, argc, argv);
-    LogRead *log = nullptr;
-
-    log = new LogRead(fn);
-
-    if (log->isLogValid()) {
-        std::cout << exec_name << ": Log is valid!" << std::endl;
-    } else {
-        std::cout << exec_name << ": Log is not valid!" << std::endl;
+    // Dump string as sequence of hex values to the screen.
+    for(unsigned int i=0; i<input.size(); i++) {
+        std::cout << std::setfill('0') << std::setw(2) << std::hex <<
+            (0xff & (unsigned int) input[i]);
+        if(0 == (i + 1) % 16) {
+            std::cout << '\n';
+        } else {
+            std::cout << ' ';
+        }
     }
+    std::cout << std::endl;
 
-    if (log->checkLogHeader()) {
-        std::cout << exec_name << ": Log header is valid!" << std::endl;
-    } else {
-        std::cout << exec_name << ": Log header is not valid!" << std::endl;
-    }
-
-    log->mapMeasurements();
-    log->printMeasurementsMap();
-    // log->read();
-
-    delete log;
-
+    // Everything went fine. We can bail out.
     return EXIT_SUCCESS;
 }
 
@@ -256,7 +217,7 @@ Supported options are");
 
 void PrintUsage() {
     std::cout << "Usage: " << exec_name
-        << " [options ...] [DATA_fILE]"
+        << " [options ...] [STRING]"
         << std::endl;
 }
 
@@ -269,7 +230,7 @@ void PrintShortHelp() {
 
 void PrintPositionalArgumentsHelp() {
     std::cout << "\n\
-DATA_FILE is an CSV file containg data to be analysed. This argument is\n\
+STRING is the input dumped as hexadecimal values. This argument is\n\
 mandatory.\n" << std::endl;
 }
 

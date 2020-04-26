@@ -52,17 +52,28 @@
 // Headers include section
 // ============================================================================
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
-#include <QFile>
-#include <QByteArray>
-#include <QTextStream>
 #include "logreader.hpp"
 
 
 // ============================================================================
-// LogRead Implementation
+// Utility functions and classes implementation
+// ============================================================================
+
+
+// ============================================================================
+// Static members initialization
+// ============================================================================
+
+const unsigned int LogRead::log_header_len = 50;
+const QByteArray LogRead::log_header = QByteArray::fromHex("53756e204e75636c65"
+    "617220436f72706f726174696f6e0a504320456c656374726f6d65746572202d204c6f67"
+    "2066696c65");
+const QByteArray LogRead::msrmnt_header = QByteArray::fromHex("3d3d3d3d3d3d3d"
+    "3d3d3d3d3d3d3d206e6577206d6561737572656d656e74203d3d3d3d3d3d3d3d3d3d3d3d"
+    "3d3d");
+
+// ============================================================================
+// LogRead implementation
 // ============================================================================
 
 LogRead::LogRead(const QString fn, QObject *parent) :
@@ -101,30 +112,52 @@ bool LogRead::isLogValid()
 
 bool LogRead::checkLogHeader()
 {
-    char buffer[50];
-    bool result = true;
+    char buffer[log_header_len];
     qint64 bytes_read;
     qint64 save_pos = file->pos();  // Save last position.
 
     file->seek(0);  // Reset file position to begininning of the file.
-    if(file->atEnd()) {
-        result = false;
-        return is_log_valid = result;
+    if(file->atEnd()) {  // The file is empty.
+        return is_log_valid = false;
     }
 
-    bytes_read = file->read(buffer, sizeof(buffer));
-    if(sizeof(buffer) != bytes_read) {
-        result = false;
-        return is_log_valid = result;
+    bytes_read = file->read(buffer, log_header_len);
+    if(log_header_len != bytes_read) {  // File is shorter than PCE Log header.
+        return is_log_valid = false;
     }
 
-    for (int i=0; i<sizeof(buffer); i++) {
-        qDebug("%c", buffer[i]);
+    // Check if first fifty bytes of file match PCE Log header.
+    QByteArray ba(buffer, log_header_len);
+    if(log_header != ba) {
+        return is_log_valid = false;  // No match.
     }
-    qDebug("\n");
 
-    file->seek(save_pos);  // Revert file position to the saved.
-    return result;
+    file->seek(save_pos);  // Revert file position to the saved one.
+    return true;
+}
+
+void LogRead::mapMeasurements()
+{
+    qint64 last_pos = 0;
+    QTextStream content(file);
+
+    QString line = content.readLine();
+    while(!line.isNull()) {
+        if(msrmnt_header == line.toAscii()) {
+            measurements.append(++last_pos);
+        }
+        last_pos = content.pos();
+        line = content.readLine();
+    }
+}
+
+void LogRead::printMeasurementsMap()
+{
+    QTextStream qtcout(stdout);
+    for(qint64 i=0; i<measurements.size(); i++) {
+        qtcout << measurements[i] << " ";
+    }
+    qtcout << endl;
 }
 
 int LogRead::rowsRead()

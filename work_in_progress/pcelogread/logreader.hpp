@@ -58,13 +58,23 @@
 // Headers include section
 // ============================================================================
 
-#include <QObject>
-#include <QString>
 #include <QFile>
+#include <QChar>
+#include <QDebug>
+#include <QVector>
+#include <QString>
+#include <QObject>
+#include <QByteArray>
+#include <QTextStream>
 
 
 // ============================================================================
-// LogRead Class Definition
+// Utility functions and classes definition
+// ============================================================================
+
+
+// ============================================================================
+// LogRead class definition
 // ============================================================================
 
 class LogRead : public QObject
@@ -77,12 +87,19 @@ public:
     void read();
     bool isLogValid();
     bool checkLogHeader();
+    void mapMeasurements();
+    void printMeasurementsMap();
     int rowsRead();
 
 private:
     QFile *file;
+    QVector<qint64> measurements;
     bool is_log_valid;
-    int rows_read;
+    qint64 rows_read;
+
+    static const unsigned int log_header_len;
+    static const QByteArray log_header;
+    static const QByteArray msrmnt_header;
 };
 
 #endif

@@ -43,5 +43,5 @@ QMAKE_CXXFLAGS_DEBUG += -std=c++11 -v -O0 -pedantic -Wextra -fcolor-diagnostics
 QMAKE_CLEAN += *.o *~ *.swp pcelogread
 
 # Input
-HEADERS += lest.hpp logreader.hpp
+HEADERS += logreader.hpp
 SOURCES += logreader.cpp main.cpp
