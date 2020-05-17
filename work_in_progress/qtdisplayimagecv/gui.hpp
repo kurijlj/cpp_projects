@@ -1,9 +1,9 @@
 // ============================================================================
-// Copyright (C) <yyyy> <Author Name> <author@mail.com>
+// Copyright (C) 2020 Ljubomir Kurij <kurijlj@gmail.com>
 //
-// This file is part of <program name>.
+// This file is part of qtdisplayimagecv.
 //
-// <program name> is free software: you can redistribute it and/or modify
+// qtdisplayimagecv is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -21,35 +21,15 @@
 
 // ============================================================================
 //
-// <Put documentation here>
+// 2020-05-10 Ljubomir Kurij <kurijlj@mail.com>
 //
-//
-// 2020-04-15 Ljubomir Kurij <kurijlj@mail.com>
-//
-// * gui.cpp: created.
+// * gui.hpp: created.
 //
 // ============================================================================
 
 
-// ============================================================================
-//
-// TODO:
-//
-// ============================================================================
-
-
-// ============================================================================
-//
-// References (this section should be deleted in the release version)
-//
-// * For coding style visit Google C++ Style Guide page at
-//   <https://google.github.io/styleguide/cppguide.html>.
-//
-// ============================================================================
-
-
-#ifndef GUI_H
-#define GUI_H
+#ifndef GUI_HPP
+#define GUI_HPP
 
 
 // ============================================================================
@@ -57,6 +37,14 @@
 // ============================================================================
 
 #include <QDialog>
+#include <QString>
+#include <QPixmap>
+#include <QTextStream>
+#include <cstdlib>  // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "mat2qpixmap.hpp"
 
 
 // ============================================================================
@@ -77,10 +65,15 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(
+            QWidget *parent = nullptr,
+            const QString & exec_name = "Qt Display Image (OpenCV)"
+        );
+    int showImage(const QString & image_file);
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui_;
+    QString exec_name_;
 };
 
 #endif

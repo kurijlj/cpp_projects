@@ -1,9 +1,9 @@
 ###############################################################################
-## Copyright (C) <yyyy> <Author Name> <author@mail.com>
+## Copyright (C) 2020 Ljubomir Kurij <kurijlj@gmail.com>
 ##
-## This file is part of <program name>.
+## This file is part of qtdisplayimagecv
 ##
-## <program name> is free software: you can redistribute it and/or modify
+## qtdisplayimagecv is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation, either version 3 of the License, or
 ## (at your option) any later version.
@@ -21,8 +21,6 @@
 
 ###############################################################################
 ##
-## <Put documentation here>
-##
 ## 2020-05-10 Ljubomir Kurij <kurijlj@mail.com>
 ##
 ## * qtdisplayimagecv.pro: created.
@@ -36,6 +34,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 LIBS += -lboost_program_options
 LANGUAGE = C++
+QT_CONFIG -= no-pkg-config
 CONFIG += console debug warn_on stl link_pkgconfig
 PKGCONFIG += opencv
 QMAKE_CC = clang
@@ -45,6 +44,6 @@ QMAKE_CXXFLAGS_DEBUG += -std=c++11 -v -O0 -pedantic -Wextra -fcolor-diagnostics
 QMAKE_CLEAN += *.o *.old *.swp *~
 
 # Input
-HEADERS += gui.hpp qcustomplot.h lest.hpp
+HEADERS += gui.hpp mat2qpixmap.hpp qcustomplot.h
 FORMS += MainWindow.ui
-SOURCES += main.cpp gui.cpp qcustomplot.cpp
+SOURCES += main.cpp gui.cpp mat2qpixmap.cpp qcustomplot.cpp

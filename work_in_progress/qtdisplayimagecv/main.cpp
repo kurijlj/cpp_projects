@@ -1,9 +1,9 @@
 // ============================================================================
-// Copyright (C) <yyyy> <Author Name> <author@mail.com>
+// Copyright (C) 2020 Ljubomir Kurij <kurijlj@gmail.com>
 //
-// This file is part of <program name>.
+// This file is part of qtdisplayimagecv.
 //
-// <program name> is free software: you can redistribute it and/or modify
+// qtdisplayimagecv is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -21,32 +21,9 @@
 
 // ============================================================================
 //
-// <Put documentation here>
-//
-// 2020-04-15 Ljubomir Kurij <kurijlj@mail.com>
+// 2020-05-10 Ljubomir Kurij <kurijlj@mail.com>
 //
 // * main.cpp: created.
-//
-// ============================================================================
-
-
-// ============================================================================
-//
-// TODO:
-//
-// ============================================================================
-
-
-// ============================================================================
-//
-// References (this section should be deleted in the release version)
-//
-// * For coding style visit Google C++ Style Guide page at
-//   <https://google.github.io/styleguide/cppguide.html>.
-//
-// * For command line arguments parsing using Boost program_options library
-//   consult manual at <https://www.boost.org/doc/libs/1_49_0/doc/html/
-//   program_options.html>.
 //
 // ============================================================================
 
@@ -70,9 +47,6 @@
 
 // Custom Code Headers
 #include "gui.hpp"  // This is our main window
-
-// Unit Testing Headers
-#include "lest.hpp"  // required by unit testing framework
 
 
 // ============================================================================
@@ -222,8 +196,9 @@ Supported options are");
 
     // Fire up the GUI.
     QApplication app(argc, argv);
-    MainWindow *mainw= new MainWindow;
+    MainWindow *mainw= new MainWindow(nullptr, QString(exec_name.c_str()));
     mainw->show();
+    mainw->showImage(QString(imgfile.c_str()));
     return app.exec();
 }
 
@@ -235,7 +210,7 @@ Supported options are");
 
 void PrintUsage() {
     std::cout << "Usage: " << exec_name
-        << " [options ...] [DATA_fILE]"
+        << " [options ...] [DATA_IMAGE]"
         << std::endl;
 }
 
@@ -248,7 +223,7 @@ void PrintShortHelp() {
 
 void PrintPositionalArgumentsHelp() {
     std::cout << "\n\
-DATA_FILE is an CSV file containg data to be analysed. This argument is\n\
+DATA_IMAGE is an image file to be displayed on screen. This argument is\n\
 mandatory.\n" << std::endl;
 }
 

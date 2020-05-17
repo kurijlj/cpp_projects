@@ -21,56 +21,51 @@
 
 // ============================================================================
 //
-// 2020-05-10 Ljubomir Kurij <kurijlj@mail.com>
+// 2020-05-17 Ljubomir Kurij <kurijlj@mail.com>
 //
-// * gui.cpp: created.
+// * mat2pixmap.hpp: created.
 //
 // ============================================================================
+
+
+#ifndef MAT2QPIXMAP_HPP
+#define MAT2QPIXMAP_HPP
 
 
 // ============================================================================
 // Headers include section
 // ============================================================================
 
-#include "gui.hpp"
-#include "ui_MainWindow.h"
+#include <QImage>
+#include <QPixmap>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 
 // ============================================================================
-// MainWindow Implementation
+// Mat2QPixmap Definition
 // ============================================================================
 
-MainWindow::MainWindow(QWidget *parent, const QString & exec_name)
-    : QDialog(parent),
-    ui_(new Ui::MainWindow)
-{
-    ui_->setupUi(this);
+namespace m2qp {
 
-    exec_name_ = exec_name;
-    setWindowTitle(exec_name);
-    ui_->plot->replot();
+    class Mat2QPixmap {
+    public:
+        Mat2QPixmap(
+                int cvt_code = cv::COLOR_BGR2RGB,
+                QImage::Format cvt_fmt = QImage::Format_RGB888
+            );
+        int cvt_code();
+        QImage::Format cvt_fmt();
+        int change_cvt_code(int new_cvt_code);
+        QImage::Format change_cvt_flags(QImage::Format new_cvt_fmt);
+        QPixmap convert(cv::InputArray src);
+
+    private:
+        int cvt_code_;
+        QImage::Format cvt_fmt_;
+    };
+
 }
 
-int MainWindow::showImage(const QString & image_file)
-{
-    QTextStream out_(stdout, QIODevice::WriteOnly);
-    QTextStream err_(stderr, QIODevice::WriteOnly);
-    cv::Mat img;
-    m2qp::Mat2QPixmap converter(cv::COLOR_BGR2RGB, QImage::Format_RGB888);
-
-    out_ <<  exec_name_ << ": Image file \"" << image_file << "\".\n";
-    out_ <<  exec_name_ << ": Loading image data.\n" << flush;
-    img = cv::imread(image_file.toLatin1().constData(), cv::IMREAD_COLOR);
-
-    if(img.empty())
-    {
-        err_ <<  exec_name_ << ": Could not find image data.\n" << flush;
-        return EXIT_FAILURE;
-    }
-
-    setWindowTitle(image_file);
-    ui_->plot->axisRect()->setBackground(converter.convert(img));
-    ui_->plot->replot();
-
-    return EXIT_SUCCESS;
-}
+#endif
