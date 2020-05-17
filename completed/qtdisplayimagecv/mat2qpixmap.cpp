@@ -28,44 +28,69 @@
 // ============================================================================
 
 
-#ifndef MAT2QPIXMAP_HPP
-#define MAT2QPIXMAP_HPP
+// ============================================================================
+//
+// TODO:
+//
+// * Add sanity checks for input values.
+//
+// ============================================================================
 
 
 // ============================================================================
 // Headers include section
 // ============================================================================
 
-#include <QImage>
-#include <QPixmap>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "mat2qpixmap.hpp"
 
 
 // ============================================================================
-// Mat2QPixmap Definition
+// Mat2QPixmap Implementation
 // ============================================================================
 
-namespace m2qp {
-
-    class Mat2QPixmap {
-    public:
-        Mat2QPixmap(
-                int cvt_code = cv::COLOR_BGR2RGB,
-                QImage::Format cvt_fmt = QImage::Format_RGB888
-            );
-        int cvt_code();
-        QImage::Format cvt_fmt();
-        int change_cvt_code(int new_cvt_code);
-        QImage::Format change_cvt_flags(QImage::Format new_cvt_fmt);
-        QPixmap convert(cv::InputArray src);
-
-    private:
-        int cvt_code_;
-        QImage::Format cvt_fmt_;
-    };
-
+m2qp::Mat2QPixmap::Mat2QPixmap(int cvt_code, QImage::Format cvt_fmt)
+{
+    cvt_code_ = cvt_code;
+    cvt_fmt_ = cvt_fmt;
 }
 
-#endif
+int m2qp::Mat2QPixmap::cvt_code()
+{
+    return cvt_code_;
+}
+
+QImage::Format m2qp::Mat2QPixmap::cvt_fmt()
+{
+    return cvt_fmt_;
+}
+
+int m2qp::Mat2QPixmap::change_cvt_code(int new_cvt_code)
+{
+    return cvt_code_ = new_cvt_code;
+}
+
+QImage::Format m2qp::Mat2QPixmap::change_cvt_flags(QImage::Format new_cvt_fmt)
+{
+    return cvt_fmt_ = new_cvt_fmt;
+}
+
+QPixmap m2qp::Mat2QPixmap::convert(cv::InputArray src)
+{
+    cv::Mat rgb_src;
+    QPixmap src_pxm;
+
+    // First we have to convert from BGR color scheme to a color scheme
+    // compatible wit QImage colors.
+    cv::cvtColor(src, rgb_src, cvt_code_);
+
+    // Create pixmap out of array data.
+    src_pxm = QPixmap::fromImage(QImage(
+            (unsigned char *) rgb_src.data,
+            rgb_src.cols,
+            rgb_src.rows,
+            rgb_src.step,
+            cvt_fmt_
+        ));
+
+    return src_pxm.copy();
+}

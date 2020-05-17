@@ -65,15 +65,20 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
+
+    // Class constructors and destructors.
     MainWindow(
             QWidget *parent = nullptr,
             const QString & exec_name = "Qt Display Image (OpenCV)"
         );
+
+    // Method used to display image in the window pointed by path
+    // in the image_file.
     int showImage(const QString & image_file);
 
 private:
-    Ui::MainWindow *ui_;
-    QString exec_name_;
+    Ui::MainWindow *ui_;  // Holds pointer to our window.
+    QString exec_name_;  // Holds app executable name used for output messages.
 };
 
 #endif

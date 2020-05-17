@@ -21,62 +21,65 @@
 
 // ============================================================================
 //
-// 2020-05-17 Ljubomir Kurij <kurijlj@mail.com>
+// 2020-05-10 Ljubomir Kurij <kurijlj@mail.com>
 //
-// * mat2pixmap.hpp: created.
+// * gui.cpp: created.
 //
 // ============================================================================
+
+
+// ============================================================================
+//
+// TODO:
+//
+// * Reconsider using EXIT_SUCCESS and EXIT_FAILURE as method exit statuses.
+//
+// ============================================================================
+
 
 // ============================================================================
 // Headers include section
 // ============================================================================
 
-#include "mat2qpixmap.hpp"
+#include "gui.hpp"
+#include "ui_MainWindow.h"
 
 
 // ============================================================================
-// Mat2QPixmap Implementation
+// MainWindow Implementation
 // ============================================================================
 
-m2qp::Mat2QPixmap::Mat2QPixmap(int cvt_code, QImage::Format cvt_fmt)
+MainWindow::MainWindow(QWidget *parent, const QString & exec_name)
+    : QDialog(parent),
+    ui_(new Ui::MainWindow)
 {
-    cvt_code_ = cvt_code;
-    cvt_fmt_ = cvt_fmt;
+    ui_->setupUi(this);
+
+    exec_name_ = exec_name;
+    setWindowTitle(exec_name);
+    ui_->plot->replot();
 }
 
-int m2qp::Mat2QPixmap::cvt_code()
+int MainWindow::showImage(const QString & image_file)
 {
-    return cvt_code_;
-}
+    QTextStream out_(stdout, QIODevice::WriteOnly);
+    QTextStream err_(stderr, QIODevice::WriteOnly);
+    cv::Mat img;
+    m2qp::Mat2QPixmap converter(cv::COLOR_BGR2RGB, QImage::Format_RGB888);
 
-QImage::Format m2qp::Mat2QPixmap::cvt_fmt()
-{
-    return cvt_fmt_;
-}
+    out_ <<  exec_name_ << ": Image file \"" << image_file << "\".\n";
+    out_ <<  exec_name_ << ": Loading image data.\n" << flush;
+    img = cv::imread(image_file.toLatin1().constData(), cv::IMREAD_COLOR);
 
-int m2qp::Mat2QPixmap::change_cvt_code(int new_cvt_code)
-{
-    return cvt_code_ = new_cvt_code;
-}
+    if(img.empty())
+    {
+        err_ <<  exec_name_ << ": Could not find image data.\n" << flush;
+        return EXIT_FAILURE;
+    }
 
-QImage::Format m2qp::Mat2QPixmap::change_cvt_flags(QImage::Format new_cvt_fmt)
-{
-    return cvt_fmt_ = new_cvt_fmt;
-}
+    setWindowTitle(image_file);
+    ui_->plot->axisRect()->setBackground(converter.convert(img));
+    ui_->plot->replot();
 
-QPixmap m2qp::Mat2QPixmap::convert(cv::InputArray src)
-{
-    cv::Mat rgb_src;
-    QPixmap src_pxm;
-
-    cv::cvtColor(src, rgb_src, cvt_code_);
-    src_pxm = QPixmap::fromImage(QImage(
-            (unsigned char *) rgb_src.data,
-            rgb_src.cols,
-            rgb_src.rows,
-            rgb_src.step,
-            cvt_fmt_
-        ));
-
-    return src_pxm.copy();
+    return EXIT_SUCCESS;
 }
