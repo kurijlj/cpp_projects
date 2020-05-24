@@ -1,0 +1,44 @@
+strict digraph {
+    start[shape="box", fontname="Sans"];
+    text_stream[shape="invtrapezium", fontname="Sans"];
+    mismatching_rows[shape="box", fontname="Sans"];
+    set_zero_row_count[shape="box", fontname="Sans"];
+    while_not_end[shape="box", fontname="Sans"];
+    read_line[shape="invtrapezium", fontname="Sans"];
+    null_line_test[shape="diamond", fontname="Sans"];
+    split_line[shape="box", fontname="Sans"];
+    count_fields[shape="box", fontname="Sans"];
+    zero_row_test[shape="diamond", fontname="Sans"];
+    set_column_number[shape="box", fontname="Sans"];
+    field_count_test[shape="diamond", fontname="Sans"];
+    increase_mismatching_row_count[shape="box", fontname="Sans"];
+    traverse_fields[shape="box", fontname="Sans"];
+    end[shape="box", fontname="Sans"];
+    
+    start->text_stream->mismatching_rows->set_zero_row_count->while_not_end;
+    while_not_end->read_line[label="  NO", fontname="Sans"];
+    read_line->null_line_test;
+    null_line_test->split_line[label="  NO", fontname="Sans"];
+    split_line->count_fields->zero_row_test;
+    zero_row_test->set_column_number[label="  YES", fontname="Sans"];
+    zero_row_test->field_count_test[label="  NO", fontname="Sans"];
+    field_count_test->increase_mismatching_row_count[label="  YES", fontname="Sans"];
+    field_count_test->traverse_fields[label="  NO", fontname="Sans"];
+    increase_mismatching_row_count->traverse_fields;
+    set_column_number->traverse_fields;
+    
+    start[label="Start"];
+    mismatching_rows[label="Declare mismatching_rows\nas Set", width="3"];
+    set_zero_row_count[label="row_count = 0", width="2"];
+    while_not_end[label="While not atEnd", width="2"];
+    read_line[label="Read line"];
+    null_line_test[label="Is line null?", height="1"];
+    split_line[label="Split line to\nfields", width="2"];
+    count_fields[label="Count fields", width="1.5"];
+    zero_row_test[label="row_count == 0?", width="1.5", height="1"];
+    set_column_number[label="column_number = field_count", width="3.5"];
+    field_count_test[label="column_number != field_count?", height="1"];
+    increase_mismatching_row_count[label="Note mismatching row number.\nAdd row_count + 1 to\nmismatching_rows", width="3.5"];
+    traverse_fields[label="for i=0 to column_number", width="3.5"];
+    end[label="End"];
+}
