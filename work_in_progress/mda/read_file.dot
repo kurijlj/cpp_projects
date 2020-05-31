@@ -1,59 +1,107 @@
 strict digraph {
+
+    // ------------------------------------------------------------------------
+    // Definitions
+    // ------------------------------------------------------------------------
     start[shape="box", fontname="Sans"];
     text_stream[shape="invtrapezium", fontname="Sans"];
     error_accumulators[shape="box", fontname="Sans"];
+    data_reference[shape="box", fontname="Sans"];
     set_zero_row_count[shape="box", fontname="Sans"];
     while_not_end[shape="box", fontname="Sans"];
-    read_line[shape="invtrapezium", fontname="Sans"];
+    read_line[shape="box", fontname="Sans"];
     null_line_test[shape="diamond", fontname="Sans"];
+    increase_empty_row_count[shape="box", fontname="Sans"];
     split_line[shape="box", fontname="Sans"];
     count_fields[shape="box", fontname="Sans"];
     zero_row_test[shape="diamond", fontname="Sans"];
     set_column_number[shape="box", fontname="Sans"];
+    double_precision_test1[shape="diamond", fontname="Sans"];
+    allocate_float_data_vectors[shape="box", fontname="Sans"];
+    allocate_double_data_vectors[shape="box", fontname="Sans"];
+    assign_to_data_reference[shape="box", fontname="Sans"];
     field_count_test[shape="diamond", fontname="Sans"];
+    node1[shape="point"];
     increase_mismatching_row_count[shape="box", fontname="Sans"];
+    node2[shape="point"];
+    node3[shape="point"];
     traverse_fields[shape="box", fontname="Sans"];
-    double_precision_test[shape="diamond", fontname="Sans"];
+    double_precision_test2[shape="diamond", fontname="Sans"];
     field_to_float[shape="box", fontname="Sans"];
     field_to_double[shape="box", fontname="Sans"];
+    node4[shape="point"];
     conversion_test[shape="diamond", fontname="Sans"];
     conversion_failed[shape="box", fontname="Sans"];
+    assign_field_to_data_vector[shape="box", fontname="Sans"];
+    node5[shape="point"];
+    node6[shape="point"];
+    increase_row_count[shape="box", fontname="Sans"];
+    node7[shape="point"];
     end[shape="box", fontname="Sans"];
 
-    start->text_stream->error_accumulators->set_zero_row_count->while_not_end;
+    // ------------------------------------------------------------------------
+    // Connections
+    // ------------------------------------------------------------------------
+    start->text_stream->error_accumulators->data_reference->set_zero_row_count->while_not_end;
     while_not_end->read_line[label="  TRUE", fontname="Sans"];
     read_line->null_line_test;
     null_line_test->split_line[label="  NO", fontname="Sans"];
+    null_line_test->increase_empty_row_count[label="  YES", fontname="Sans"];
     split_line->count_fields->zero_row_test;
     zero_row_test->set_column_number[label="  YES", fontname="Sans"];
     zero_row_test->field_count_test[label="  NO", fontname="Sans"];
     field_count_test->increase_mismatching_row_count[label="  YES", fontname="Sans"];
-    field_count_test->traverse_fields[label="  NO", fontname="Sans"];
-    increase_mismatching_row_count->traverse_fields;
-    set_column_number->traverse_fields->double_precision_test;
-    double_precision_test->field_to_float[label="  NO", fontname="Sans"];
-    double_precision_test->field_to_double[label="  YES", fontname="Sans"];
-    field_to_float->conversion_test;
-    field_to_double->conversion_test;
+    field_count_test->node1[label="  NO", fontname="Sans"];
+    increase_mismatching_row_count->node1;
+    set_column_number->double_precision_test1;
+    double_precision_test1->allocate_double_data_vectors[label="  YES", fontname="Sans"];
+    double_precision_test1->allocate_float_data_vectors[label="  NO", fontname="Sans"];
+    allocate_double_data_vectors->node2;
+    allocate_float_data_vectors->node2;
+    node1->node3;
+    node2->assign_to_data_reference->node3->traverse_fields->double_precision_test2;
+    double_precision_test2->field_to_float[label="  NO", fontname="Sans"];
+    double_precision_test2->field_to_double[label="  YES", fontname="Sans"];
+    field_to_float->node4;
+    field_to_double->node4;
+    node4->conversion_test;
     conversion_test->conversion_failed[label="  NO", fontname="Sans"];
+    conversion_failed->node5;
+    conversion_test->node5[label="  YES", fontname="Sans"];
+    node5->assign_field_to_data_vector;
+    assign_field_to_data_vector->node6;
+    node6->traverse_fields[label="  NEXT 'i'", fontname="Sans"];
+    increase_empty_row_count->node6->increase_row_count->node7->end;
+    while_not_end->node7[label="  FALSE", fontname="Sans"];
 
+    // ------------------------------------------------------------------------
+    // Labels
+    // ------------------------------------------------------------------------
     start[label="Start"];
-    error_accumulators[label="Declare mismatching_rows as Set,\nDeclare faild_conversions as Map", width="3.5"];
+    error_accumulators[label="Declare row_count as integer,\nDeclare empty_rows as Set,\nDeclare mismatching_rows as Set,\nDeclare faild_conversions as Map", width="3.5"];
+    data_reference[label="Allocate vector of pointers\nto data vectors", width="3.0"];
     set_zero_row_count[label="row_count = 0", width="2"];
     while_not_end[label="While not atEnd", width="2"];
     read_line[label="Read line"];
     null_line_test[label="Is line null?", height="1"];
+    increase_empty_row_count[label="Note empty line number:\nAdd row_count + 1 to empty_rows", width="3.5"];
     split_line[label="Split line to\nfields", width="2"];
     count_fields[label="Count fields", width="1.5"];
     zero_row_test[label="row_count == 0?", width="1.5", height="1"];
     set_column_number[label="column_number = field_count", width="3.5"];
+    double_precision_test1[label="is double precision set?", height="1.5"];
+    allocate_float_data_vectors[label="Allocate 'column_number' data vectors\n1024 elements long of the type 'float'", width="4.0"];
+    allocate_double_data_vectors[label="Allocate 'column_number' data vectors\n1024 elements long of the type 'double'", width="4.0"];
+    assign_to_data_reference[label="Assign data vector pointer\nto data reference array", width="3.0"];
     field_count_test[label="column_number != field_count?", height="1"];
     increase_mismatching_row_count[label="Note mismatching row number:\nAdd row_count + 1 to\nmismatching_rows", width="3.5"];
     traverse_fields[label="for i=0 to column_number", width="3.5"];
-    double_precision_test[label="is double precision set?", height="1.5"];
+    double_precision_test2[label="is double precision set?", height="1.5"];
     field_to_float[label="Convert field to float", width="2.5"];
     field_to_double[label="Convert field to double", width="2.5"];
     conversion_test[label="was conversion\nsuccessful?", height="1.5"];
     conversion_failed[label="Note where conversion failed:\nAdd row_count + 1 and\ncolumn_number + 1 to\nfailed_conversions", width="3.0"];
+    assign_field_to_data_vector[label="Assign conversion return\nvalue to ith data vector", width="3.0"];
+    increase_row_count[label="Increase row_count by 1", width="2.5"];
     end[label="End"];
 }
