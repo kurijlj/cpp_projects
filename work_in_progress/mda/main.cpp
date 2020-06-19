@@ -61,7 +61,6 @@
 #include <iostream>  // required by cin, cout, ...
 
 // Qt Library Headers
-#include <QMap>  // Used to store measurement data
 #include <QFile>  // required for testing file existance
 #include <QString>  // self explanatory ...
 #include <QIODevice>  // required for file acces flags
@@ -121,7 +120,6 @@ int main(int argc, char *argv[])
 
     // Variables for main scope.
     QFile *data_file = nullptr;
-    QMap *dataset = nullptr;
     std::string field_separator;
     bool with_headers = false;
     bool double_precision = false;
@@ -263,7 +261,7 @@ file define column headers")
     // We declare headers as pointer to QStringList and set it to nullptr,
     // because dataset might contain row header or might not so no need to
     // allocate memory for something that might not exist.
-    QStringList *headers = nullptr;
+    QStringList headers;
     int row_count = 0;
     int column_count = 0;
 
@@ -272,17 +270,26 @@ file define column headers")
         QString line = in.readLine();
 
         // Test if file is empty.
-        if (!line) {
+        if (line.isNull()) {
+            std::cout << exec_name << ": File '"
+                << data_file->fileName().toStdString()
+                << "' is empty!\n" << std::endl;
             return EXIT_FAILURE;
         }
 
-        headers = &line.split(field_separator.c_str());
+        headers = line.split(field_separator.c_str());
+        column_count = headers.size();
         row_count++;
     }
 
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList fields = line.split(field_separator.c_str());
+
+        if (!with_headers) {               // If the file contains no headers
+            column_count = fields.size();  // number of fields in the first
+        }                                  // row determines number of columns
+
         std::cout << data_file->fileName().toStdString() << ": ";
         for (int i = 0; i < fields.size(); ++i) {
             std::cout << "\t\'" << fields.at(i).toStdString() << "\'";
@@ -291,15 +298,16 @@ file define column headers")
         row_count++;
     }
 
+    std::cout << exec_name << ": " << row_count << " rows read, with "
+        << column_count << " columns.\n";
     std::cout << exec_name << ": Field separator \'"
         << field_separator << "\'.\n";
     std::cout << exec_name << ": First row contain headers: "
         << (with_headers ? "True" : "False") << ".\n";
-    std::cout << *endl;
+    std::cout << " " << std::endl;
 
     // Do the cleanup and exit.
     data_file->close();
-    delete dataset;
     delete data_file;
 
     return EXIT_SUCCESS;
