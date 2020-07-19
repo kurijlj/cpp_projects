@@ -67,6 +67,9 @@
 #include <QTextStream>  // self explanatory ...
 #include <QStringList>  // required for storing split data fields
 
+#include <QVector>
+#include <limits>
+
 // Boost Library Headers
 #include <boost/program_options.hpp>  // self explanatory ...
 
@@ -88,6 +91,9 @@ const std::string kYearString = "2020";
 const std::string kAuthorName = "Ljubomir Kurij";
 const std::string kAuthorEmail = "kurijlj@gmail.com";
 const char kPathSeparator = '/';
+const int kMaxColNo = 26;
+const float kDefVal = 0.0;
+const float kFloatMin = std::numeric_limits<float>::min();
 
 
 // ============================================================================
@@ -106,6 +112,19 @@ void PrintShortHelp();
 void PrintPositionalArgumentsHelp();
 void PrintReportBugsTo();
 void PrintVersionInfo();
+
+class Index2D {
+    private:
+        unsigned int column_count;
+
+    public:
+        Index2D(unsigned int column_count): column_count(column_count) {}
+        ~Index2D() {}
+        unsigned int at(
+                const unsigned int column_index,
+                const unsigned int row_index
+                );
+};
 
 
 // ============================================================================
@@ -261,45 +280,104 @@ file define column headers")
     // We declare headers as pointer to QStringList and set it to nullptr,
     // because dataset might contain row header or might not so no need to
     // allocate memory for something that might not exist.
-    QStringList headers;
-    int row_count = 0;
-    int column_count = 0;
-
-    // Read header row if flag is on.
-    if (with_headers) {
-        QString line = in.readLine();
-
-        // Test if file is empty.
-        if (line.isNull()) {
-            std::cout << exec_name << ": File '"
-                << data_file->fileName().toStdString()
-                << "' is empty!\n" << std::endl;
-            return EXIT_FAILURE;
-        }
-
-        headers = line.split(field_separator.c_str());
-        column_count = headers.size();
-        row_count++;
-    }
+    unsigned int row_count = 0;
+    unsigned int column_count = 0;
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-        QStringList fields = line.split(field_separator.c_str());
 
-        if (!with_headers) {               // If the file contains no headers
-            column_count = fields.size();  // number of fields in the first
-        }                                  // row determines number of columns
-
-        std::cout << data_file->fileName().toStdString() << ": ";
-        for (int i = 0; i < fields.size(); ++i) {
-            std::cout << "\t\'" << fields.at(i).toStdString() << "\'";
+        // Calculate number of columns by counting number of fields in
+        // the first row.
+        if (0 == row_count) {
+            QStringList fields = line.split(field_separator.c_str());
+            column_count = fields.size();
         }
-        std::cout << "\n";
+
         row_count++;
     }
 
+    // Reset position to the beginning of the file.
+    in.seek(0);
+
+    // If file contains headers then we have to decrease row count by one.
+    // if (with_headers && 0 < row_count) row_count--;
+    if (with_headers) row_count--;
+
+    // We accept datasets only up to 26 columns, so if dataset contains more
+    // than that number of columns print error message and bail out.
+    if (kMaxColNo < column_count) {
+        std::cout << exec_name << ": Unable to process data. Dataset "
+            << "contains too many columns (>" << kMaxColNo << ")\n";
+         std::cout << "" << std::endl;
+
+        // Do the cleanup and exit.
+        data_file->close();
+        delete data_file;
+
+        return EXIT_FAILURE;
+    }
+
+    // If not dealing with an empty data file (column_count != 0 and row_count
+    // != 0) proceed to reading dataset.
+    if (0 != column_count && 0 != row_count) {
+        unsigned int row_index = 0;
+        QVector<float> data(10);  // Container for data red from file.
+        QStringList headers;
+        Index2D index(column_count);
+
+        // Resize data containers to accomodate all values.
+        if (10 < column_count * row_count) {
+            data.resize(column_count * row_count);
+        }
+
+        if (with_headers) {
+            QString line = in.readLine();
+            headers = line.split(field_separator.c_str());
+        } else {
+            for (unsigned int i=65; i < column_count + 65; i++) {
+                headers << QString((char) i);
+            }
+        }
+
+        for (unsigned int i=0; i < row_count; i++) {
+            QStringList fields = in.readLine().split(field_separator.c_str());
+            for (unsigned int j=0; j < column_count; j++) {
+                if (fields.size() < j) {
+                    data[index.at(j, i)] = kDefVal;
+                } else {
+                    bool result = true;
+                    data[index.at(j, i)] = fields.at(j).toFloat(&result);
+                }
+            }
+        }
+
+        // for (unsigned int i=0; i < row_count; i++) {
+        //     for (unsigned int j=0; j < column_count; j++) {
+        //         unsigned int x = i+j;
+        //         data[index.at(j, i)] = (float) x;
+        //     }
+        // }
+
+        // Print headers.
+        for (unsigned int i=0; i < headers.size() - 1; i++) {
+            std::cout << headers.at(i).toStdString() << ", ";
+        }
+        // Print last column header and go to new line.
+        std::cout << headers.at(headers.size() - 1).toStdString() << "\n";
+
+        for (unsigned int i=0; i < row_count; i++) {
+            std::cout << i << ": ";
+            for (unsigned int j=0; j < column_count; j++) {
+                std::cout << data.at(index.at(j, i));
+                if (column_count - 1 > j) std::cout << ", ";
+            }
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+    }
+
     std::cout << exec_name << ": " << row_count << " rows read, with "
-        << column_count << " columns.\n";
+        << column_count << " column(s).\n";
     std::cout << exec_name << ": Field separator \'"
         << field_separator << "\'.\n";
     std::cout << exec_name << ": First row contain headers: "
@@ -352,4 +430,12 @@ void PrintVersionInfo() {
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law." << std::endl;
+}
+
+
+unsigned int Index2D::at(
+        const unsigned int column_index,
+        const unsigned int row_index
+        ) {
+    return column_index + column_count * row_index;
 }
