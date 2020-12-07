@@ -40,6 +40,13 @@
 // * For command line arguments parsing using clipp consult documentation and
 //   examples at <https://github.com/muellan/clipp>.
 //
+// * For filesystem operations (C++17) visit 'filesystem' reference at:
+//   <https://en.cppreference.com/w/cpp/filesystem>.
+//
+// * For refrence on badbit, failbit, eofbit visit:
+//   <https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing
+//    -correctly-with-badbit-failbit-eofbit-and-perror/>
+//
 // ============================================================================
 
 
@@ -49,6 +56,7 @@
 
 #include <cstdlib>  // required by EXIT_SUCCESS, EXIT_FAILURE
 #include <iostream>  // required by cin, cout, ...
+#include <filesystem>  // Used for testing directory and file status
 #include <string>  // self explanatory ...
 #include <fstream>  // requird by ifstream
 #include <clipp.hpp> // command line arguments parsing
@@ -58,6 +66,8 @@
 // ============================================================================
 // Define namespace aliases
 // ============================================================================
+
+namespace fs = std::filesystem;
 
 
 // ============================================================================
@@ -130,13 +140,35 @@ int main(int argc, char *argv[])
     if(clipp::parse(argc, argv, cli)) {
         if(show_help) {showHelp(cli, exec_name); return EXIT_SUCCESS;}
         if(print_usage) {printUsage(cli, exec_name); return EXIT_SUCCESS;}
+        if("" == input_file) {
+            printUsage(cli, exec_name);
+            printShortHelp(exec_name);
+
+            return EXIT_FAILURE;
+        }
+
         std::cout << exec_name << ": " << "Loading file \'" << input_file
             << "\'\n";
 
-        std::ifstream if_stream {input_file};
-        if(!if_stream) {
+        fs::path in_path {input_file};
+
+        if(!fs::exists(in_path)) {
+            std::cerr << exec_name << ": (ERROR) File \'" << input_file
+                << "\' does not exist!\n";
+
             return EXIT_FAILURE;
         }
+
+        if(!fs::is_regular_file(in_path)) {
+            std::cerr << exec_name << ": (ERROR) File \'" << input_file
+                << "\' is not an regular file!\n";
+
+            return EXIT_FAILURE;
+        }
+        // std::ifstream if_stream {input_file};
+        // if(!if_stream) {
+        //     return EXIT_FAILURE;
+        // }
 
     } else {
         printUsage(cli, exec_name);

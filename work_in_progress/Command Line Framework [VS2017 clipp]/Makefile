@@ -56,7 +56,7 @@ INCLUDE_USER = ".\include"
 LIBS_USER = ""
 
 $(TARGET) : $(SOURCES)
-	$(CPP) /c /Wall /nologo /EHsc /I $(INCLUDE_USER) $(SOURCES)
+	$(CPP) /c /Wall /nologo /EHsc /std:c++17 /I $(INCLUDE_USER) $(SOURCES)
 	$(LINK) /OUT:$(TARGET) $(OBJECTS)
 
 # Build app
