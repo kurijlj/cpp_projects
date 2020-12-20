@@ -44,28 +44,30 @@
 ###############################################################################
 
 
-NAME = app
-TARGET  = $(NAME).exe
-SOURCES = main.cpp
-OBJECTS = main.obj
+TARGETS = *.exe
+OBJECTS = *.o
 
-CPP = cl.exe
-LINK = link.exe
+CXX = clang++.exe
+CXXFLAGS = -c -pipe -g -std=c++17 -v -O0 -pedantic -Wall -Wextra -fcolor-diagnostics
+LINK = clang++.exe
 
-INCLUDE_USER = ".\include"
-LIBS_USER = ""
+INCPATH = -I..\include
+LIBS_USER = 
 
-$(TARGET) : $(SOURCES)
-	$(CPP) /c /Wall /nologo /EHsc /std:c++17 /I $(INCLUDE_USER) $(SOURCES)
-	$(LINK) /OUT:$(TARGET) $(OBJECTS)
+test_validators: test_validators.o validators.o
+	$(LINK) -o test_validators.exe test_validators.o validators.o
 
-# Build app
-app : $(TARGET)
+
+test_validators.o:
+	$(CXX) $(CXXFLAGS) $(INCPATH) test_validators.cpp
+
+validators.o:
+	$(CXX) $(CXXFLAGS) $(INCPATH) ..\validators.cpp
 
 # Show help
 help :
 	@echo Usage: nmake [OPTION]
-	@echo [app] - compile code
+	@echo [test_validators] - compile unit testing code for validators.cpp
 	@echo [clean] - clear object files from previous build
 	@echo [cleanall] - clear all files from previous build
 	@echo [help] - show this help message and exit
@@ -76,4 +78,4 @@ clean :
 
 # Clean everything except sources
 cleanall :
-	@del.exe $(OBJECTS) $(TARGET)
+	@del.exe $(OBJECTS) $(TARGETS)

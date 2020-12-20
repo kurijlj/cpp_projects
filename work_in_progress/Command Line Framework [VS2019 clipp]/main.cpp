@@ -60,7 +60,6 @@
 #include <string>  // self explanatory ...
 #include <fstream>  // requird by ifstream
 #include <clipp.hpp> // command line arguments parsing
-#include <lest.hpp>  // required by unit testing framework
 
 
 // ============================================================================
