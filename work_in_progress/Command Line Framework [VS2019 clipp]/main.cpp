@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
         clipp::option("-V", "--version").call(printVersionInfo)
             .doc("print program version"),
         clipp::opt_value("input_file", input_file)
+            .doc("file containing input data")
     );
 
     if(clipp::parse(argc, argv, cli)) {

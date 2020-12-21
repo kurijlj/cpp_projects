@@ -44,8 +44,8 @@
 // Headers include section
 // ============================================================================
 
-#include "..\validators.hpp"  // User input validation classes
 #include <lest.hpp>  // required by unit testing framework
+#include "..\validators.hpp"  // User input validation classes
 
 
 // ============================================================================
@@ -61,18 +61,44 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("Nonexistent path") {
-        SETUP ("Accept nonexistent path") {
-            FileValidator vd {"Masha", true, false};
+    CASE ("Accept empty path") {
+        SETUP ("Empty path, accept nonexistent, accept empty") {
+            DirectoryValidator vd {"", true, true, true};
 
+            EXPECT ("" == vd.value());
+            EXPECT (true == vd.is_empty_path());
+            EXPECT (false == vd.exists());
+            EXPECT (false == vd.is_directory());
+            EXPECT (true == vd.is_empty_directory());
+            EXPECT_NO_THROW (vd.validate());
+        }
+
+        SETUP ("Empty path, accept nonexistent, don't accept empty") {
+            DirectoryValidator vd {"", true, true, false};
+
+            EXPECT ("" == vd.value());
+            EXPECT (true == vd.is_empty_path());
+            EXPECT (false == vd.exists());
+            EXPECT (false == vd.is_directory());
+            EXPECT (true == vd.is_empty_directory());
+            EXPECT_NO_THROW (vd.validate());
+        }
+
+    },
+
+    CASE ("Nonexistent file") {
+        SETUP ("Accept nonexistent file") {
+            FileValidator vd {".\\Masha", true, false};
+
+            EXPECT (".\\Masha" == vd.value());
             EXPECT (false == vd.exists());
             EXPECT (false == vd.is_regular_file());
             EXPECT (true == vd.is_empty());
             EXPECT_NO_THROW (vd.validate());
         }
 
-        SETUP ("Don't accept nonexistent path") {
-            FileValidator vd {"Masha", false, false};
+        SETUP ("Don't accept nonexistent file") {
+            FileValidator vd {".\\Masha", false, false};
 
             EXPECT (false == vd.exists());
             EXPECT (false == vd.is_regular_file());
@@ -85,6 +111,7 @@ const ls::test specification[] =
         SETUP ("Directory passed as argument") {
             FileValidator vd {"..\\data", false, false};
 
+            EXPECT ("..\\data" == vd.value());
             EXPECT (true == vd.exists());
             EXPECT (false == vd.is_regular_file());
             EXPECT (false == vd.is_empty());
@@ -96,6 +123,7 @@ const ls::test specification[] =
         SETUP ("Accept empty file") {
             FileValidator vd {"..\\data\\empty_file.txt", false, true};
 
+            EXPECT ("..\\data\\empty_file.txt" == vd.value());
             EXPECT (true == vd.exists());
             EXPECT (true == vd.is_regular_file());
             EXPECT (true == vd.is_empty());
@@ -105,6 +133,7 @@ const ls::test specification[] =
         SETUP ("Don't accept empty file") {
             FileValidator vd {"..\\data\\empty_file.txt", false, false};
 
+            EXPECT ("..\\data\\empty_file.txt" == vd.value());
             EXPECT (true == vd.exists());
             EXPECT (true == vd.is_regular_file());
             EXPECT (true == vd.is_empty());
@@ -116,6 +145,7 @@ const ls::test specification[] =
         SETUP ("File with some text") {
             FileValidator vd {"..\\data\\file_with_some_text.txt", false, false};
 
+            EXPECT ("..\\data\\file_with_some_text.txt" == vd.value());
             EXPECT (true == vd.exists());
             EXPECT (true == vd.is_regular_file());
             EXPECT (false == vd.is_empty());

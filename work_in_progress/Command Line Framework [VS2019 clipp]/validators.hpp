@@ -82,19 +82,43 @@ namespace fs = std::filesystem;
 // Validator classes
 // ============================================================================
 
+class DirectoryValidator {
+public:
+    class EmptyDirectory {};
+    class EmptyPath {};
+    class NotDirectory {};
+    class NonExistent {};
+
+    DirectoryValidator(std::string path, bool accept_empty_path,
+            bool accept_nonexistent, bool accept_empty_directory)
+        :p(fs::path{path}), aep(accept_empty_path),
+        ane(accept_nonexistent), aed(accept_empty_directory) { }
+    bool exists() const;
+    bool is_directory() const;
+    bool is_empty_directory() const;
+    bool is_empty_path() const { return "" == p.string(); }
+    void validate() const;
+    std::string value() const { return p.string(); }
+
+private:
+    fs::path p;
+    bool aep, ane, aed;
+};
+
 class FileValidator {
 public:
+    class Empty {};
     class NonExistent {};
     class NotRegular {};
-    class Empty {};
 
     FileValidator(std::string path, bool accept_nonexistent, bool accept_empty)
         :p(fs::path{path}), n(accept_nonexistent), e(accept_empty)
         { if (n) e = n; }
     bool exists() const { return fs::exists(p); }
-    bool is_regular_file() const { return fs::is_regular_file(p); }
     bool is_empty() const;
+    bool is_regular_file() const { return fs::is_regular_file(p); }
     void validate() const;
+    std::string value() const { return p.string(); }
 
 private:
     fs::path p;

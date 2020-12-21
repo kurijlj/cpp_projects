@@ -55,11 +55,15 @@
 // Headers include section
 // ============================================================================
 
+#include <filesystem>  // Used for testing directory and file status
 #include "validators.hpp"
+
 
 // ============================================================================
 // Define namespace aliases
 // ============================================================================
+
+namespace fs = std::filesystem;
 
 
 // ============================================================================
@@ -75,6 +79,37 @@
 // ============================================================================
 // Validator definitions
 // ============================================================================
+
+bool DirectoryValidator::exists() const {
+    if (!is_empty_path()) return fs::exists(p);
+
+    return false;
+}
+
+bool DirectoryValidator::is_directory() const {
+    if (exists()) return fs::is_directory(p);
+
+    return false;
+}
+
+bool DirectoryValidator::is_empty_directory() const {
+    if (is_directory()) return fs::is_empty(p);
+
+    return true;
+}
+
+void DirectoryValidator::validate() const {
+    if (is_empty_path() && !aep) throw EmptyPath {};
+    if (!ane) {  // We do not accept nonexistent directories.
+        if (!exists()) throw NonExistent {};
+        if (!is_directory()) throw NotDirectory {};
+
+        if (!aed) {  // We do not accept empty files.
+            if (is_empty_directory()) throw EmptyDirectory {};
+        }
+
+    }
+}
 
 bool FileValidator::is_empty() const {
     if (exists()) return fs::is_empty(p);
