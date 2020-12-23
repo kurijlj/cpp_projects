@@ -80,6 +80,25 @@ namespace fs = std::filesystem;
 // Validator definitions
 // ============================================================================
 
+bool PathValidator::exists() const {
+    if (!is_empty_path()) return fs::exists(p);
+
+    return false;
+}
+
+void PathValidator::validate() const {
+    if (is_empty_path() && !aep) throw EmptyPath {};
+    if (!ane) {  // We do not accept nonexistent directories.
+        if (!exists()) throw NonExistent {};
+        if (!is_directory()) throw NotDirectory {};
+
+        if (!aed) {  // We do not accept empty files.
+            if (is_empty_directory()) throw EmptyDirectory {};
+        }
+
+    }
+}
+
 bool DirectoryValidator::exists() const {
     if (!is_empty_path()) return fs::exists(p);
 

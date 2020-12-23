@@ -1,0 +1,36 @@
+strict digraph {
+    n1 [ shape=invtrapezium, label="Path string" ];
+    n2 [ shape=hexagon, label="Empty path" ];
+    n3 [ shape=hexagon, label="Accept empty path" ];
+    n4 [ shape=trapezium, label="Throw EmptyPath" ];
+    n5 [ shape=hexagon, label="Nonexistent path" ];
+    n6 [ shape=hexagon, label="Accept nonexistent" ];
+    n7 [ shape=trapezium, label="Throw Nonexistent" ];
+    n8 [ shape=hexagon, label="Nonconformant path" ];
+    n9 [ shape=trapezium, label="Throw NonconformantPath" ];
+    n10 [ shape=hexagon, label="Empty storage" ];
+    n11 [ shape=hexagon, label="Accept empty storage" ];
+    n12 [ shape=trapezium, label="Throw EmptyStorage" ];
+    n40 [ shape=ellipse, label="Continue" ];
+    n41 [ shape=ellipse, label="Terminate execution" ];
+    
+    n1->n2;
+    n2->n3 [ label="TRUE" ];
+    n3->n4 [ label="FALSE" ];
+    n4->n41;
+    n3->n40 [ label="TRUE" ];
+    n2->n5 [ label="FALSE" ];
+    n5->n6 [ label="TRUE" ];
+    n5->n8 [ label="FALSE" ];
+    n6->n7 [ label="FALSE" ];
+    n6->n40 [ label="TRUE" ];
+    n7->n41;
+    n8->n10 [ label="FALSE" ];
+    n8->n9 [ label="TRUE" ];
+    n9->n41;
+    n10->n11 [ label="TRUE" ];
+    n10->n40 [ label="FALSE" ];
+    n11->n12 [ label="FALSE" ];
+    n11->n40 [ label="TRUE" ];
+    n12->n41;
+}
