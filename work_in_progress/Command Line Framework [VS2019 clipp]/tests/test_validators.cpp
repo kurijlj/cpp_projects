@@ -61,95 +61,74 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("Accept empty path") {
-        SETUP ("Empty path, accept nonexistent, accept empty") {
-            DirectoryValidator vd {"", true, true, true};
+    CASE ("Directory Validator") {
+        SETUP ("aep: false, ane: false, aes: false") {
+            PathValidatorFlags* p_flgs
+                = new PathValidatorFlags(false, false, false);
 
-            EXPECT ("" == vd.value());
-            EXPECT (true == vd.is_empty_path());
-            EXPECT (false == vd.exists());
-            EXPECT (false == vd.is_directory());
-            EXPECT (true == vd.is_empty_directory());
-            EXPECT_NO_THROW (vd.validate());
-        }
+            SECTION ("Empty path") {
+                DirValidatorImp* p_vldtr = new DirValidatorImp("");
+                PathValidator vd {p_vldtr, p_flgs};
 
-        SETUP ("Empty path, accept nonexistent, don't accept empty") {
-            DirectoryValidator vd {"", true, true, false};
+                EXPECT ("" == vd.value());
+                EXPECT (true == vd.is_empty_path());
+                EXPECT (false == vd.exists());
+                EXPECT (false == vd.is_proper_type());
+                EXPECT (true == vd.is_empty_storage());
+                EXPECT_THROWS_AS (vd.validate(), PathValidatorImp::EmptyPath);
+            }
 
-            EXPECT ("" == vd.value());
-            EXPECT (true == vd.is_empty_path());
-            EXPECT (false == vd.exists());
-            EXPECT (false == vd.is_directory());
-            EXPECT (true == vd.is_empty_directory());
-            EXPECT_NO_THROW (vd.validate());
-        }
+            SECTION ("Nonexistent path") {
+                DirValidatorImp* p_vldtr = new DirValidatorImp(".\\Masha");
+                PathValidator vd {p_vldtr, p_flgs};
 
-    },
+                EXPECT (".\\Masha" == vd.value());
+                EXPECT (false == vd.is_empty_path());
+                EXPECT (false == vd.exists());
+                EXPECT (false == vd.is_proper_type());
+                EXPECT (true == vd.is_empty_storage());
+                EXPECT_THROWS_AS (vd.validate(), PathValidatorImp::NonExistent);
+            }
 
-    CASE ("Nonexistent file") {
-        SETUP ("Accept nonexistent file") {
-            FileValidator vd {".\\Masha", true, false};
+            SECTION ("Improper type (file)") {
+                DirValidatorImp* p_vldtr
+                    = new DirValidatorImp("..\\data\\empty_file.txt");
+                PathValidator vd {p_vldtr, p_flgs};
 
-            EXPECT (".\\Masha" == vd.value());
-            EXPECT (false == vd.exists());
-            EXPECT (false == vd.is_regular_file());
-            EXPECT (true == vd.is_empty());
-            EXPECT_NO_THROW (vd.validate());
-        }
+                EXPECT ("..\\data\\empty_file.txt" == vd.value());
+                EXPECT (false == vd.is_empty_path());
+                EXPECT (true == vd.exists());
+                EXPECT (false == vd.is_proper_type());
+                EXPECT (true == vd.is_empty_storage());
+                EXPECT_THROWS_AS (vd.validate(), DirValidatorImp::NotDirectory);
+            }
 
-        SETUP ("Don't accept nonexistent file") {
-            FileValidator vd {".\\Masha", false, false};
+            SECTION ("Empty storage (directory)") {
+                DirValidatorImp* p_vldtr
+                    = new DirValidatorImp("..\\data\\empty_dir");
+                PathValidator vd {p_vldtr, p_flgs};
 
-            EXPECT (false == vd.exists());
-            EXPECT (false == vd.is_regular_file());
-            EXPECT (true == vd.is_empty());
-            EXPECT_THROWS_AS (vd.validate(), FileValidator::NonExistent);
-        }
-    },
+                EXPECT ("..\\data\\empty_dir" == vd.value());
+                EXPECT (false == vd.is_empty_path());
+                EXPECT (true == vd.exists());
+                EXPECT (true == vd.is_proper_type());
+                EXPECT (true == vd.is_empty_storage());
+                EXPECT_THROWS_AS (vd.validate(),
+                        PathValidatorImp::EmptyStorage);
+            }
 
-    CASE ("Not regular file") {
-        SETUP ("Directory passed as argument") {
-            FileValidator vd {"..\\data", false, false};
+            SECTION ("Valid path (directory)") {
+                DirValidatorImp* p_vldtr
+                    = new DirValidatorImp("..\\data");
+                PathValidator vd {p_vldtr, p_flgs};
 
-            EXPECT ("..\\data" == vd.value());
-            EXPECT (true == vd.exists());
-            EXPECT (false == vd.is_regular_file());
-            EXPECT (false == vd.is_empty());
-            EXPECT_THROWS_AS (vd.validate(), FileValidator::NotRegular);
-        }
-    },
-
-    CASE ("Empty file") {
-        SETUP ("Accept empty file") {
-            FileValidator vd {"..\\data\\empty_file.txt", false, true};
-
-            EXPECT ("..\\data\\empty_file.txt" == vd.value());
-            EXPECT (true == vd.exists());
-            EXPECT (true == vd.is_regular_file());
-            EXPECT (true == vd.is_empty());
-            EXPECT_NO_THROW (vd.validate());
-        }
-
-        SETUP ("Don't accept empty file") {
-            FileValidator vd {"..\\data\\empty_file.txt", false, false};
-
-            EXPECT ("..\\data\\empty_file.txt" == vd.value());
-            EXPECT (true == vd.exists());
-            EXPECT (true == vd.is_regular_file());
-            EXPECT (true == vd.is_empty());
-            EXPECT_THROWS_AS (vd.validate(), FileValidator::Empty);
-        }
-    },
-
-    CASE ("Regular file") {
-        SETUP ("File with some text") {
-            FileValidator vd {"..\\data\\file_with_some_text.txt", false, false};
-
-            EXPECT ("..\\data\\file_with_some_text.txt" == vd.value());
-            EXPECT (true == vd.exists());
-            EXPECT (true == vd.is_regular_file());
-            EXPECT (false == vd.is_empty());
-            EXPECT_NO_THROW (vd.validate());
+                EXPECT ("..\\data" == vd.value());
+                EXPECT (false == vd.is_empty_path());
+                EXPECT (true == vd.exists());
+                EXPECT (true == vd.is_proper_type());
+                EXPECT (false == vd.is_empty_storage());
+                EXPECT_NO_THROW(vd.validate());
+            }
         }
     }
 };

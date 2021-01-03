@@ -80,70 +80,36 @@ namespace fs = std::filesystem;
 // Validator definitions
 // ============================================================================
 
-bool PathValidator::exists() const {
+bool PathValidatorImp::exists() const {
     if (!is_empty_path()) return fs::exists(p);
 
     return false;
 }
 
-void PathValidator::validate() const {
-    if (is_empty_path() && !aep) throw EmptyPath {};
-    if (!ane) {  // We do not accept nonexistent directories.
-        if (!exists()) throw NonExistent {};
-        if (!is_directory()) throw NotDirectory {};
-
-        if (!aed) {  // We do not accept empty files.
-            if (is_empty_directory()) throw EmptyDirectory {};
-        }
-
-    }
-}
-
-bool DirectoryValidator::exists() const {
-    if (!is_empty_path()) return fs::exists(p);
-
-    return false;
-}
-
-bool DirectoryValidator::is_directory() const {
-    if (exists()) return fs::is_directory(p);
-
-    return false;
-}
-
-bool DirectoryValidator::is_empty_directory() const {
-    if (is_directory()) return fs::is_empty(p);
-
-    return true;
-}
-
-void DirectoryValidator::validate() const {
-    if (is_empty_path() && !aep) throw EmptyPath {};
-    if (!ane) {  // We do not accept nonexistent directories.
-        if (!exists()) throw NonExistent {};
-        if (!is_directory()) throw NotDirectory {};
-
-        if (!aed) {  // We do not accept empty files.
-            if (is_empty_directory()) throw EmptyDirectory {};
-        }
-
-    }
-}
-
-bool FileValidator::is_empty() const {
+bool PathValidatorImp::is_empty_storage() const {
     if (exists()) return fs::is_empty(p);
 
     return true;
 }
 
-void FileValidator::validate() const {
-    if (!n) {  // We do not accept nonexistent files.
-        if (!exists()) throw NonExistent {};
-        if (!is_regular_file()) throw NotRegular {};
+bool DirValidatorImp::is_directory() const {
+    if (exists()) return fs::is_directory(p);
 
-        if (!e) {  // We do not accept empty files.
-            if (is_empty()) throw Empty {};
-        }
+    return false;
+}
 
+void PathValidator::validate() const {
+    if (i->is_empty_path()) {
+        if (!f->accept_empty_path()) throw PathValidatorImp::EmptyPath {};
+        else return;
+    }
+    if (!i->exists()) {
+        if (!f->accept_nonexistent()) throw PathValidatorImp::NonExistent {};
+        else return;
+    }
+    if (!i->is_proper_type()) i->type_mismatch_throw();
+    if (i->is_empty_storage()) {
+        if (!f->accept_empty_storage())
+            throw PathValidatorImp::EmptyStorage {};
     }
 }

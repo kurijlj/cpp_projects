@@ -82,71 +82,76 @@ namespace fs = std::filesystem;
 // Validator classes
 // ============================================================================
 
-class PathValidator {
-public:
-    class EmptyContainer {};
-    class EmptyPath {};
-    class NonConformant {};
-    class NonExistent {};
-    class NotImplemented {};
-
-    PathValidator(std::string path, bool accept_empty_path,
-            bool accept_nonexistent, bool accept_empty_container)
-        :p(fs::path{path}), aep(accept_empty_path),
-        ane(accept_nonexistent), aec(accept_empty_container) { }
-    bool exists() const;
-    bool is_conformant() const {throw NotImplemented {}};
-    bool is_empty_container() const {throw NotImplemented {}};
-    bool is_empty_path() const { return "" == p.string(); }
-    void validate() const;
-    std::string value() const { return p.string(); }
-
+class PathValidatorFlags {
 private:
-    fs::path p;
-    bool aep, ane, aec;
+    bool aep, ane, aes;
+public:
+    PathValidatorFlags(bool accept_empty_path, bool accept_nonexistent,
+            bool accept_empty_storage) :
+        aep(accept_empty_path), ane(accept_nonexistent),
+        aes(accept_empty_storage) { }
+    ~PathValidatorFlags() { }
+    bool accept_empty_path() const { return aep; }
+    bool accept_nonexistent() const { return ane; }
+    bool accept_empty_storage() const { return aes; }
 };
 
-class DirectoryValidator {
+class PathValidatorImp {
+protected:
+    fs::path p;
+
 public:
-    class EmptyDirectory {};
     class EmptyPath {};
+    class EmptyStorage {};
+    class NonExistent {};
+
+    PathValidatorImp(std::string path) : p(fs::path{path}) { }
+    ~PathValidatorImp() { }
+    std::string value() const { return p.string(); }
+    bool exists() const;
+    bool is_empty_path() const { return "" == p.string(); }
+    bool is_empty_storage() const;
+    virtual bool is_proper_type() const = 0;
+    virtual void type_mismatch_throw() const = 0;
+};
+
+class DirValidatorImp : public PathValidatorImp {
+public:
     class NotDirectory {};
-    class NonExistent {};
 
-    DirectoryValidator(std::string path, bool accept_empty_path,
-            bool accept_nonexistent, bool accept_empty_directory)
-        :p(fs::path{path}), aep(accept_empty_path),
-        ane(accept_nonexistent), aed(accept_empty_directory) { }
-    bool exists() const;
+    DirValidatorImp(std::string path) : PathValidatorImp(path) { }
+    ~DirValidatorImp() { }
     bool is_directory() const;
-    bool is_empty_directory() const;
-    bool is_empty_path() const { return "" == p.string(); }
-    void validate() const;
-    std::string value() const { return p.string(); }
-
-private:
-    fs::path p;
-    bool aep, ane, aed;
+    bool is_proper_type() const override { return is_directory(); }
+    void type_mismatch_throw() const override { throw NotDirectory {}; }
 };
 
-class FileValidator {
+class FileValidatorImp : public PathValidatorImp {
 public:
-    class Empty {};
-    class NonExistent {};
-    class NotRegular {};
+    class NotRegularFile {};
 
-    FileValidator(std::string path, bool accept_nonexistent, bool accept_empty)
-        :p(fs::path{path}), n(accept_nonexistent), e(accept_empty)
-        { if (n) e = n; }
-    bool exists() const { return fs::exists(p); }
-    bool is_empty() const;
+    FileValidatorImp(std::string path) : PathValidatorImp(path) { }
+    ~FileValidatorImp() { }
+    bool is_proper_type() const override { return is_regular_file(); }
     bool is_regular_file() const { return fs::is_regular_file(p); }
-    void validate() const;
-    std::string value() const { return p.string(); }
+    void type_mismatch_throw() const override { throw NotRegularFile {}; }
+};
 
+class PathValidator {
 private:
-    fs::path p;
-    bool n, e;
+    PathValidatorImp* i;
+    PathValidatorFlags* f;
+
+public:
+    PathValidator(PathValidatorImp* imp, PathValidatorFlags* flags) :
+        i(imp), f(flags) { }
+    ~PathValidator() {}
+    std::string value() const { return i->value(); }
+    bool exists() const { return i->exists(); }
+    bool is_empty_path() const { return i->is_empty_path(); }
+    bool is_empty_storage() const { return i->is_empty_storage(); }
+    bool is_proper_type() const { return i->is_proper_type(); }
+    void validate() const;
 };
 
 #endif
