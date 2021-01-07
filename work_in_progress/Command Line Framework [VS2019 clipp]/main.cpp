@@ -60,6 +60,7 @@
 #include <string>  // self explanatory ...
 #include <fstream>  // requird by ifstream
 #include <clipp.hpp> // command line arguments parsing
+#include "validators.hpp"  // classes to validate user input parameters
 
 
 // ============================================================================
@@ -140,35 +141,44 @@ int main(int argc, char *argv[])
     if(clipp::parse(argc, argv, cli)) {
         if(show_help) {showHelp(cli, exec_name); return EXIT_SUCCESS;}
         if(print_usage) {printUsage(cli, exec_name); return EXIT_SUCCESS;}
-        if("" == input_file) {
+
+        // Validate user input for <input_file>
+        try {
+            PathValidator vd {
+                new FileValidatorImp(input_file),
+                new PathValidatorFlags(
+                        false,  // We don't accept empty path
+                        false,  // We don't accept nonexistent files
+                        false   // We don't accept empty files
+                        )
+            };
+            vd.validate();
+
+        } catch (PathValidatorImp::EmptyPath) {
             printUsage(cli, exec_name);
             printShortHelp(exec_name);
 
             return EXIT_FAILURE;
-        }
 
-        std::cout << exec_name << ": " << "Loading file \'" << input_file
-            << "\'\n";
-
-        fs::path in_path {input_file};
-
-        if(!fs::exists(in_path)) {
+        } catch (PathValidatorImp::NonExistent) {
             std::cerr << exec_name << ": (ERROR) File \'" << input_file
                 << "\' does not exist!\n";
 
             return EXIT_FAILURE;
-        }
 
-        if(!fs::is_regular_file(in_path)) {
+        } catch (FileValidatorImp::NotRegularFile) {
             std::cerr << exec_name << ": (ERROR) File \'" << input_file
                 << "\' is not an regular file!\n";
 
             return EXIT_FAILURE;
+
+        } catch (PathValidatorImp::EmptyStorage) {
+            std::cerr << exec_name << ": (ERROR) File \'" << input_file
+                << "\' contains no data (empty file)!\n";
+
+            return EXIT_FAILURE;
+
         }
-        // std::ifstream if_stream {input_file};
-        // if(!if_stream) {
-        //     return EXIT_FAILURE;
-        // }
 
     } else {
         printUsage(cli, exec_name);

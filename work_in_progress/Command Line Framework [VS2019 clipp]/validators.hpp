@@ -106,7 +106,7 @@ public:
     class NonExistent {};
 
     PathValidatorImp(std::string path) : p(fs::path{path}) { }
-    ~PathValidatorImp() { }
+    virtual ~PathValidatorImp() { }
     std::string value() const { return p.string(); }
     bool exists() const;
     bool is_empty_path() const { return "" == p.string(); }
@@ -120,7 +120,7 @@ public:
     class NotDirectory {};
 
     DirValidatorImp(std::string path) : PathValidatorImp(path) { }
-    ~DirValidatorImp() { }
+    ~DirValidatorImp() override { }
     bool is_directory() const;
     bool is_proper_type() const override { return is_directory(); }
     void type_mismatch_throw() const override { throw NotDirectory {}; }
@@ -131,7 +131,7 @@ public:
     class NotRegularFile {};
 
     FileValidatorImp(std::string path) : PathValidatorImp(path) { }
-    ~FileValidatorImp() { }
+    ~FileValidatorImp() override { }
     bool is_proper_type() const override { return is_regular_file(); }
     bool is_regular_file() const { return fs::is_regular_file(p); }
     void type_mismatch_throw() const override { throw NotRegularFile {}; }
@@ -145,7 +145,7 @@ private:
 public:
     PathValidator(PathValidatorImp* imp, PathValidatorFlags* flags) :
         i(imp), f(flags) { }
-    ~PathValidator() {}
+    ~PathValidator() { delete i; delete f; }
     std::string value() const { return i->value(); }
     bool exists() const { return i->exists(); }
     bool is_empty_path() const { return i->is_empty_path(); }
