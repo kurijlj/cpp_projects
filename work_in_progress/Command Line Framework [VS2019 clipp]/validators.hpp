@@ -87,9 +87,12 @@ private:
     bool aep, ane, aes;
 public:
     PathValidatorFlags(bool accept_empty_path, bool accept_nonexistent,
-            bool accept_empty_storage) :
-        aep(accept_empty_path), ane(accept_nonexistent),
+            bool accept_empty_storage)
+        : aep(accept_empty_path),
+        ane(accept_nonexistent),
         aes(accept_empty_storage) { }
+    PathValidatorFlags(const PathValidatorFlags &orig) :
+        aep(orig.aep), ane(orig.ane), aes(orig.aes) { }
     ~PathValidatorFlags() { }
     bool accept_empty_path() const { return aep; }
     bool accept_nonexistent() const { return ane; }
@@ -106,6 +109,8 @@ public:
     class NonExistent {};
 
     PathValidatorImp(std::string path) : p(fs::path{path}) { }
+    PathValidatorImp(const PathValidatorImp &orig)
+        : p(orig.value()) { }
     virtual ~PathValidatorImp() { }
     std::string value() const { return p.string(); }
     bool exists() const;
@@ -120,6 +125,8 @@ public:
     class NotDirectory {};
 
     DirValidatorImp(std::string path) : PathValidatorImp(path) { }
+    DirValidatorImp(const DirValidatorImp &orig)
+        : PathValidatorImp(orig.value()) { }
     ~DirValidatorImp() override { }
     bool is_directory() const;
     bool is_proper_type() const override { return is_directory(); }
@@ -131,6 +138,8 @@ public:
     class NotRegularFile {};
 
     FileValidatorImp(std::string path) : PathValidatorImp(path) { }
+    FileValidatorImp(const FileValidatorImp &orig)
+        : PathValidatorImp(orig.value()) { }
     ~FileValidatorImp() override { }
     bool is_proper_type() const override { return is_regular_file(); }
     bool is_regular_file() const { return fs::is_regular_file(p); }
@@ -143,14 +152,24 @@ private:
     PathValidatorFlags* f;
 
 public:
-    PathValidator(PathValidatorImp* imp, PathValidatorFlags* flags) :
-        i(imp), f(flags) { }
+    PathValidator() : i(nullptr), f(nullptr) { }
+    PathValidator(PathValidatorImp* imp, PathValidatorFlags* flags)
+        : i(imp), f(flags) { }
     ~PathValidator() { delete i; delete f; }
-    std::string value() const { return i->value(); }
-    bool exists() const { return i->exists(); }
-    bool is_empty_path() const { return i->is_empty_path(); }
-    bool is_empty_storage() const { return i->is_empty_storage(); }
-    bool is_proper_type() const { return i->is_proper_type(); }
+    std::string value() const { if (i) return i->value(); return ""; }
+    bool exists() const { if (i) return i->exists(); return false;}
+    bool is_empty_path() const {
+        if (i) return i->is_empty_path();
+        return true;
+    }
+    bool is_empty_storage() const {
+        if(i) return i->is_empty_storage();
+        return true;
+    }
+    bool is_proper_type() const {
+        if (i) return i->is_proper_type();
+        return false;
+    }
     void validate() const;
 };
 

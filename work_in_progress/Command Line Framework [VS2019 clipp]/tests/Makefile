@@ -44,38 +44,80 @@
 ###############################################################################
 
 
-TARGETS = *.exe
+NAME = test
+TARGET = $(NAME).exe
+PDB = test.pdb
+DIR_TEST_VALIDATORS = .\test_validators
+DIR_TEST_VALIDATORS_NEW = .\test_validators_new
 OBJECTS = *.o
+ILKS = *.ilk
 
 CXX = clang++.exe
-CXXFLAGS = -c -pipe -g -std=c++17 -v -O0 -pedantic -Wall -Wextra -fcolor-diagnostics
-LINK = clang++.exe
+CXXFLAGS = -c -pipe -std=c++17 -g -O0 -v -pedantic -Wall -Wextra -fcolor-diagnostics -fdiagnostics-format=vi
+LINKER = clang++.exe
+LFLAGS = -fcolor-diagnostics -Wl,/debug,/pdb:$(PDB)
 
 INCPATH = -I..\include
 LIBS_USER = 
 
-test_validators: test_validators.o validators.o
-	$(LINK) -o test_validators.exe test_validators.o validators.o
 
+# Build tests #################################################################
+test_validators: test_validators_dir test_validators.o validators.o
+	@cd $(DIR_TEST_VALIDATORS)
+	$(LINKER) $(LFLAGS) -o $(TARGET) test_validators.o validators.o
+	@cd ..
+
+test_validators_new: test_validators_new_dir test_validators_new.o validators_new.o
+	@cd $(DIR_TEST_VALIDATORS_NEW)
+	$(LINKER) $(LFLAGS) -o $(TARGET) test_validators_new.o validators_new.o
+	@cd ..
+
+
+# Build prerequisites #########################################################
+test_validators_dir:
+	@if not exist $(DIR_TEST_VALIDATORS) mkdir $(DIR_TEST_VALIDATORS)
+
+test_validators_new_dir:
+	@if not exist $(DIR_TEST_VALIDATORS_NEW) mkdir $(DIR_TEST_VALIDATORS_NEW)
 
 test_validators.o:
-	$(CXX) $(CXXFLAGS) $(INCPATH) test_validators.cpp
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TEST_VALIDATORS)\test_validators.o test_validators.cpp
+
+test_validators_new.o:
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TEST_VALIDATORS_NEW)\test_validators_new.o test_validators_new.cpp
 
 validators.o:
-	$(CXX) $(CXXFLAGS) $(INCPATH) ..\validators.cpp
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TEST_VALIDATORS)\validators.o ..\validators.cpp
 
-# Show help
+validators_new.o:
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TEST_VALIDATORS_NEW)\validators_new.o ..\validators.cpp
+
+
+# Show help ###################################################################
 help :
 	@echo Usage: nmake [OPTION]
 	@echo [test_validators] - compile unit testing code for validators.cpp
+	@echo [test_validators_new] - compile unit testing code for validators.cpp
 	@echo [clean] - clear object files from previous build
 	@echo [cleanall] - clear all files from previous build
 	@echo [help] - show this help message and exit
 
-# Clean intermediate files
-clean :
-	@del.exe $(OBJECTS)
 
-# Clean everything except sources
-cleanall :
-	@del.exe $(OBJECTS) $(TARGETS)
+# Clean intermediate files ####################################################
+clean_test_validators :
+	@if exist $(DIR_TEST_VALIDATORS) (@del $(DIR_TEST_VALIDATORS)\$(OBJS) $(DIR_TEST_VALIDATORS)\$(PDB) $(DIR_TEST_VALIDATORS)\$(ILKS))
+
+clean_test_validators_new :
+	@if exist $(DIR_TEST_VALIDATORS_NEW) (@del $(DIR_TEST_VALIDATORS_NEW)\$(OBJS) $(DIR_TEST_VALIDATORS_NEW)\$(PDB) $(DIR_TEST_VALIDATORS_NEW)\$(ILKS))
+
+clean: clean_test_validators clean_test_validators_new
+
+
+# Clean everything except sources #############################################
+cleanall_test_validators :
+	@if exist $(DIR_TEST_VALIDATORS) (@rmdir /S /Q $(DIR_TEST_VALIDATORS)
+
+cleanall_test_validators_new :
+	@if exist $(DIR_TEST_VALIDATORS_NEW) (@rmdir /S /Q $(DIR_TEST_VALIDATORS_NEW)
+
+cleanall : cleanall_test_validators cleanall_test_validators_new

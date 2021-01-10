@@ -99,17 +99,20 @@ bool DirValidatorImp::is_directory() const {
 }
 
 void PathValidator::validate() const {
-    if (i->is_empty_path()) {
-        if (!f->accept_empty_path()) throw PathValidatorImp::EmptyPath {};
-        else return;
-    }
-    if (!i->exists()) {
-        if (!f->accept_nonexistent()) throw PathValidatorImp::NonExistent {};
-        else return;
-    }
-    if (!i->is_proper_type()) i->type_mismatch_throw();
-    if (i->is_empty_storage()) {
-        if (!f->accept_empty_storage())
-            throw PathValidatorImp::EmptyStorage {};
+    if (i and f) {
+        if (i->is_empty_path()) {
+            if (!f->accept_empty_path()) throw PathValidatorImp::EmptyPath {};
+            else return;
+        }
+        if (!i->exists()) {
+            if (!f->accept_nonexistent())
+                throw PathValidatorImp::NonExistent {};
+            else return;
+        }
+        if (!i->is_proper_type()) i->type_mismatch_throw();
+        if (i->is_empty_storage()) {
+            if (!f->accept_empty_storage())
+                throw PathValidatorImp::EmptyStorage {};
+        }
     }
 }

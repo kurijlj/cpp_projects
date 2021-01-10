@@ -122,14 +122,30 @@ int main(int argc, char *argv[])
     else
         exec_name = fullpath;
 
-    // Parse command line options
+    // Variables holding command line options arguments
     bool show_help = false, print_usage = false;
-    std::string input_file = "";
+    std::string input_file = "", output_dir = "";
+    PathValidatorFlags* p_ifflgs = new PathValidatorFlags(
+            false,  // We don't accept empty path
+            false,  // We don't accept nonexistent files
+            false   // We don't accept empty files
+            );
+    PathValidatorFlags* p_odflgs = new PathValidatorFlags(
+            true,  // Accept empty path
+            true,  // Accept nonexistent directories
+            true   // Accept empty directories
+            );
+    PathValidator* p_input_file_vd = new PathValidator();
+    PathValidator* p_output_dir_vd = new PathValidator();
 
+    // Set command line options
     auto cli = (
         // Must have more than one option.
         clipp::option("-h", "--help").set(show_help)
             .doc("show this help message and exit"),
+        clipp::option("-o", "--output_dir")
+            .doc("directory to store output data to")
+            & clipp::value("output_dir", output_dir),
         clipp::option("--usage").set(print_usage)
             .doc("give a short usage message"),
         clipp::option("-V", "--version").call(printVersionInfo)
@@ -138,56 +154,144 @@ int main(int argc, char *argv[])
             .doc("file containing input data")
     );
 
+    // Parse command line options
     if(clipp::parse(argc, argv, cli)) {
         if(show_help) {showHelp(cli, exec_name); return EXIT_SUCCESS;}
         if(print_usage) {printUsage(cli, exec_name); return EXIT_SUCCESS;}
 
-        // Validate user input for <input_file>
+        // Validate user input for 'input_file' cmd line option
         try {
-            PathValidator vd {
+            delete p_input_file_vd;
+            p_input_file_vd = new PathValidator(
                 new FileValidatorImp(input_file),
-                new PathValidatorFlags(
-                        false,  // We don't accept empty path
-                        false,  // We don't accept nonexistent files
-                        false   // We don't accept empty files
-                        )
-            };
-            vd.validate();
+                p_ifflgs
+            );
+            p_input_file_vd->validate();
 
         } catch (PathValidatorImp::EmptyPath) {
             printUsage(cli, exec_name);
             printShortHelp(exec_name);
 
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
+
             return EXIT_FAILURE;
 
         } catch (PathValidatorImp::NonExistent) {
-            std::cerr << exec_name << ": (ERROR) File \'" << input_file
-                << "\' does not exist!\n";
+            std::cerr << exec_name << ": (ERROR) File \'"
+                << p_input_file_vd->value() << "\' does not exist!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
 
             return EXIT_FAILURE;
 
         } catch (FileValidatorImp::NotRegularFile) {
-            std::cerr << exec_name << ": (ERROR) File \'" << input_file
-                << "\' is not an regular file!\n";
+            std::cerr << exec_name << ": (ERROR) File \'"
+                << p_input_file_vd->value() << "\' is not an regular file!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
 
             return EXIT_FAILURE;
 
         } catch (PathValidatorImp::EmptyStorage) {
-            std::cerr << exec_name << ": (ERROR) File \'" << input_file
+            std::cerr << exec_name << ": (ERROR) File \'"
+                << p_input_file_vd->value()
                 << "\' contains no data (empty file)!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
 
             return EXIT_FAILURE;
 
+        } catch (...) {
+            std::cerr << exec_name
+                << ": (ERROR) Unknown exception validating file input!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
+
+            return EXIT_FAILURE;
+
+        }
+
+        // Validate user input for 'output_dir' cmd line option
+        try {
+            delete p_output_dir_vd;
+            p_output_dir_vd = new PathValidator(
+                new  DirValidatorImp(output_dir),
+                p_odflgs
+            );
+            p_output_dir_vd->validate();
+
+        } catch (DirValidatorImp::NotDirectory) {
+            std::cerr << exec_name << ": (ERROR) Path \'"
+                << p_output_dir_vd->value() << "\' is not an directory!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
+
+            return EXIT_FAILURE;
+
+        } catch (...) {
+            std::cerr << exec_name
+                << ": (ERROR) Unknown exception validating directory input!\n";
+
+            delete p_input_file_vd;
+            delete p_output_dir_vd;
+            delete p_ifflgs;
+            delete p_odflgs;
+
+            return EXIT_FAILURE;
+
+        }
+
+        // If no output dir supplied, use the default value
+        if (p_output_dir_vd->is_empty_path()) {
+            delete p_output_dir_vd;
+            p_output_dir_vd = new PathValidator(
+                new  DirValidatorImp(".\\output"),
+                p_odflgs
+            );
         }
 
     } else {
         printUsage(cli, exec_name);
         printShortHelp(exec_name);
 
+        delete p_input_file_vd;
+        delete p_output_dir_vd;
+        delete p_ifflgs;
+        delete p_odflgs;
+
         return EXIT_FAILURE;
     }
 
-    // Everything went fine. We can exit the application.
+    // Print report and exit application
+    std::cout << exec_name << ": Input file: \t"
+        << p_input_file_vd->value() << "\n";
+    std::cout << exec_name << ": Output dir: \t"
+        << p_output_dir_vd->value() << "\n";
+
+    // Everything went fine. We can clean up and exit the application.
+    delete p_input_file_vd;
+    delete p_output_dir_vd;
+    delete p_ifflgs;
+    delete p_odflgs;
+
     return EXIT_SUCCESS;
 }
 
