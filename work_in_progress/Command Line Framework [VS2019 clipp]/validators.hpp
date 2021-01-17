@@ -319,4 +319,34 @@ public:
     void validate() const;
 };
 
+class NumericalValuesDomain {
+private:
+    int min_, max_;
+    bool include_min_, include_max_;
+
+public:
+    // Default constructor
+    NumericalValuesDomain()
+        : min_(INT_MIN),
+        max_(INT_MAX),
+        inlcude_min_(true),
+        include_max_(true) { }
+    NumericalValuesDomain(
+            int lower_limit,
+            int upper_limit,
+            bool include_lower_limit,
+            bool include_upper_limit
+            )
+        : min_(lower_limit),
+        max_(upper_limit),
+        inlcude_min_(include_lower_limit),
+        include_max_(include_upper_limit) { }
+    ~NumericalValuesDomain() { }
+    int lower_limit() const { return min_; }
+    int upper_limit() const { return max_; }
+    bool include_lower_limit() const { return include_min_; }
+    bool include_upper_limit() const { return include_max_; }
+    bool is_within_domain(int n);
+}
+
 #endif  // CLFCLIPP_VALIDATORS_HPP_
