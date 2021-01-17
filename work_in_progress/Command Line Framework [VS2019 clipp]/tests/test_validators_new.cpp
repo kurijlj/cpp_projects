@@ -61,40 +61,13 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("Initialized Path Validator") {
-        PathValidator vd { };
-
-        EXPECT ("" == vd.value());
-        EXPECT (true == vd.is_empty_path());
-        EXPECT (false == vd.exists());
-        EXPECT (false == vd.is_proper_type());
-        EXPECT (true == vd.is_empty_storage());
-        EXPECT_NO_THROW (vd.validate());
-    },
-
-    CASE ("Initialized Pointer to a Path Validator") {
-        PathValidator* vd = new PathValidator();
-
-        EXPECT ("" == vd->value());
-        EXPECT (true == vd->is_empty_path());
-        EXPECT (false == vd->exists());
-        EXPECT (false == vd->is_proper_type());
-        EXPECT (true == vd->is_empty_storage());
-        EXPECT_NO_THROW (vd->validate());
-
-        delete vd;
-    },
-
     CASE ("Directory Validator") {
         SETUP ("aep: true, ane: true, aes: true") {
-            PathValidatorFlags flgs {true, true, true};
+            const PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                DirValidatorImp imp {".\\"};
-                PathValidator vd {
-                    new DirValidatorImp(imp),
-                    new PathValidatorFlags(flgs)
-                };
+                const DirValidatorImp dvi {".\\"};
+                const PathValidator vd {dvi, flags};
 
                 EXPECT (".\\" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -108,14 +81,11 @@ const ls::test specification[] =
 
     CASE ("File Validator") {
         SETUP ("aep: true, ane: true, aes: true") {
-            PathValidatorFlags flgs {true, true, true};
+            const PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                FileValidatorImp imp {"..\\..\\data\\empty_file.txt"};
-                PathValidator vd {
-                    new FileValidatorImp(imp),
-                    new PathValidatorFlags(flgs)
-                };
+                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                const PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());

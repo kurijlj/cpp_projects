@@ -81,38 +81,36 @@ namespace fs = std::filesystem;
 // ============================================================================
 
 bool PathValidatorImp::exists() const {
-    if (!is_empty_path()) return fs::exists(p);
+    if (!is_empty_path()) return fs::exists(pth_);
 
     return false;
 }
 
 bool PathValidatorImp::is_empty_storage() const {
-    if (exists()) return fs::is_empty(p);
+    if (exists()) return fs::is_empty(pth_);
 
     return true;
 }
 
 bool DirValidatorImp::is_directory() const {
-    if (exists()) return fs::is_directory(p);
+    if (exists()) return fs::is_directory(pth_);
 
     return false;
 }
 
 void PathValidator::validate() const {
-    if (i and f) {
-        if (i->is_empty_path()) {
-            if (!f->accept_empty_path()) throw PathValidatorImp::EmptyPath {};
-            else return;
-        }
-        if (!i->exists()) {
-            if (!f->accept_nonexistent())
-                throw PathValidatorImp::NonExistent {};
-            else return;
-        }
-        if (!i->is_proper_type()) i->type_mismatch_throw();
-        if (i->is_empty_storage()) {
-            if (!f->accept_empty_storage())
-                throw PathValidatorImp::EmptyStorage {};
-        }
+    if (imp_.is_empty_path()) {
+        if (!flags_.accept_empty_path()) throw PathValidatorImp::EmptyPath {};
+        else return;
+    }
+    if (!imp_.exists()) {
+        if (!flags_.accept_nonexistent())
+            throw PathValidatorImp::NonExistent {};
+        else return;
+    }
+    if (!imp_.is_proper_type()) imp_.type_mismatch_throw();
+    if (imp_.is_empty_storage()) {
+        if (!flags_.accept_empty_storage())
+            throw PathValidatorImp::EmptyStorage {};
     }
 }

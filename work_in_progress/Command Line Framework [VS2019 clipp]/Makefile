@@ -45,28 +45,40 @@
 
 
 # Macros definitions ##########################################################
-NAME = app
-TARGET = $(NAME).exe
-PDB = $(NAME).pdb
-DIR_SANITIZER = .\address_sanitizer
+
+# Names
+NAME_APP = app
+
+# Targets
+TARGET_APP = $(NAME_APP).exe
+
+# Output directories
 DIR_DEBUG = .\debug
 DIR_RELEASE = .\release
+DIR_SANITIZER = .\address_sanitizer
+
+# Intermediate objects
+PDB_APP = $(NAME_APP).pdb
 OBJS = *.o
 ILKS = *.ilk
 EXPS = *.exp
 LIBS = *.lib
 
+# Compiler options
 CXX = clang++
 CXXFLAGS = -c -pipe -std=c++17 -v -pedantic -Wall -Wextra -fcolor-diagnostics -fdiagnostics-format=vi
 CXXDEBUG = -g -O0
 CXXSANIT = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
 CXXRELEASE = -g0 -O2
+
+# Linker options
 LINKER = clang++
 LFLAGS = -fcolor-diagnostics
-LFLDEBUG = -Wl,/debug,/pdb:$(PDB)
+LFLDEBUG = -Wl,/debug,/pdb:$(PDB_APP)
 LFLSANIT = -fsanitize=address -Wl,/debug
 LFLRELEASE = 
 
+# Libraries
 INCPATH = -I.\include
 LIBS_USER = 
 
@@ -74,21 +86,23 @@ LIBS_USER =
 # Build app ###################################################################
 debug : debug_dir main_debug_o validators_debug_o
 	@cd $(DIR_DEBUG)
-	$(LINKER) $(LFLAGS) $(LFLDEBUG) -o $(TARGET) main.o validators.o
-	@cd ..
-
-sanitizer : sanitizer_dir main_sanitizer_o validators_sanitizer_o
-	@cd $(DIR_SANITIZER)
-	$(LINKER) $(LFLAGS) $(LFLSANIT) -o $(TARGET) main.o validators.o
+	$(LINKER) $(LFLAGS) $(LFLDEBUG) -o $(TARGET_APP) main.o validators.o
 	@cd ..
 
 release : release_dir main_release_o validators_release_o
 	@cd $(DIR_RELEASE)
-	$(LINKER) $(LFLAGS) $(LFLRELEASE) -o $(TARGET) main.o validators.o
+	$(LINKER) $(LFLAGS) $(LFLRELEASE) -o $(TARGET_APP) main.o validators.o
+	@cd ..
+
+sanitizer : sanitizer_dir main_sanitizer_o validators_sanitizer_o
+	@cd $(DIR_SANITIZER)
+	$(LINKER) $(LFLAGS) $(LFLSANIT) -o $(TARGET_APP) main.o validators.o
 	@cd ..
 
 
 # Build prerequisites #########################################################
+
+# Sub-directories
 debug_dir:
 	@if not exist $(DIR_DEBUG) mkdir $(DIR_DEBUG)
 
@@ -98,6 +112,7 @@ sanitizer_dir:
 release_dir:
 	@if not exist $(DIR_RELEASE) mkdir $(DIR_RELEASE)
 
+# Object files
 main_debug_o:
 	$(CXX) $(CXXFLAGS) $(CXXDEBUG) $(INCPATH) -o $(DIR_DEBUG)\main.o main.cpp
 
@@ -120,6 +135,16 @@ validators_release_o:
 # Show help ###################################################################
 help :
 	@echo Usage: nmake [OPTION]
+	@echo.
+	@echo * Help options
+	@echo [help] - show this help message and exit
+	@echo.
+	@echo * Build options
+	@echo [debug] - compile debug version
+	@echo [release] - compile release version
+	@echo [sanitizer] - compile debug version with address sanitizer option on
+	@echo.
+	@echo * Cleaning options
 	@echo [clean] - clear object files from previous build
 	@echo [clean_debug] - clear object files for the debug from previous build
 	@echo [clean_release] - clear object files for the release from previous build
@@ -128,32 +153,29 @@ help :
 	@echo [cleanall_debug] - clear all files for the debug from previous build
 	@echo [cleanall_release] - clear all files fir the release from previous build
 	@echo [cleanall_sanitizer] - clear all files for the sanitizer from previous build
-	@echo [debug] - compile debug version
-	@echo [help] - show this help message and exit
-	@echo [release] - compile release version
 
 
 # Clean intermediate files ####################################################
+clean: clean_debug clean_release clean_sanitizer
+
 clean_debug :
 	@if exist $(DIR_DEBUG) (@del $(DIR_DEBUG)\$(OBJS) $(DIR_DEBUG)\$(PDB) $(DIR_DEBUG)\$(ILKS))
-
-clean_sanitizer :
-	@if exist $(DIR_SANITIZER) (@del $(DIR_SANITIZER)\$(OBJS) $(DIR_SANITIZER)\$(EXPS) $(DIR_SANITIZER)\$(LIBS) $(DIR_SANITIZER)\$(PDB))
 
 clean_release :
 	@if exist $(DIR_RELEASE) (@del $(DIR_RELEASE)\$(OBJS))
 
-clean: clean_debug clean_sanitizer clean_release
+clean_sanitizer :
+	@if exist $(DIR_SANITIZER) (@del $(DIR_SANITIZER)\$(OBJS) $(DIR_SANITIZER)\$(EXPS) $(DIR_SANITIZER)\$(LIBS) $(DIR_SANITIZER)\$(PDB))
 
 
 # Clean everything except sources #############################################
-clean_debug_all :
+cleanall : cleanall_debug cleanall_release cleanall_sanitizer
+
+cleanall_debug:
 	@if exist $(DIR_DEBUG) (@rmdir /S /Q $(DIR_DEBUG))
 
-clean_sanitizer_all :
-	@if exist $(DIR_SANITIZER) (@rmdir /S /Q $(DIR_SANITIZER))
-
-clean_release_all :
+cleanall_release:
 	@if exist $(DIR_RELEASE) (@rmdir /S /Q $(DIR_RELEASE))
 
-cleanall : clean_debug_all clean_sanitizer_all clean_release_all
+cleanall_sanitizer:
+	@if exist $(DIR_SANITIZER) (@rmdir /S /Q $(DIR_SANITIZER))

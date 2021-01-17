@@ -44,19 +44,30 @@
 ###############################################################################
 
 
+# Macros definitions ##########################################################
+
+# Names
 NAME = test
 TARGET = $(NAME).exe
-PDB = test.pdb
+
+# Output directories
 DIR_TEST_VALIDATORS = .\test_validators
 DIR_TEST_VALIDATORS_NEW = .\test_validators_new
-OBJECTS = *.o
+
+# Intermediate objects
+PDB = $(NAME).pdb
+OBJS = *.o
 ILKS = *.ilk
 
+# Compiler options
 CXX = clang++.exe
 CXXFLAGS = -c -pipe -std=c++17 -g -O0 -v -pedantic -Wall -Wextra -fcolor-diagnostics -fdiagnostics-format=vi
+
+# Linker options
 LINKER = clang++.exe
 LFLAGS = -fcolor-diagnostics -Wl,/debug,/pdb:$(PDB)
 
+# Libraries
 INCPATH = -I..\include
 LIBS_USER = 
 
@@ -74,12 +85,15 @@ test_validators_new: test_validators_new_dir test_validators_new.o validators_ne
 
 
 # Build prerequisites #########################################################
+
+# Sub-directories
 test_validators_dir:
 	@if not exist $(DIR_TEST_VALIDATORS) mkdir $(DIR_TEST_VALIDATORS)
 
 test_validators_new_dir:
 	@if not exist $(DIR_TEST_VALIDATORS_NEW) mkdir $(DIR_TEST_VALIDATORS_NEW)
 
+# Object files
 test_validators.o:
 	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TEST_VALIDATORS)\test_validators.o test_validators.cpp
 
@@ -96,28 +110,34 @@ validators_new.o:
 # Show help ###################################################################
 help :
 	@echo Usage: nmake [OPTION]
+	@echo.
+	@echo * Help options
+	@echo [help] - show this help message and exit
+	@echo.
+	@echo * Build options
 	@echo [test_validators] - compile unit testing code for validators.cpp
 	@echo [test_validators_new] - compile unit testing code for validators.cpp
+	@echo.
+	@echo * Clean options
 	@echo [clean] - clear object files from previous build
 	@echo [cleanall] - clear all files from previous build
-	@echo [help] - show this help message and exit
 
 
 # Clean intermediate files ####################################################
+clean: clean_test_validators clean_test_validators_new
+
 clean_test_validators :
 	@if exist $(DIR_TEST_VALIDATORS) (@del $(DIR_TEST_VALIDATORS)\$(OBJS) $(DIR_TEST_VALIDATORS)\$(PDB) $(DIR_TEST_VALIDATORS)\$(ILKS))
 
 clean_test_validators_new :
 	@if exist $(DIR_TEST_VALIDATORS_NEW) (@del $(DIR_TEST_VALIDATORS_NEW)\$(OBJS) $(DIR_TEST_VALIDATORS_NEW)\$(PDB) $(DIR_TEST_VALIDATORS_NEW)\$(ILKS))
 
-clean: clean_test_validators clean_test_validators_new
-
 
 # Clean everything except sources #############################################
+cleanall : cleanall_test_validators cleanall_test_validators_new
+
 cleanall_test_validators :
-	@if exist $(DIR_TEST_VALIDATORS) (@rmdir /S /Q $(DIR_TEST_VALIDATORS)
+	@if exist $(DIR_TEST_VALIDATORS) (@rmdir /S /Q $(DIR_TEST_VALIDATORS))
 
 cleanall_test_validators_new :
-	@if exist $(DIR_TEST_VALIDATORS_NEW) (@rmdir /S /Q $(DIR_TEST_VALIDATORS_NEW)
-
-cleanall : cleanall_test_validators cleanall_test_validators_new
+	@if exist $(DIR_TEST_VALIDATORS_NEW) (@rmdir /S /Q $(DIR_TEST_VALIDATORS_NEW))

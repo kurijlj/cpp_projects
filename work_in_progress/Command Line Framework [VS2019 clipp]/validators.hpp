@@ -50,14 +50,14 @@
 // ============================================================================
 
 
-#ifndef VALIDATORS_GUARD
-#define VALIDATORS_GUARD 1
+#ifndef CLFCLIPP_VALIDATORS_HPP_
+#define CLFCLIPP_VALIDATORS_HPP_
 
 // ============================================================================
 // Headers include section
 // ============================================================================
 
-#include <string>  // self explanatory ...
+#include <string>      // self explanatory ...
 #include <filesystem>  // Used for testing directory and file status
 
 
@@ -82,44 +82,139 @@ namespace fs = std::filesystem;
 // Validator classes
 // ============================================================================
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class PathValidatorFlags
+//
+// Keeps state of path validator flags used to determine behavior of the path
+// validator instance. We use three flags taking boolean values, for that
+// purpose:
+//      1. accept empty path (acc_mty_pth_):
+//         If set to false validator throws an EmptyPath exception when it
+//         encounters an empty string ("");
+//      2. accept nonexistent path (acc_non_exi_):
+//         If set to false validator throws an NonExistent exception if
+//         the given path does not exist;
+//      3. accept empty storage (acc_mty_sto_):
+//         If set to false validator throws an EmptyStorage exception if the
+//         given path is empty (directory or file).
+//
+// Instance of this class is meant to be passed to PathValidator constructor as
+// an argument, and not to be used on its own.
+//
+///////////////////////////////////////////////////////////////////////////////
 class PathValidatorFlags {
 private:
-    bool aep, ane, aes;
+    bool acc_mty_pth_, acc_non_exi_, acc_mty_sto_;
 public:
-    PathValidatorFlags(bool accept_empty_path, bool accept_nonexistent,
-            bool accept_empty_storage)
-        : aep(accept_empty_path),
-        ane(accept_nonexistent),
-        aes(accept_empty_storage) { }
+    PathValidatorFlags(
+            bool accept_empty_path,
+            bool accept_nonexistent,
+            bool accept_empty_storage
+            )
+        : acc_mty_pth_(accept_empty_path),
+        acc_non_exi_(accept_nonexistent),
+        acc_mty_sto_(accept_empty_storage) { }
     PathValidatorFlags(const PathValidatorFlags &orig) :
-        aep(orig.aep), ane(orig.ane), aes(orig.aes) { }
+        acc_mty_pth_(orig.acc_mty_pth_),
+        acc_non_exi_(orig.acc_non_exi_),
+        acc_mty_sto_(orig.acc_mty_sto_) { }
     ~PathValidatorFlags() { }
-    bool accept_empty_path() const { return aep; }
-    bool accept_nonexistent() const { return ane; }
-    bool accept_empty_storage() const { return aes; }
+    bool accept_empty_path() const { return acc_mty_pth_; }
+    bool accept_nonexistent() const { return acc_non_exi_; }
+    bool accept_empty_storage() const { return acc_mty_sto_; }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class PathValidatorImp
+//
+// Abstract base class for the path validator implementations. Currently we
+// support two type of validators: directory path validator and regular file
+// path validator. Path validator classes are implemented as startegy design
+// pattern with PathValidatorImp as the abstract base class used to define
+// common intereface, exceptions and algorithms used by actual
+// validator classes.
+//
+// This class is not meant to be instantiated. Use DirValidatorImp or
+// FileValidatorImp classes instead.
+//
+// Virtual methods that has to be overriden in all subclasses:
+//      * is_proper_type(): returns true if path is of proper type
+//        (i.e. directory or regular file), otherwise it returns false;
+//      * type_mismatch_throw(): method used to call throw of proper exception
+//        (i.e. NotDirectory or NotRegularFile) when given path is not of the
+//        proper type depending on the type of validator used.
+//
+// Methods common for all path validator classes:
+//      * value(): returns string used to initialize path validator instance
+//        representing system path to be validated for further use by
+//        application;
+//      * exists(): test if given path actually exists. If it exists it returns
+//        true otherwise it returns false;
+//      * is_empty_path(): tests if string used to initialize path validator
+//        instance is an empty string (''). If it is an empty string it returns
+//        true, otherwise it returns false;
+//      * is_empty_storage(): tests is given path empty (empty directory or
+//        empty regular file). If path is empty it returns true, otherwise it
+//        returns false;
+//
+// Exceptions common for all path validator classes:
+//      * EmptyPath: thrown if accept_empty_path flag is set to false and
+//        validator instance was initialized with an empty string (path);
+//      * EmptyStorage: thrown if accept_empty_storage flag is set to false and
+//        given path points to an empty directory or an empty regular file;
+//      * NonExistent: thrown if accept_nonexistent flag is set to false and
+//        given path does not exist on the system;
+//
+///////////////////////////////////////////////////////////////////////////////
 class PathValidatorImp {
 protected:
-    fs::path p;
+    fs::path pth_;
 
 public:
     class EmptyPath {};
     class EmptyStorage {};
     class NonExistent {};
 
-    PathValidatorImp(std::string path) : p(fs::path{path}) { }
+    PathValidatorImp(std::string paths) : pth_(fs::path{paths}) { }
     PathValidatorImp(const PathValidatorImp &orig)
-        : p(orig.value()) { }
+        : pth_(orig.value()) { }
     virtual ~PathValidatorImp() { }
-    std::string value() const { return p.string(); }
+    std::string value() const { return pth_.string(); }
     bool exists() const;
-    bool is_empty_path() const { return "" == p.string(); }
+    bool is_empty_path() const { return "" == pth_.string(); }
     bool is_empty_storage() const;
     virtual bool is_proper_type() const = 0;
     virtual void type_mismatch_throw() const = 0;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class DirValidatorImp
+//
+// Defines methods for validating if given path is a valid directory according
+// to set set of path validator flags. This class is to be instantiated and
+// passed to a PathValidator instance if one wants to validate if user input
+// string represents system path pointing to a directory, and not to be used on
+// its own.
+//
+// Methods to be used for directory validation:
+//      * is_directory(): returns true if given path represents actual system
+//        directory;
+//      * is_proper_type(): interface method to be used by PathValidator
+//        instance to test is given path is of proper type (directory). It calls
+//        built in is_directory() method;
+//      * type_mismatch_throw(): interface method to be used by PathValidator
+//        instance on a call to PathValidator.validate() method to throw proper
+//        exception (NotDirectory) when given path does not represent actual
+//        system directory.
+//
+// Exceptions specific to directory validator class:
+//      * NotDirectory: thrown when given path does not represent a
+//        system directory.
+//
+///////////////////////////////////////////////////////////////////////////////
 class DirValidatorImp : public PathValidatorImp {
 public:
     class NotDirectory {};
@@ -133,6 +228,32 @@ public:
     void type_mismatch_throw() const override { throw NotDirectory {}; }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class FileValidatorImp
+//
+// Defines methods for validating if given path is a valid regular file
+// according to given set of path validator flags. This class is to be
+// instantiated and passed to a PathValidator instance if one wants to validate
+// if user input string represents system path pointing to a regular file,
+// and not to be used on its own.
+//
+// Methods to be used for regular file validation:
+//      * is_regular_file(): returns true if given path represents actual
+//        system regular file;
+//      * is_proper_type(): interface method to be used by PathValidator
+//        instance to test is given path is of proper type (regular file).
+//        It calls built in is_regular_file() method;
+//      * type_mismatch_throw(): interface method to be used by PathValidator
+//        instance on a call to PathValidator.validate() method to throw proper
+//        exception (NotRegularFile) when given path does not represent actual
+//        system file.
+//
+// Exceptions specific to file validator class:
+//      * NotRegularFile: thrown when given path does not represent a regular
+//        system file.
+//
+///////////////////////////////////////////////////////////////////////////////
 class FileValidatorImp : public PathValidatorImp {
 public:
     class NotRegularFile {};
@@ -142,35 +263,60 @@ public:
         : PathValidatorImp(orig.value()) { }
     ~FileValidatorImp() override { }
     bool is_proper_type() const override { return is_regular_file(); }
-    bool is_regular_file() const { return fs::is_regular_file(p); }
+    bool is_regular_file() const { return fs::is_regular_file(pth_); }
     void type_mismatch_throw() const override { throw NotRegularFile {}; }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class PathValidator
+//
+// Abstract interface class to the actual path validator class. It is to be
+// instantiated and used for validation of user input paths. It implements
+// validate() method used to validate if given path meets set type (directory,
+// file) and given set of conditions (flags).
+//
+// Class constructor takes two arguments:
+//      * imp_ - an instance of the DirValidatorImp class or the
+//        FileValidatorImp class representing path and type for path to be
+//        validated for;
+//      * flags_ - an instance of PathValidatorFlags class defining set of
+//        requirements for path to be tested for.
+// Arguments to constructor are passed as reference.
+//
+// It implements following methods to be used for path validation:
+//      * value(): interface to the value() method of the PathValidatorImp
+//        class;
+//      * exists(): interface to the exists() method of the PathValidatorImp
+//        class;
+//      * is_empty_path(): interface to the is_empty_path() of the
+//        PathValidatorImp class;
+//      * is_empty_storage(): interface to the is_empty_storage() of the
+//        PathValidatorImp class;
+//      * is_proper_type(): interface to the is_proper_type() of the
+//        PathValidatorImp class;
+//      * validate(): the method to validate if given path is of proper type
+//        and in accordance with given set of requirements defined with the
+//        path validator flags. If given path does not meet the rquirements an
+//        exception is thrown indicating non-compliance that was encountered
+//        at first.
+//
+///////////////////////////////////////////////////////////////////////////////
 class PathValidator {
 private:
-    PathValidatorImp* i;
-    PathValidatorFlags* f;
+    PathValidatorImp& imp_;
+    PathValidatorFlags& flags_;
 
 public:
-    PathValidator() : i(nullptr), f(nullptr) { }
-    PathValidator(PathValidatorImp* imp, PathValidatorFlags* flags)
-        : i(imp), f(flags) { }
-    ~PathValidator() { delete i; delete f; }
-    std::string value() const { if (i) return i->value(); return ""; }
-    bool exists() const { if (i) return i->exists(); return false;}
-    bool is_empty_path() const {
-        if (i) return i->is_empty_path();
-        return true;
-    }
-    bool is_empty_storage() const {
-        if(i) return i->is_empty_storage();
-        return true;
-    }
-    bool is_proper_type() const {
-        if (i) return i->is_proper_type();
-        return false;
-    }
+    PathValidator(PathValidatorImp& imp, PathValidatorFlags& flags)
+        : imp_(imp), flags_(flags) { }
+    ~PathValidator() {  }
+    std::string value() const { return imp_.value(); }
+    bool exists() const { return imp_.exists(); }
+    bool is_empty_path() const { return imp_.is_empty_path(); }
+    bool is_empty_storage() const { return imp_.is_empty_storage(); }
+    bool is_proper_type() const { return imp_.is_proper_type(); }
     void validate() const;
 };
 
-#endif
+#endif  // CLFCLIPP_VALIDATORS_HPP_

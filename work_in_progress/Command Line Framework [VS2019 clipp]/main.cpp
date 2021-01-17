@@ -43,10 +43,6 @@
 // * For filesystem operations (C++17) visit 'filesystem' reference at:
 //   <https://en.cppreference.com/w/cpp/filesystem>.
 //
-// * For refrence on badbit, failbit, eofbit visit:
-//   <https://gehrcke.de/2011/06/reading-files-in-c-using-ifstream-dealing
-//    -correctly-with-badbit-failbit-eofbit-and-perror/>
-//
 // ============================================================================
 
 
@@ -54,20 +50,18 @@
 // Headers include section
 // ============================================================================
 
-#include <cstdlib>  // required by EXIT_SUCCESS, EXIT_FAILURE
-#include <iostream>  // required by cin, cout, ...
-#include <filesystem>  // Used for testing directory and file status
-#include <string>  // self explanatory ...
-#include <fstream>  // requird by ifstream
-#include <clipp.hpp> // command line arguments parsing
-#include "validators.hpp"  // classes to validate user input parameters
+#include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <iostream>    // required by cin, cout, ...
+#include <string>      // self explanatory ...
+#include <vector>      // self explanatory ...
+
+#include <clipp.hpp>       // command line arguments parsing
+#include "validators.hpp"  // custom classes to validate user input parameters
 
 
 // ============================================================================
 // Define namespace aliases
 // ============================================================================
-
-namespace fs = std::filesystem;
 
 
 // ============================================================================
@@ -123,93 +117,110 @@ int main(int argc, char *argv[])
         exec_name = fullpath;
 
     // Variables holding command line options arguments
-    bool show_help = false, print_usage = false;
+    bool show_help = false, print_usage = false, show_version = false;
+    int n = 0;
+
+    // Unsupported options aggregator.
+    std::vector<std::string> unknown_options;
+
+    // Input file and output directory variables and option filters definitions
     std::string input_file = "", output_dir = "";
-    PathValidatorFlags* p_ifflgs = new PathValidatorFlags(
+    auto istarget = clipp::match::prefix_not("-");
+
+    PathValidatorFlags input_file_flags {
             false,  // We don't accept empty path
             false,  // We don't accept nonexistent files
             false   // We don't accept empty files
-            );
-    PathValidatorFlags* p_odflgs = new PathValidatorFlags(
+    };
+    PathValidatorFlags output_dir_flags {
             true,  // Accept empty path
             true,  // Accept nonexistent directories
             true   // Accept empty directories
-            );
-    PathValidator* p_input_file_vd = new PathValidator();
-    PathValidator* p_output_dir_vd = new PathValidator();
+    };
+    FileValidatorImp input_file_imp {""};
+    DirValidatorImp output_dir_imp {""};
+    PathValidator input_file_vd {
+        input_file_imp,
+        input_file_flags
+    };
+    PathValidator output_dir_vd {
+        output_dir_imp,
+        output_dir_flags
+    };
 
     // Set command line options
     auto cli = (
-        // Must have more than one option.
-        clipp::option("-h", "--help").set(show_help)
-            .doc("show this help message and exit"),
-        clipp::option("-o", "--output_dir")
-            .doc("directory to store output data to")
-            & clipp::value("output_dir", output_dir),
-        clipp::option("--usage").set(print_usage)
-            .doc("give a short usage message"),
-        clipp::option("-V", "--version").call(printVersionInfo)
-            .doc("print program version"),
-        clipp::opt_value("input_file", input_file)
-            .doc("file containing input data")
+        // Must have more than one option
+        // Take care not to omitt value filter when using
+        // path input options
+        clipp::opt_value(istarget, "INPUT_FILE", input_file)
+            .doc("file containing input data"),
+        (
+            clipp::option("-h", "--help").set(show_help)
+                .doc("show this help message and exit"),
+            clipp::option("--usage").set(print_usage)
+                .doc("give a short usage message"),
+            clipp::option("-V", "--version").set(show_version)
+                .doc("print program version")
+        ).doc("general options:"),
+        (
+            // Take care not to omitt value filter when using
+            // path input options
+            clipp::option("-n", "--number-of-iterations")
+                .doc("dummy option to demonstrate parsing of integers")
+                & clipp::value("INTEGER_NUMBER", n),
+            clipp::option("-o", "--output_dir")
+                .doc("directory to store output data to")
+                & clipp::value(istarget, "OUTPUT_DIR", output_dir)
+        ).doc("optional arguments:"),
+        clipp::any_other(unknown_options)
     );
 
     // Parse command line options
-    if(clipp::parse(argc, argv, cli)) {
-        if(show_help) {showHelp(cli, exec_name); return EXIT_SUCCESS;}
-        if(print_usage) {printUsage(cli, exec_name); return EXIT_SUCCESS;}
+    if(clipp::parse(argc, argv, cli) && unknown_options.empty()) {
+        if(show_help) { showHelp(cli, exec_name); return EXIT_SUCCESS; }
+        if(print_usage) {
+            auto fmt = clipp::doc_formatting {}
+                .first_column(0)
+                .last_column(79);
+
+            printUsage(cli, exec_name, fmt);
+
+            return EXIT_SUCCESS;
+        }
+        if(show_version) { printVersionInfo(); return EXIT_SUCCESS; }
 
         // Validate user input for 'input_file' cmd line option
         try {
-            delete p_input_file_vd;
-            p_input_file_vd = new PathValidator(
-                new FileValidatorImp(input_file),
-                p_ifflgs
-            );
-            p_input_file_vd->validate();
+            input_file_imp = FileValidatorImp(input_file);
+            input_file_vd.validate();
 
         } catch (PathValidatorImp::EmptyPath) {
-            printUsage(cli, exec_name);
-            printShortHelp(exec_name);
+            auto fmt = clipp::doc_formatting {}
+                .first_column(0)
+                .last_column(79);
 
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
+            printUsage(cli, exec_name, fmt);
+            printShortHelp(exec_name);
 
             return EXIT_FAILURE;
 
         } catch (PathValidatorImp::NonExistent) {
             std::cerr << exec_name << ": (ERROR) File \'"
-                << p_input_file_vd->value() << "\' does not exist!\n";
-
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
+                << input_file_vd.value() << "\' does not exist!\n";
 
             return EXIT_FAILURE;
 
         } catch (FileValidatorImp::NotRegularFile) {
             std::cerr << exec_name << ": (ERROR) File \'"
-                << p_input_file_vd->value() << "\' is not an regular file!\n";
-
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
+                << input_file_vd.value() << "\' is not an regular file!\n";
 
             return EXIT_FAILURE;
 
         } catch (PathValidatorImp::EmptyStorage) {
             std::cerr << exec_name << ": (ERROR) File \'"
-                << p_input_file_vd->value()
+                << input_file_vd.value()
                 << "\' contains no data (empty file)!\n";
-
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
 
             return EXIT_FAILURE;
 
@@ -217,32 +228,18 @@ int main(int argc, char *argv[])
             std::cerr << exec_name
                 << ": (ERROR) Unknown exception validating file input!\n";
 
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
-
             return EXIT_FAILURE;
 
         }
 
         // Validate user input for 'output_dir' cmd line option
         try {
-            delete p_output_dir_vd;
-            p_output_dir_vd = new PathValidator(
-                new  DirValidatorImp(output_dir),
-                p_odflgs
-            );
-            p_output_dir_vd->validate();
+            output_dir_imp = DirValidatorImp(output_dir);
+            output_dir_vd.validate();
 
         } catch (DirValidatorImp::NotDirectory) {
             std::cerr << exec_name << ": (ERROR) Path \'"
-                << p_output_dir_vd->value() << "\' is not an directory!\n";
-
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
+                << output_dir_vd.value() << "\' is not an directory!\n";
 
             return EXIT_FAILURE;
 
@@ -250,47 +247,42 @@ int main(int argc, char *argv[])
             std::cerr << exec_name
                 << ": (ERROR) Unknown exception validating directory input!\n";
 
-            delete p_input_file_vd;
-            delete p_output_dir_vd;
-            delete p_ifflgs;
-            delete p_odflgs;
-
             return EXIT_FAILURE;
 
         }
 
         // If no output dir supplied, use the default value
-        if (p_output_dir_vd->is_empty_path()) {
-            delete p_output_dir_vd;
-            p_output_dir_vd = new PathValidator(
-                new  DirValidatorImp(".\\output"),
-                p_odflgs
-            );
+        if (output_dir_vd.is_empty_path()) {
+            output_dir_imp = DirValidatorImp(".\\output");
         }
 
     } else {
-        printUsage(cli, exec_name);
-        printShortHelp(exec_name);
+        if(!unknown_options.empty()) {
+            auto fmt = clipp::doc_formatting {}
+                .first_column(0)
+                .last_column(79);
 
-        delete p_input_file_vd;
-        delete p_output_dir_vd;
-        delete p_ifflgs;
-        delete p_odflgs;
+            // Print only first option on the stack
+            std::cerr << exec_name << ": Unknown option "
+                << unknown_options.front() << "\n";
+            printUsage(cli, exec_name, fmt);
+            printShortHelp(exec_name);
+
+        } else {
+            std::cerr << exec_name << ": Unknown error occured!\n";
+            std::cout << "Report bugs to <" << kAuthorEmail << ">.\n";
+
+        }
 
         return EXIT_FAILURE;
     }
 
     // Print report and exit application
-    std::cout << exec_name << ": Input file: \t"
-        << p_input_file_vd->value() << "\n";
-    std::cout << exec_name << ": Output dir: \t"
-        << p_output_dir_vd->value() << "\n";
-
-    // Everything went fine. We can clean up and exit the application.
-    delete p_input_file_vd;
-    delete p_output_dir_vd;
-    delete p_ifflgs;
-    delete p_odflgs;
+    std::cout << exec_name << ": Input file\t-> "
+        << input_file_vd.value() << "\n";
+    std::cout << exec_name << ": Output dir\t-> "
+        << output_dir_vd.value() << "\n";
+    std::cout << exec_name << ": Number of iterations\t-> " << n << "\n";
 
     return EXIT_SUCCESS;
 }
@@ -301,7 +293,7 @@ int main(int argc, char *argv[])
 // ============================================================================
 
 inline void printShortHelp(std::string progname) {
-    std::cout << "\tTry '" << progname << " --help' for more information.\n";
+    std::cout << "Try '" << progname << " --help' for more information.\n";
 }
 
 
@@ -310,7 +302,7 @@ inline void printUsage(
         std::string prefix,
         const clipp::doc_formatting& fmt)
 {
-    std::cout << clipp::usage_lines(cli, prefix, fmt) << '\n';
+    std::cout << clipp::usage_lines(cli, prefix, fmt) << "\n";
 }
 
 
@@ -320,7 +312,7 @@ void printVersionInfo() {
         << "\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law." << std::endl;
+There is NO WARRANTY, to the extent permitted by law.\n";
 }
 
 
