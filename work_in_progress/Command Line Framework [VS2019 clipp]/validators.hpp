@@ -319,34 +319,61 @@ public:
     void validate() const;
 };
 
-class NumericalValuesDomain {
+template <class T>
+class NumericalInterval {
 private:
-    int min_, max_;
-    bool include_min_, include_max_;
+    T lower_limit_, upper_limit_;
+    bool include_lower_limit_, include_upper_limit_;
 
 public:
-    // Default constructor
-    NumericalValuesDomain()
-        : min_(INT_MIN),
-        max_(INT_MAX),
-        inlcude_min_(true),
-        include_max_(true) { }
-    NumericalValuesDomain(
-            int lower_limit,
-            int upper_limit,
+    class LimitsError {};
+
+    NumericalInterval(
+            T lower_limit,
+            T upper_limit,
             bool include_lower_limit,
             bool include_upper_limit
-            )
-        : min_(lower_limit),
-        max_(upper_limit),
-        inlcude_min_(include_lower_limit),
-        include_max_(include_upper_limit) { }
-    ~NumericalValuesDomain() { }
-    int lower_limit() const { return min_; }
-    int upper_limit() const { return max_; }
-    bool include_lower_limit() const { return include_min_; }
-    bool include_upper_limit() const { return include_max_; }
-    bool is_within_domain(int n);
+            );
+    ~NumericalInterval() { }
+    T lower_limit() const { return lower_limit_; }
+    T upper_limit() const { return upper_limit_; }
+    bool include_lower_limit() const { return include_lower_limit_; }
+    bool include_upper_limit() const { return include_upper_limit_; }
+    bool is_within_interval(T x) const;
+};
+
+template <class T>
+NumericalInterval<T>::NumericalInterval(
+        T lower_limit,
+        T upper_limit,
+        bool include_lower_limit,
+        bool include_upper_limit
+        ) {
+    if(lower_limit >= upper_limit) {
+        throw NumericalInterval<T>::LimitsError {};
+    }
+
+    lower_limit_ = lower_limit;
+    upper_limit_ = upper_limit;
+    include_lower_limit_ = include_lower_limit;
+    include_upper_limit_ = include_upper_limit;
+}
+
+template <class T>
+bool NumericalInterval<T>::is_within_interval(T x) const {
+    if(include_lower_limit_) {
+        if(lower_limit_ > x) return false;
+    } else {
+        if(lower_limit_ >= x) return false;
+    }
+
+    if(include_upper_limit_) {
+        if(upper_limit_ < x) return false;
+    } else {
+        if(lower_limit_ <= x) return false;
+    }
+
+    return true;
 }
 
 #endif  // CLFCLIPP_VALIDATORS_HPP_

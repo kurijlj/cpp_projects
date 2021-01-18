@@ -114,3 +114,37 @@ void PathValidator::validate() const {
             throw PathValidatorImp::EmptyStorage {};
     }
 }
+
+// template <class T>
+// NumericalInterval<T>::NumericalInterval(
+//         T lower_limit,
+//         T upper_limit,
+//         bool include_lower_limit,
+//         bool include_upper_limit
+//         ) {
+//     if(lower_limit >= upper_limit) {
+//         throw NumericalInterval<T>::LimitsError {};
+//     }
+// 
+//     lower_limit_ = lower_limit;
+//     upper_limit_ = upper_limit;
+//     include_lower_limit_ = include_lower_limit;
+//     include_upper_limit_ = include_upper_limit;
+// }
+// 
+// template <class T>
+// bool NumericalInterval<T>::is_within_interval(T x) const {
+//     if(include_lower_limit_) {
+//         if(lower_limit_ > x) return false;
+//     } else {
+//         if(lower_limit_ >= x) return false;
+//     }
+// 
+//     if(include_upper_limit_) {
+//         if(upper_limit_ < x) return false;
+//     } else {
+//         if(lower_limit_ <= x) return false;
+//     }
+// 
+//     return true;
+// }

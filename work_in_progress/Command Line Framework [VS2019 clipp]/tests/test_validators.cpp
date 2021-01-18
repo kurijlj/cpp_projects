@@ -44,7 +44,10 @@
 // Headers include section
 // ============================================================================
 
-#include <lest.hpp>  // required by unit testing framework
+#include <lest.hpp>           // required by unit testing framework
+
+#include <limits>             // required by numerical limits template class
+
 #include "..\validators.hpp"  // User input validation classes
 
 
@@ -63,11 +66,11 @@ const ls::test specification[] =
 {
     CASE ("Directory Validator") {
         SETUP ("aep: false, ane: false, aes: false") {
-            const PathValidatorFlags flags {false, false, false};
+            PathValidatorFlags flags {false, false, false};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -78,8 +81,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -93,8 +96,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -108,8 +111,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -123,8 +126,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -136,11 +139,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: false, aes: true") {
-            const PathValidatorFlags flags {false, false, true};
+            PathValidatorFlags flags {false, false, true};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -151,8 +154,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -166,8 +169,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -181,8 +184,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -193,8 +196,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -206,11 +209,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: true, aes: false") {
-            const PathValidatorFlags flags {false, true, false};
+            PathValidatorFlags flags {false, true, false};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -221,8 +224,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -233,8 +236,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -248,8 +251,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -263,8 +266,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -276,11 +279,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: true, aes: true") {
-            const PathValidatorFlags flags {false, true, true};
+            PathValidatorFlags flags {false, true, true};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -291,8 +294,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -303,8 +306,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -318,8 +321,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -330,8 +333,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -343,11 +346,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: false, aes: false") {
-            const PathValidatorFlags flags {true, false, false};
+            PathValidatorFlags flags {true, false, false};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -358,8 +361,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -373,8 +376,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -388,8 +391,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -401,8 +404,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -414,11 +417,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: false, aes: true") {
-            const PathValidatorFlags flags {true, false, true};
+            PathValidatorFlags flags {true, false, true};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -429,8 +432,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -444,8 +447,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -459,8 +462,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -471,8 +474,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -484,11 +487,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: true, aes: false") {
-            const PathValidatorFlags flags {true, true, false};
+            PathValidatorFlags flags {true, true, false};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -499,8 +502,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -511,8 +514,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -526,8 +529,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -541,8 +544,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -554,11 +557,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: true, aes: true") {
-            const PathValidatorFlags flags {true, true, true};
+            PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {""};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {""};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -569,8 +572,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const DirValidatorImp dvi {".\\Masha"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\Masha"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -581,8 +584,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (file)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -596,8 +599,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (directory)") {
-                const DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -608,8 +611,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const DirValidatorImp dvi {".\\"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {".\\"};
+                PathValidator vd {dvi, flags};
 
                 EXPECT (".\\" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -623,11 +626,11 @@ const ls::test specification[] =
 
     CASE ("File Validator") {
         SETUP ("aep: false, ane: false, aes: false") {
-            const PathValidatorFlags flags {false, false, false};
+            PathValidatorFlags flags {false, false, false};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -638,8 +641,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -653,8 +656,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -668,8 +671,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -683,10 +686,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -698,11 +701,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: false, aes: true") {
-            const PathValidatorFlags flags {false, false, true};
+            PathValidatorFlags flags {false, false, true};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -713,8 +716,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -728,8 +731,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -743,8 +746,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -755,10 +758,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -770,11 +773,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: true, aes: false") {
-            const PathValidatorFlags flags {false, true, false};
+            PathValidatorFlags flags {false, true, false};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -785,8 +788,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -797,8 +800,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -812,8 +815,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -825,10 +828,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -840,11 +843,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: false, ane: true, aes: true") {
-            const PathValidatorFlags flags {false, true, true};
+            PathValidatorFlags flags {false, true, true};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -855,8 +858,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -867,8 +870,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -882,8 +885,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -894,10 +897,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -909,11 +912,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: false, aes: false") {
-            const PathValidatorFlags flags {true, false, false};
+            PathValidatorFlags flags {true, false, false};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -924,8 +927,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -939,8 +942,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -954,8 +957,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -967,10 +970,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -982,11 +985,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: false, aes: true") {
-            const PathValidatorFlags flags {true, false, true};
+            PathValidatorFlags flags {true, false, true};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -997,8 +1000,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1012,8 +1015,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1027,8 +1030,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1039,10 +1042,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1054,11 +1057,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: true, aes: false") {
-            const PathValidatorFlags flags {true, true, false};
+            PathValidatorFlags flags {true, true, false};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -1069,8 +1072,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1081,8 +1084,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_dir"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_dir" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1096,8 +1099,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1109,10 +1112,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (file)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1124,11 +1127,11 @@ const ls::test specification[] =
         }
 
         SETUP ("aep: true, ane: true, aes: true") {
-            const PathValidatorFlags flags {true, true, true};
+            PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {""};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {""};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("" == vd.value());
                 EXPECT (true == vd.is_empty_path());
@@ -1139,8 +1142,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Nonexistent path") {
-                const FileValidatorImp fvi {".\\Masha"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\Masha"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\Masha" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1151,8 +1154,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Improper type (directory)") {
-                const FileValidatorImp fvi {".\\"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {".\\"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT (".\\" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1166,8 +1169,8 @@ const ls::test specification[] =
             }
 
             SECTION ("Empty storage (file)") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1178,10 +1181,10 @@ const ls::test specification[] =
             }
 
             SECTION ("Valid path (directory)") {
-                const FileValidatorImp fvi {
+                FileValidatorImp fvi {
                     "..\\..\\data\\file_with_some_text.txt"
                 };
-                const PathValidator vd {fvi, flags};
+                PathValidator vd {fvi, flags};
 
                 EXPECT ("..\\..\\data\\file_with_some_text.txt" == vd.value());
                 EXPECT (false == vd.is_empty_path());
@@ -1189,6 +1192,149 @@ const ls::test specification[] =
                 EXPECT (true == vd.is_proper_type());
                 EXPECT (false == vd.is_empty_storage());
                 EXPECT_NO_THROW(vd.validate());
+            }
+        }
+    },
+
+
+    CASE ("Numerical Interval") {
+        SETUP ("Integers") {
+            SECTION ("Inverted Interval") {
+                EXPECT_THROWS_AS (
+                    NumericalInterval<int> interval(10, -5, true, true),
+                    NumericalInterval<int>::LimitsError
+                );
+            }
+
+            SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
+                EXPECT_THROWS_AS (
+                    NumericalInterval<int> interval(
+                        std::numeric_limits<int>::max(),
+                        std::numeric_limits<int>::min(),
+                        true,
+                        true
+                        ),
+                    NumericalInterval<int>::LimitsError
+                );
+            }
+
+            SECTION ("[0, 10)") {
+                NumericalInterval<int> interval(0, 10, true, false);
+                EXPECT (false == interval.is_within_interval(-5));
+                EXPECT (false == interval.is_within_interval(-1));
+                EXPECT (false == interval.is_within_interval(10));
+                EXPECT (false == interval.is_within_interval(100));
+                EXPECT (true == interval.is_within_interval(0));
+                EXPECT (true == interval.is_within_interval(5));
+                EXPECT (true == interval.is_within_interval(9));
+            }
+
+            SECTION ("(INT_MIN, INT_MAX)") {
+                NumericalInterval<int> interval(
+                        std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::max(),
+                        false,
+                        false
+                        );
+                EXPECT (false == interval.is_within_interval(
+                            std::numeric_limits<int>::min()
+                            ));
+                EXPECT (false == interval.is_within_interval(
+                            std::numeric_limits<int>::max()
+                            ));
+                EXPECT (true == interval.is_within_interval(12345));
+            }
+
+            SECTION ("[INT_MIN, INT_MAX]") {
+                NumericalInterval<int> interval(
+                        std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::max(),
+                        true,
+                        true
+                        );
+                EXPECT (true == interval.is_within_interval(
+                            std::numeric_limits<int>::min()
+                            ));
+                EXPECT (true == interval.is_within_interval(
+                            std::numeric_limits<int>::max()
+                            ));
+                EXPECT (true == interval.is_within_interval(12345));
+            }
+        }
+
+        SETUP ("Floats") {
+            SECTION ("Inverted Interval") {
+                EXPECT_THROWS_AS (
+                    NumericalInterval<float> interval(13.325, 0.0, true, true),
+                    NumericalInterval<float>::LimitsError
+                );
+            }
+
+            SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
+                EXPECT_THROWS_AS (
+                    NumericalInterval<float> interval(
+                        std::numeric_limits<float>::max(),
+                        std::numeric_limits<float>::min(),
+                        true,
+                        true
+                        ),
+                    NumericalInterval<float>::LimitsError
+                );
+            }
+
+            SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
+                EXPECT_THROWS_AS (
+                    NumericalInterval<float> interval(
+                        std::numeric_limits<float>::max(),
+                        std::numeric_limits<float>::min(),
+                        true,
+                        true
+                        ),
+                    NumericalInterval<float>::LimitsError
+                );
+            }
+
+            SECTION ("[3.14, 10.0)") {
+                NumericalInterval<float> interval(3.14, 9.999, true, false);
+                EXPECT (false == interval.is_within_interval(-5.27));
+                EXPECT (false == interval.is_within_interval(-1.76));
+                EXPECT (false == interval.is_within_interval(10.0));
+                EXPECT (false == interval.is_within_interval(1013.65));
+                EXPECT (true == interval.is_within_interval(3.14));
+                EXPECT (true == interval.is_within_interval(5.0));
+                EXPECT (true == interval.is_within_interval(9.999));
+            }
+
+            SECTION ("(INT_MIN, INT_MAX)") {
+                NumericalInterval<float> interval(
+                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::max(),
+                        false,
+                        false
+                        );
+                EXPECT (false == interval.is_within_interval(
+                            std::numeric_limits<float>::min()
+                            ));
+                EXPECT (false == interval.is_within_interval(
+                            std::numeric_limits<float>::max()
+                            ));
+                EXPECT (true == interval.is_within_interval(-3000.13));
+            }
+
+            SECTION ("[INT_MIN, INT_MAX]") {
+                NumericalInterval<float> interval(
+                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::max(),
+                        true,
+                        true
+                        );
+                EXPECT (true == interval.is_within_interval(
+                            std::numeric_limits<float>::min()
+                            ));
+                EXPECT (true == interval.is_within_interval(
+                            std::numeric_limits<float>::max()
+                            ));
+                EXPECT (true == interval.is_within_interval(12345.0));
             }
         }
     }
