@@ -57,8 +57,9 @@
 // Headers include section
 // ============================================================================
 
-#include <string>      // self explanatory ...
 #include <filesystem>  // Used for testing directory and file status
+#include <limits>      // Used for numerical values limits
+#include <string>      // self explanatory ...
 
 
 // ============================================================================
@@ -326,7 +327,15 @@ private:
     bool include_lower_limit_, include_upper_limit_;
 
 public:
+    // Exceptions
     class LimitsError {};
+
+    // Default constructor
+    NumericalInterval()
+        : lower_limit_(std::numeric_limits<T>::lowest()),
+        upper_limit_(std::numeric_limits<T>::max()),
+        include_lower_limit_(true),
+        include_upper_limit_(true) { }
 
     NumericalInterval(
             T lower_limit,
@@ -370,7 +379,7 @@ bool NumericalInterval<T>::is_within_interval(T x) const {
     if(include_upper_limit_) {
         if(upper_limit_ < x) return false;
     } else {
-        if(lower_limit_ <= x) return false;
+        if(upper_limit_ <= x) return false;
     }
 
     return true;

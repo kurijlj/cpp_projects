@@ -1210,7 +1210,7 @@ const ls::test specification[] =
                 EXPECT_THROWS_AS (
                     NumericalInterval<int> interval(
                         std::numeric_limits<int>::max(),
-                        std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::lowest(),
                         true,
                         true
                         ),
@@ -1231,13 +1231,13 @@ const ls::test specification[] =
 
             SECTION ("(INT_MIN, INT_MAX)") {
                 NumericalInterval<int> interval(
-                        std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::lowest(),
                         std::numeric_limits<int>::max(),
                         false,
                         false
                         );
                 EXPECT (false == interval.is_within_interval(
-                            std::numeric_limits<int>::min()
+                            std::numeric_limits<int>::lowest()
                             ));
                 EXPECT (false == interval.is_within_interval(
                             std::numeric_limits<int>::max()
@@ -1247,13 +1247,13 @@ const ls::test specification[] =
 
             SECTION ("[INT_MIN, INT_MAX]") {
                 NumericalInterval<int> interval(
-                        std::numeric_limits<int>::min(),
+                        std::numeric_limits<int>::lowest(),
                         std::numeric_limits<int>::max(),
                         true,
                         true
                         );
                 EXPECT (true == interval.is_within_interval(
-                            std::numeric_limits<int>::min()
+                            std::numeric_limits<int>::lowest()
                             ));
                 EXPECT (true == interval.is_within_interval(
                             std::numeric_limits<int>::max()
@@ -1270,11 +1270,11 @@ const ls::test specification[] =
                 );
             }
 
-            SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
+            SECTION ("Inverted Interval (FLT_MIN, FLT_MAX)") {
                 EXPECT_THROWS_AS (
                     NumericalInterval<float> interval(
                         std::numeric_limits<float>::max(),
-                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::lowest(),
                         true,
                         true
                         ),
@@ -1282,11 +1282,11 @@ const ls::test specification[] =
                 );
             }
 
-            SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
+            SECTION ("Inverted Interval (FLT_MIN, FLT_MAX)") {
                 EXPECT_THROWS_AS (
                     NumericalInterval<float> interval(
                         std::numeric_limits<float>::max(),
-                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::lowest(),
                         true,
                         true
                         ),
@@ -1294,7 +1294,7 @@ const ls::test specification[] =
                 );
             }
 
-            SECTION ("[3.14, 10.0)") {
+            SECTION ("[3.14, 9.999)") {
                 NumericalInterval<float> interval(3.14, 9.999, true, false);
                 EXPECT (false == interval.is_within_interval(-5.27));
                 EXPECT (false == interval.is_within_interval(-1.76));
@@ -1302,34 +1302,34 @@ const ls::test specification[] =
                 EXPECT (false == interval.is_within_interval(1013.65));
                 EXPECT (true == interval.is_within_interval(3.14));
                 EXPECT (true == interval.is_within_interval(5.0));
-                EXPECT (true == interval.is_within_interval(9.999));
+                EXPECT (true == interval.is_within_interval(9.998));
             }
 
-            SECTION ("(INT_MIN, INT_MAX)") {
+            SECTION ("(FLT_MIN, FLT_MAX)") {
                 NumericalInterval<float> interval(
-                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::lowest(),
                         std::numeric_limits<float>::max(),
                         false,
                         false
                         );
                 EXPECT (false == interval.is_within_interval(
-                            std::numeric_limits<float>::min()
+                            std::numeric_limits<float>::lowest()
                             ));
                 EXPECT (false == interval.is_within_interval(
                             std::numeric_limits<float>::max()
                             ));
-                EXPECT (true == interval.is_within_interval(-3000.13));
+                EXPECT (true == interval.is_within_interval(-300.131));
             }
 
-            SECTION ("[INT_MIN, INT_MAX]") {
+            SECTION ("[FLT_MIN, FLT_MAX]") {
                 NumericalInterval<float> interval(
-                        std::numeric_limits<float>::min(),
+                        std::numeric_limits<float>::lowest(),
                         std::numeric_limits<float>::max(),
                         true,
                         true
                         );
                 EXPECT (true == interval.is_within_interval(
-                            std::numeric_limits<float>::min()
+                            std::numeric_limits<float>::lowest()
                             ));
                 EXPECT (true == interval.is_within_interval(
                             std::numeric_limits<float>::max()
