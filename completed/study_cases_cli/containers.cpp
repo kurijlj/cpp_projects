@@ -1,8 +1,7 @@
-
 // ============================================================================
-// <one line to give the program's name and a brief idea of what it does.>
+// Containers Study Case - a simple functionality tests
 //
-//  Copyright (C) <yyyy> <Author Name> <author@mail.com>
+//  Copyright (C) 2021 Ljubomir Kurij ljubomir_kurij@protonmail.com
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,11 +21,9 @@
 
 // ============================================================================
 //
-// <Put documentation here>
+// 2021-01-26 Ljubomir Kurij ljubomir_kurij@protonmail.com
 //
-// <yyyy>-<mm>-<dd> <Author Name> <author@mail.com>
-//
-// * validators.hpp: created.
+// * containers.cpp: created.
 //
 // ============================================================================
 
@@ -55,62 +52,25 @@
 // Headers include section
 // ============================================================================
 
-#include <filesystem>  // Used for testing directory and file status
-#include "validators.hpp"
+#include <algorithm>  // required by for_each()
+#include <cstdlib>    // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <iostream>   // required by cin, cout, ...
+#include <set>        // self explanatory
 
 
 // ============================================================================
-// Define namespace aliases
+// Main function entry
 // ============================================================================
 
-namespace fs = std::filesystem;
+int main(int argc, char *argv[])
+{
+    std::set<int> valid_values{3, 1, 5, 0, 4, 2};
+    std::for_each(valid_values.cbegin(), valid_values.cend(), [](int x) {
+        std::cout << x << ' ';
+    });
+    std::cout << '\n';
+    std::cout << *valid_values.cbegin() << '\n';   // get first element
+    std::cout << *valid_values.crbegin() << '\n';  // get last element
 
-
-// ============================================================================
-// Global constants section
-// ============================================================================
-
-
-// ============================================================================
-// Global variables section
-// ============================================================================
-
-
-// ============================================================================
-// Validator definitions
-// ============================================================================
-
-bool PathValidatorImp::exists() const {
-    if (!is_empty_path()) return fs::exists(pth_);
-
-    return false;
-}
-
-bool PathValidatorImp::is_empty_storage() const {
-    if (exists()) return fs::is_empty(pth_);
-
-    return true;
-}
-
-bool DirValidatorImp::is_directory() const {
-    if (exists()) return fs::is_directory(pth_);
-
-    return false;
-}
-
-void PathValidator::validate() const {
-    if (imp_.is_empty_path()) {
-        if (!flags_.accept_empty_path()) throw PathValidatorImp::EmptyPath {};
-        else return;
-    }
-    if (!imp_.exists()) {
-        if (!flags_.accept_nonexistent())
-            throw PathValidatorImp::NonExistent {};
-        else return;
-    }
-    if (!imp_.is_proper_type()) imp_.type_mismatch_throw();
-    if (imp_.is_empty_storage()) {
-        if (!flags_.accept_empty_storage())
-            throw PathValidatorImp::EmptyStorage {};
-    }
+    return EXIT_SUCCESS;
 }

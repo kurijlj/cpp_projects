@@ -57,9 +57,12 @@
 // Headers include section
 // ============================================================================
 
+#include <algorithm>   // required by for_each()
 #include <filesystem>  // Used for testing directory and file status
 #include <limits>      // Used for numerical values limits
 #include <string>      // self explanatory ...
+#include <set>         // Used for descrete values intervals
+#include <sstream>     // Required by ostringstream
 
 
 // ============================================================================
@@ -321,7 +324,7 @@ public:
 };
 
 template <class T>
-class NumericalInterval {
+class CntNumInterval {
 private:
     T lower_limit_, upper_limit_;
     bool include_lower_limit_, include_upper_limit_;
@@ -331,35 +334,36 @@ public:
     class LimitsError {};
 
     // Default constructor
-    NumericalInterval()
+    CntNumInterval()
         : lower_limit_(std::numeric_limits<T>::lowest()),
         upper_limit_(std::numeric_limits<T>::max()),
         include_lower_limit_(true),
         include_upper_limit_(true) { }
 
-    NumericalInterval(
+    CntNumInterval(
             T lower_limit,
             T upper_limit,
             bool include_lower_limit,
             bool include_upper_limit
             );
-    ~NumericalInterval() { }
+    ~CntNumInterval() { }
     T lower_limit() const { return lower_limit_; }
     T upper_limit() const { return upper_limit_; }
     bool include_lower_limit() const { return include_lower_limit_; }
     bool include_upper_limit() const { return include_upper_limit_; }
     bool is_within_interval(T x) const;
+    std::string str_repr() const;
 };
 
 template <class T>
-NumericalInterval<T>::NumericalInterval(
+CntNumInterval<T>::CntNumInterval(
         T lower_limit,
         T upper_limit,
         bool include_lower_limit,
         bool include_upper_limit
         ) {
     if(lower_limit >= upper_limit) {
-        throw NumericalInterval<T>::LimitsError {};
+        throw CntNumInterval<T>::LimitsError {};
     }
 
     lower_limit_ = lower_limit;
@@ -369,7 +373,7 @@ NumericalInterval<T>::NumericalInterval(
 }
 
 template <class T>
-bool NumericalInterval<T>::is_within_interval(T x) const {
+bool CntNumInterval<T>::is_within_interval(T x) const {
     if(include_lower_limit_) {
         if(lower_limit_ > x) return false;
     } else {
@@ -383,6 +387,61 @@ bool NumericalInterval<T>::is_within_interval(T x) const {
     }
 
     return true;
+}
+
+template <class T>
+std::string CntNumInterval<T>::str_repr() const {
+    std::ostringstream oss;
+
+    oss << (include_lower_limit_ ? "[" : "(")
+        << lower_limit_ << ", " << upper_limit_
+        << (include_upper_limit_ ? "]" : ")");
+
+    return oss.str();
+}
+
+template <class T>
+class NumericalInputValidator {
+private:
+    T& value_;
+    CntNumInterval<T>& domain_;
+
+public:
+    NumericalInputValidator(T& value, CntNumInterval<T>& domain)
+        : value_(value), domain_(domain) { }
+    ~NumericalInputValidator() { }
+    bool validate() const { return domain_.is_within_interval(value_); }
+    T value() const { return value_; }
+};
+
+template <class T>
+class ListOfChoices {
+private:
+    std::set<T>& valid_values_;
+
+public:
+    ListOfChoices(std::set<T>& valid_values)
+        : valid_values_(valid_values) { }
+    ~ListOfChoices() { }
+    int number_of_elements() const { return valid_values_.size(); }
+    bool on_list(T value) const {
+        return ((valid_values_.count(value) > 0) ? true : false);
+    }
+    std::string str_repr() const;
+};
+
+template <class T>
+std::string ListOfChoices<T>::str_repr() const {
+    std::ostringstream oss;
+    int noe = valid_values_.size();
+    int cntr = 1;
+    
+    for (auto it=valid_values_.cbegin(); it != valid_values_.cend(); ++it) {
+        oss << *it << (cntr < noe ? ", " : "");
+        cntr++;
+    }
+
+    return oss.str();
 }
 
 #endif  // CLFCLIPP_VALIDATORS_HPP_

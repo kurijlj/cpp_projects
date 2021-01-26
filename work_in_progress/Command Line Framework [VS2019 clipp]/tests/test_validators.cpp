@@ -44,9 +44,11 @@
 // Headers include section
 // ============================================================================
 
-#include <lest.hpp>           // required by unit testing framework
+#include <lest.hpp>           // Required by unit testing framework
 
-#include <limits>             // required by numerical limits template class
+#include <limits>             // Required by numerical limits template class
+#include <set>                // Required by DescreteNumericalInterval class
+#include <string>             // Self explanatory
 
 #include "..\validators.hpp"  // User input validation classes
 
@@ -1197,29 +1199,30 @@ const ls::test specification[] =
     },
 
 
-    CASE ("Numerical Interval") {
+    CASE ("Continuous Numerical Interval") {
         SETUP ("Integers") {
             SECTION ("Inverted Interval") {
                 EXPECT_THROWS_AS (
-                    NumericalInterval<int> interval(10, -5, true, true),
-                    NumericalInterval<int>::LimitsError
+                    CntNumInterval<int> interval(10, -5, true, true),
+                    CntNumInterval<int>::LimitsError
                 );
             }
 
             SECTION ("Inverted Interval (INT_MIN, INT_MAX)") {
                 EXPECT_THROWS_AS (
-                    NumericalInterval<int> interval(
+                    CntNumInterval<int> interval(
                         std::numeric_limits<int>::max(),
                         std::numeric_limits<int>::lowest(),
                         true,
                         true
                         ),
-                    NumericalInterval<int>::LimitsError
+                    CntNumInterval<int>::LimitsError
                 );
             }
 
             SECTION ("[0, 10)") {
-                NumericalInterval<int> interval(0, 10, true, false);
+                CntNumInterval<int> interval(0, 10, true, false);
+                EXPECT ("[0, 10)" == interval.str_repr());
                 EXPECT (false == interval.is_within_interval(-5));
                 EXPECT (false == interval.is_within_interval(-1));
                 EXPECT (false == interval.is_within_interval(10));
@@ -1230,7 +1233,7 @@ const ls::test specification[] =
             }
 
             SECTION ("(INT_MIN, INT_MAX)") {
-                NumericalInterval<int> interval(
+                CntNumInterval<int> interval(
                         std::numeric_limits<int>::lowest(),
                         std::numeric_limits<int>::max(),
                         false,
@@ -1246,7 +1249,7 @@ const ls::test specification[] =
             }
 
             SECTION ("[INT_MIN, INT_MAX]") {
-                NumericalInterval<int> interval(
+                CntNumInterval<int> interval(
                         std::numeric_limits<int>::lowest(),
                         std::numeric_limits<int>::max(),
                         true,
@@ -1265,37 +1268,38 @@ const ls::test specification[] =
         SETUP ("Floats") {
             SECTION ("Inverted Interval") {
                 EXPECT_THROWS_AS (
-                    NumericalInterval<float> interval(13.325, 0.0, true, true),
-                    NumericalInterval<float>::LimitsError
+                    CntNumInterval<float> interval(13.325, 0.0, true, true),
+                    CntNumInterval<float>::LimitsError
                 );
             }
 
             SECTION ("Inverted Interval (FLT_MIN, FLT_MAX)") {
                 EXPECT_THROWS_AS (
-                    NumericalInterval<float> interval(
+                    CntNumInterval<float> interval(
                         std::numeric_limits<float>::max(),
                         std::numeric_limits<float>::lowest(),
                         true,
                         true
                         ),
-                    NumericalInterval<float>::LimitsError
+                    CntNumInterval<float>::LimitsError
                 );
             }
 
             SECTION ("Inverted Interval (FLT_MIN, FLT_MAX)") {
                 EXPECT_THROWS_AS (
-                    NumericalInterval<float> interval(
+                    CntNumInterval<float> interval(
                         std::numeric_limits<float>::max(),
                         std::numeric_limits<float>::lowest(),
                         true,
                         true
                         ),
-                    NumericalInterval<float>::LimitsError
+                    CntNumInterval<float>::LimitsError
                 );
             }
 
             SECTION ("[3.14, 9.999)") {
-                NumericalInterval<float> interval(3.14, 9.999, true, false);
+                CntNumInterval<float> interval(3.14, 9.999, true, false);
+                EXPECT ("[3.14, 9.999)" == interval.str_repr());
                 EXPECT (false == interval.is_within_interval(-5.27));
                 EXPECT (false == interval.is_within_interval(-1.76));
                 EXPECT (false == interval.is_within_interval(10.0));
@@ -1306,7 +1310,7 @@ const ls::test specification[] =
             }
 
             SECTION ("(FLT_MIN, FLT_MAX)") {
-                NumericalInterval<float> interval(
+                CntNumInterval<float> interval(
                         std::numeric_limits<float>::lowest(),
                         std::numeric_limits<float>::max(),
                         false,
@@ -1322,7 +1326,7 @@ const ls::test specification[] =
             }
 
             SECTION ("[FLT_MIN, FLT_MAX]") {
-                NumericalInterval<float> interval(
+                CntNumInterval<float> interval(
                         std::numeric_limits<float>::lowest(),
                         std::numeric_limits<float>::max(),
                         true,
@@ -1335,6 +1339,69 @@ const ls::test specification[] =
                             std::numeric_limits<float>::max()
                             ));
                 EXPECT (true == interval.is_within_interval(12345.0));
+            }
+        }
+    },
+
+    CASE ("Numerical Input Validator") {
+        SETUP ("Integers") {
+            SECTION ("Invalid input") {
+                int value = 300;
+                CntNumInterval<int> valid_values(0, 255, true, true);
+                NumericalInputValidator<int> input(value, valid_values);
+                EXPECT (300 == input.value());
+                EXPECT (false == input.validate());
+            }
+
+            SECTION ("Valid input") {
+                int value = 128;
+                CntNumInterval<int> valid_values(0, 255, true, true);
+                NumericalInputValidator<int> input(value, valid_values);
+                EXPECT (128 == input.value());
+                EXPECT (true == input.validate());
+            }
+        }
+
+        SETUP ("Floats") {
+            CntNumInterval<float> valid_values(-100.0, 1000.0, false, false);
+            SECTION ("Invalid input") {
+                float value = 12345.7;
+                NumericalInputValidator<float> input(value, valid_values);
+                EXPECT (0.001 > (input.value() - 12345.7));
+                EXPECT (false == input.validate());
+            }
+
+            SECTION ("Valid input") {
+                float value = 0.0;
+                NumericalInputValidator<float> input(value, valid_values);
+                EXPECT (0.0 == input.value());
+                EXPECT (true == input.validate());
+            }
+        }
+    },
+
+    CASE ("List of choices") {
+        SETUP ("Numbers") {
+            std::set<int> valid_values{1, 2, 3, 4, 5};
+            ListOfChoices<int> valid_choices(valid_values);
+            SECTION ("Test numerical choices") {
+                EXPECT (5 == valid_choices.number_of_elements());
+                EXPECT (false == valid_choices.on_list(10));
+                EXPECT (false == valid_choices.on_list(0));
+                EXPECT (true == valid_choices.on_list(3));
+                EXPECT ("1, 2, 3, 4, 5" == valid_choices.str_repr());
+            }
+        }
+
+        SETUP ("Strings") {
+            std::set<std::string> valid_values{"red", "green", "blue"};
+            ListOfChoices<std::string> valid_choices(valid_values);
+            SECTION ("Test text choices") {
+                EXPECT (3 == valid_choices.number_of_elements());
+                EXPECT (false == valid_choices.on_list(""));
+                EXPECT (false == valid_choices.on_list("Hello!"));
+                EXPECT (true == valid_choices.on_list("blue"));
+                EXPECT ("blue, green, red" == valid_choices.str_repr());
             }
         }
     }

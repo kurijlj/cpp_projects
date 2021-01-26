@@ -43,15 +43,19 @@
 
 
 # Macros definitions ##########################################################
+NAME_CT = containers
 NAME_SP = smart_pointers
 NAME_TC = test_clipp
 
+TARGET_CT = $(NAME_CT).exe
 TARGET_SP = $(NAME_SP).exe
 TARGET_TC = $(NAME_TC).exe
 
+PDB_CT = $(NAME_CT).pdb
 PDB_SP = $(NAME_SP).pdb
 PDB_TC = $(NAME_TC).pdb
 
+DIR_CT = .\$(NAME_CT)
 DIR_SP = .\$(NAME_SP)
 DIR_TC = .\$(NAME_TC)
 
@@ -65,6 +69,7 @@ CXXFLAGS = -c -pipe -std=c++17 -g -O0 -v -pedantic -Wall -Wextra -fcolor-diagnos
 LINKER = clang++
 LFLAGS = -fcolor-diagnostics
 
+LFLAGS_CT = -Wl,/debug,/pdb:$(PDB_CT)
 LFLAGS_SP = -Wl,/debug,/pdb:$(PDB_SP)
 LFLAGS_TC = -Wl,/debug,/pdb:$(PDB_TC)
 
@@ -72,7 +77,12 @@ INCPATH = -I.\include
 
 
 # Build cases ###################################################################
-all : smart_pointers test_clipp
+all : containers smart_pointers test_clipp
+
+containers : ct_dir ct_obj
+	@cd $(DIR_CT)
+	$(LINKER) $(LFLAGS) $(LFLAGS_CP) -o $(TARGET_CT) $(NAME_CT).o
+	@cd ..
 
 smart_pointers : sp_dir sp_obj
 	@cd $(DIR_SP)
@@ -88,6 +98,9 @@ test_clipp : tc_dir tc_obj
 # Build prerequisites #########################################################
 
 # Dirs
+ct_dir:
+	@if not exist $(DIR_CT) mkdir $(DIR_CT)
+
 sp_dir:
 	@if not exist $(DIR_SP) mkdir $(DIR_SP)
 
@@ -96,6 +109,9 @@ tc_dir:
 
 
 # Compile object files
+ct_obj:
+	$(CXX) $(CXXFLAGS) -o $(DIR_CT)\$(NAME_CT).o $(NAME_CT).cpp
+
 sp_obj:
 	$(CXX) $(CXXFLAGS) -o $(DIR_SP)\$(NAME_SP).o $(NAME_SP).cpp
 
@@ -111,20 +127,26 @@ help :
 	@echo [help] - show this help message and exit
 	@echo.
 	@echo * Build options
+	@echo [containers] - Build "Containers" study case
 	@echo [smart_pointers] - Build "Smart Pointers" study case
 	@echo [test_clipp] - Build "Test Clipp" study case
 	@echo.
 	@echo * Cleaning options
 	@echo [clean] - clear object files from all previous build
+	@echo [clean_containers] - clear object files for the "Containers" study case
 	@echo [clean_smart_pointer] - clear object files for the "Smart Pointers" study case
 	@echo [clean_test_clipp] - clear object files for the "Test Clipp" study case
 	@echo [cleanall] - clear all compiled files from previous builds
+	@echo [cleanall_containers] - clear all compiled files for the "Containers" study case
 	@echo [cleanall_smart_pointers] - clear all compiled files for the "Smart Pointers" study case
 	@echo [cleanall_test_clipp] - clear all compiled files for the "Test Clipp" study case
 
 
 # Clean intermediate files ####################################################
-clean: clean_smart_pointers clean_test_clipp
+clean: clean_containers clean_smart_pointers clean_test_clipp
+
+clean_containers :
+	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) $(DIR_CT)\$(PDB_CT) $(DIR_CT)\$(ILKS))
 
 clean_smart_pointers :
 	@if exist $(DIR_SP) (@del $(DIR_SP)\$(OBJS) $(DIR_SP)\$(PDB_SP) $(DIR_SP)\$(ILKS))
@@ -134,7 +156,10 @@ clean_test_clipp :
 
 
 # Clean everything except sources #############################################
-cleanall: cleanall_smart_pointers cleanall_test_clipp
+cleanall: cleanall_containers cleanall_smart_pointers cleanall_test_clipp
+
+cleanall_containers :
+	@if exist $(DIR_CT) (@rmdir /S /Q $(DIR_CT))
 
 cleanall_smart_pointers :
 	@if exist $(DIR_SP) (@rmdir /S /Q $(DIR_SP))
