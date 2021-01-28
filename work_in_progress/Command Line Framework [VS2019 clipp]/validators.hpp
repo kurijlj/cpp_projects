@@ -88,6 +88,142 @@ namespace fs = std::filesystem;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Continuous numerical input validators
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class CntNumInterval
+//
+// Defines continuos numerical range of values from which user input parameter
+// can take value from. It is intended for use with integer and float variable
+// types, nvertheless it should work with other numrical types too. Parameters
+// include_lower/upper_limit parameter is used to define do range limits also
+// define possible values for the user input parameter. There is also a
+// convenient method str_repr() returning strnig representation of the defined
+// numerical range for the purpose of generating user documentation.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class CntNumInterval {
+private:
+    T lower_limit_, upper_limit_;
+    bool include_lower_limit_, include_upper_limit_;
+
+public:
+    // Exceptions
+    class LimitsError {};
+
+    // Default constructor
+    CntNumInterval()
+        : lower_limit_(std::numeric_limits<T>::lowest()),
+        upper_limit_(std::numeric_limits<T>::max()),
+        include_lower_limit_(true),
+        include_upper_limit_(true) { }
+
+    CntNumInterval(
+            T lower_limit,
+            T upper_limit,
+            bool include_lower_limit,
+            bool include_upper_limit
+            );
+    ~CntNumInterval() { }
+    T lower_limit() const { return lower_limit_; }
+    T upper_limit() const { return upper_limit_; }
+    bool include_lower_limit() const { return include_lower_limit_; }
+    bool include_upper_limit() const { return include_upper_limit_; }
+    bool is_within_interval(T x) const;
+    std::string str_repr() const;
+};
+
+template <class T>
+CntNumInterval<T>::CntNumInterval(
+        T lower_limit,
+        T upper_limit,
+        bool include_lower_limit,
+        bool include_upper_limit
+        ) {
+    if(lower_limit >= upper_limit) {
+        throw CntNumInterval<T>::LimitsError {};
+    }
+
+    lower_limit_ = lower_limit;
+    upper_limit_ = upper_limit;
+    include_lower_limit_ = include_lower_limit;
+    include_upper_limit_ = include_upper_limit;
+}
+
+template <class T>
+bool CntNumInterval<T>::is_within_interval(T x) const {
+    if(include_lower_limit_) {
+        if(lower_limit_ > x) return false;
+    } else {
+        if(lower_limit_ >= x) return false;
+    }
+
+    if(include_upper_limit_) {
+        if(upper_limit_ < x) return false;
+    } else {
+        if(upper_limit_ <= x) return false;
+    }
+
+    return true;
+}
+
+template <class T>
+std::string CntNumInterval<T>::str_repr() const {
+    std::ostringstream oss;
+
+    oss << (include_lower_limit_ ? "[" : "(")
+        << lower_limit_ << ", " << upper_limit_
+        << (include_upper_limit_ ? "]" : ")");
+
+    return oss.str();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class NumericalInputValidator
+//
+// Class used to validate if user input parameter takes value from the
+// predefined range of values or not. Range of values that parameter can take
+// value from must be defined using CntNumInterval class instance and passed
+// to a constructor as parameter. If user input parameter does not belong to
+// the given interval validate() method throws an OutOfRange exception.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class NumericalInputValidator {
+private:
+    T& value_;
+    CntNumInterval<T>& domain_;
+
+public:
+    class OutOfRange {};
+
+    NumericalInputValidator(T& value, CntNumInterval<T>& domain)
+        : value_(value), domain_(domain) { }
+    ~NumericalInputValidator() { }
+    void validate() const {
+        if(!domain_.is_within_interval(value_))
+            throw NumericalInputValidator<T>::OutOfRange {};
+        else return;
+    }
+    T value() const { return value_; }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// System path input validators
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // class PathValidatorFlags
 //
 // Keeps state of path validator flags used to determine behavior of the path
@@ -207,8 +343,8 @@ public:
 //      * is_directory(): returns true if given path represents actual system
 //        directory;
 //      * is_proper_type(): interface method to be used by PathValidator
-//        instance to test is given path is of proper type (directory). It calls
-//        built in is_directory() method;
+//        instance to test is given path is of proper type (directory).
+//        It calls built in is_directory() method;
 //      * type_mismatch_throw(): interface method to be used by PathValidator
 //        instance on a call to PathValidator.validate() method to throw proper
 //        exception (NotDirectory) when given path does not represent actual
@@ -323,96 +459,23 @@ public:
     void validate() const;
 };
 
-template <class T>
-class CntNumInterval {
-private:
-    T lower_limit_, upper_limit_;
-    bool include_lower_limit_, include_upper_limit_;
 
-public:
-    // Exceptions
-    class LimitsError {};
+///////////////////////////////////////////////////////////////////////////////
+//
+// CList selection input validators
+//
+///////////////////////////////////////////////////////////////////////////////
 
-    // Default constructor
-    CntNumInterval()
-        : lower_limit_(std::numeric_limits<T>::lowest()),
-        upper_limit_(std::numeric_limits<T>::max()),
-        include_lower_limit_(true),
-        include_upper_limit_(true) { }
-
-    CntNumInterval(
-            T lower_limit,
-            T upper_limit,
-            bool include_lower_limit,
-            bool include_upper_limit
-            );
-    ~CntNumInterval() { }
-    T lower_limit() const { return lower_limit_; }
-    T upper_limit() const { return upper_limit_; }
-    bool include_lower_limit() const { return include_lower_limit_; }
-    bool include_upper_limit() const { return include_upper_limit_; }
-    bool is_within_interval(T x) const;
-    std::string str_repr() const;
-};
-
-template <class T>
-CntNumInterval<T>::CntNumInterval(
-        T lower_limit,
-        T upper_limit,
-        bool include_lower_limit,
-        bool include_upper_limit
-        ) {
-    if(lower_limit >= upper_limit) {
-        throw CntNumInterval<T>::LimitsError {};
-    }
-
-    lower_limit_ = lower_limit;
-    upper_limit_ = upper_limit;
-    include_lower_limit_ = include_lower_limit;
-    include_upper_limit_ = include_upper_limit;
-}
-
-template <class T>
-bool CntNumInterval<T>::is_within_interval(T x) const {
-    if(include_lower_limit_) {
-        if(lower_limit_ > x) return false;
-    } else {
-        if(lower_limit_ >= x) return false;
-    }
-
-    if(include_upper_limit_) {
-        if(upper_limit_ < x) return false;
-    } else {
-        if(upper_limit_ <= x) return false;
-    }
-
-    return true;
-}
-
-template <class T>
-std::string CntNumInterval<T>::str_repr() const {
-    std::ostringstream oss;
-
-    oss << (include_lower_limit_ ? "[" : "(")
-        << lower_limit_ << ", " << upper_limit_
-        << (include_upper_limit_ ? "]" : ")");
-
-    return oss.str();
-}
-
-template <class T>
-class NumericalInputValidator {
-private:
-    T& value_;
-    CntNumInterval<T>& domain_;
-
-public:
-    NumericalInputValidator(T& value, CntNumInterval<T>& domain)
-        : value_(value), domain_(domain) { }
-    ~NumericalInputValidator() { }
-    bool validate() const { return domain_.is_within_interval(value_); }
-    T value() const { return value_; }
-};
+///////////////////////////////////////////////////////////////////////////////
+//
+// class ListOfChoices
+//
+// Defines a list of possible values that user can select from. Values can be
+// of type std::string or integer. Values ase stored as elements of the ordered 
+// set in memory. There is also a convenient method str_repr() returning
+// formatted strnig representation of the list of possible parameter values.
+//
+///////////////////////////////////////////////////////////////////////////////
 
 template <class T>
 class ListOfChoices {
@@ -435,13 +498,44 @@ std::string ListOfChoices<T>::str_repr() const {
     std::ostringstream oss;
     int noe = valid_values_.size();
     int cntr = 1;
-    
+
     for (auto it=valid_values_.cbegin(); it != valid_values_.cend(); ++it) {
-        oss << *it << (cntr < noe ? ", " : "");
+        oss << "\"" << *it << "\"" << (cntr < noe ? ", " : "");
         cntr++;
     }
 
     return oss.str();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class NumericalInputValidator
+//
+// Class used to validate if user input parameter takes value from the
+// predefined list of values or not. List of values that parameter can take
+// value from must be defined using ListOfChoices class instance and passed
+// to a constructor as parameter.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class ListSelectionValidator {
+private:
+    T& selection_;
+    ListOfChoices<T>& valid_choices_;
+
+public:
+    class InvalidSelection {};
+
+    ListSelectionValidator(T& selection, ListOfChoices<T>& valid_choices)
+        : selection_(selection), valid_choices_(valid_choices) { }
+    ~ListSelectionValidator() { }
+    T value() const { return selection_; }
+    void validate() const {
+        if(!valid_choices_.on_list(selection_))
+            throw ListSelectionValidator<T>::InvalidSelection {};
+        else return;
+    }
+};
 
 #endif  // CLFCLIPP_VALIDATORS_HPP_

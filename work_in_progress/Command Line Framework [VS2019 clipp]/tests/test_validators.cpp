@@ -1350,7 +1350,10 @@ const ls::test specification[] =
                 CntNumInterval<int> valid_values(0, 255, true, true);
                 NumericalInputValidator<int> input(value, valid_values);
                 EXPECT (300 == input.value());
-                EXPECT (false == input.validate());
+                EXPECT_THROWS_AS (
+                        input.validate(),
+                        NumericalInputValidator<int>::OutOfRange
+                        );
             }
 
             SECTION ("Valid input") {
@@ -1358,7 +1361,7 @@ const ls::test specification[] =
                 CntNumInterval<int> valid_values(0, 255, true, true);
                 NumericalInputValidator<int> input(value, valid_values);
                 EXPECT (128 == input.value());
-                EXPECT (true == input.validate());
+                EXPECT_NO_THROW (input.validate());
             }
         }
 
@@ -1368,19 +1371,22 @@ const ls::test specification[] =
                 float value = 12345.7;
                 NumericalInputValidator<float> input(value, valid_values);
                 EXPECT (0.001 > (input.value() - 12345.7));
-                EXPECT (false == input.validate());
+                EXPECT_THROWS_AS (
+                        input.validate(),
+                        NumericalInputValidator<float>::OutOfRange
+                        );
             }
 
             SECTION ("Valid input") {
                 float value = 0.0;
                 NumericalInputValidator<float> input(value, valid_values);
                 EXPECT (0.0 == input.value());
-                EXPECT (true == input.validate());
+                EXPECT_NO_THROW (input.validate());
             }
         }
     },
 
-    CASE ("List of choices") {
+    CASE ("List of Choices") {
         SETUP ("Numbers") {
             std::set<int> valid_values{1, 2, 3, 4, 5};
             ListOfChoices<int> valid_choices(valid_values);
@@ -1402,6 +1408,62 @@ const ls::test specification[] =
                 EXPECT (false == valid_choices.on_list("Hello!"));
                 EXPECT (true == valid_choices.on_list("blue"));
                 EXPECT ("blue, green, red" == valid_choices.str_repr());
+            }
+        }
+    },
+
+    CASE ("List Selection Validator") {
+        SETUP ("Numbers") {
+            std::set<int> valid_values{1, 2, 3, 4, 5};
+            ListOfChoices<int> valid_choices(valid_values);
+            SECTION ("Invalid selection") {
+                int value = 0;
+                ListSelectionValidator<int> user_selection(
+                        value,
+                        valid_choices
+                        );
+                EXPECT (0 == user_selection.value());
+                EXPECT_THROWS_AS (
+                        user_selection.validate(),
+                        ListSelectionValidator<int>::InvalidSelection
+                        );
+            }
+
+            SECTION ("Valid selection") {
+                int value = 3;
+                ListSelectionValidator<int> user_selection(
+                        value,
+                        valid_choices
+                        );
+                EXPECT (3 == user_selection.value());
+                EXPECT_NO_THROW(user_selection.validate());
+            }
+        }
+
+        SETUP ("Strings") {
+            std::set<std::string> valid_values{"red", "green", "blue"};
+            ListOfChoices<std::string> valid_choices(valid_values);
+            SECTION ("Invalid selection") {
+                std::string value = "Hello";
+                ListSelectionValidator<std::string> user_selection(
+                        value,
+                        valid_choices
+                        );
+                EXPECT ("Hello" == user_selection.value());
+                EXPECT_THROWS_AS (
+                        user_selection.validate(),
+                        ListSelectionValidator<std::string>::InvalidSelection
+                        );
+            }
+
+            SECTION ("Valid selection") {
+                std::string value = "green";
+                ListSelectionValidator<std::string> user_selection(
+                        value,
+                        valid_choices
+                        );
+                EXPECT ("green" == user_selection.value());
+                EXPECT_NO_THROW(user_selection.validate());
             }
         }
     }
