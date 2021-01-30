@@ -74,6 +74,14 @@ const std::string kVersionString = "0.1";
 const std::string kYearString = "yyyy";
 const std::string kAuthorName = "Ljubomir Kurij";
 const std::string kAuthorEmail = "ljubomir_kurij@protonmail.com";
+const std::string kAppDoc = "\
+Framework for developing command line applications using \'clipp\' command\n\
+line argument parsing library.\n\n\
+Mandatory arguments to long options are mandatory for short options too.\n";
+const std::string kLicense = "\
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+This is free software: you are free to change and redistribute it.\n\
+There is NO WARRANTY, to the extent permitted by law.\n";
 const char kPathSeparator = '\\';
 
 
@@ -88,17 +96,17 @@ static std::string exec_name = kAppName;
 // Utility function prototypes
 // ============================================================================
 
-void printShortHelp(std::string);
+void printShortHelp(std::string = kAppName);
 void printUsage(
         const clipp::group&,
-        std::string = "",
+        const std::string = kAppName,
         const clipp::doc_formatting& = clipp::doc_formatting{}
     );
 void printVersionInfo();
 void showHelp(
-        const clipp::group&cli,
-        clipp::doc_string = "",
-        const clipp::doc_formatting& = clipp::doc_formatting{}
+        const clipp::group&,
+        const std::string = kAppName,
+        const std::string = kAppDoc
     );
 
 
@@ -371,43 +379,39 @@ int main(int argc, char *argv[])
 // Function definitions
 // ============================================================================
 
-inline void printShortHelp(std::string progname) {
-    std::cout << "Try '" << progname << " --help' for more information.\n";
+inline void printShortHelp(std::string exec_name) {
+    std::cout << "Try '" << exec_name << " --help' for more information.\n";
 }
 
 
 inline void printUsage(
-        const clipp::group& cli,
-        std::string prefix,
+        const clipp::group& group,
+        const std::string prefix,
         const clipp::doc_formatting& fmt)
 {
-    std::cout << clipp::usage_lines(cli, prefix, fmt) << "\n";
+    std::cout << clipp::usage_lines(group, prefix, fmt) << "\n";
 }
 
 
 void printVersionInfo() {
-    std::cout << exec_name << " " << kVersionString << " Copyright (C) "
+    std::cout << kAppName << " " << kVersionString << " Copyright (C) "
         << kYearString << " " << kAuthorName << "\n"
-        << "\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
-This is free software: you are free to change and redistribute it.\n\
-There is NO WARRANTY, to the extent permitted by law.\n";
+        << kLicense;
 }
 
 
 void showHelp(
-        const clipp::group& cli,
-        clipp::doc_string progname,
-        const clipp::doc_formatting& fmt)
-{
+        const clipp::group& group,
+        const std::string exec_name,
+        const std::string doc
+        ) {
+    auto fmt = clipp::doc_formatting {}.first_column(0).last_column(79);
     clipp::man_page man;
-    man.append_section("", "\
-Framework for developing command line applications using \'clipp\' command\n\
-line argument parsing library.\n\n\
-Mandatory arguments to long options are mandatory for short options too.\n");
-    man.append_section("USAGE", clipp::usage_lines(cli, progname, fmt).str());
-    man.append_section("OPTIONS", clipp::documentation(cli, fmt).str());
-    man.append_section("BUGS", "\tReport bugs to <" + kAuthorEmail + ">.");
+
+    man.prepend_section("USAGE", clipp::usage_lines(group, exec_name, fmt).str());
+    man.append_section("", doc);
+    man.append_section("", clipp::documentation(group, fmt).str());
+    man.append_section("", "Report bugs to <" + kAuthorEmail + ">.");
 
     std::cout << man;
 }
