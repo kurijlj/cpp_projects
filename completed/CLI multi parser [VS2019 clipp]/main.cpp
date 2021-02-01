@@ -367,6 +367,15 @@ int main(int argc, char *argv[])
             printShortHelp(exec_name);
 
         } else {
+            // Here we handle some special conflicting situations. It seems
+            // that 'clipp' doesn't handle appropriately cases when two
+            // mutually exclusive commands are passed as command line
+            // arguments, e.g.:
+            //     app.exe send receive
+            //     app.exe send -V
+            //     app.exe receive -V
+
+            // Determine what is passed as command line arguments
             std::set<std::string> arguments;
             for(unsigned int i = 0; i < (unsigned int) argc; i++) {
                 arguments.insert(std::string(argv[i]));
@@ -377,31 +386,30 @@ int main(int argc, char *argv[])
             bool is_version = (arguments.count("-V") > 0)
                 || (arguments.count("--version") > 0);
 
+            auto fmt = clipp::doc_formatting {}
+                .first_column(0)
+                .last_column(79);
+
             if(is_send && is_receive) {
-                auto fmt = clipp::doc_formatting {}
-                    .first_column(0)
-                    .last_column(79);
-
                 std::cerr << exec_name << ": Mutually exclusive commands\n";
-                printUsage(cli, exec_name, fmt);
-                printShortHelp(exec_name);
-            }
-
-            if((is_send || is_receive) && is_version) {
-                auto fmt = clipp::doc_formatting {}
-                    .first_column(0)
-                    .last_column(79);
-
-                std::cerr << exec_name << ": Option '-V' not supported"
-                    << " with '"
-                    << (is_send ? "send" : "receive")
-                    << "' command\n";
                 printUsage(cli, exec_name, fmt);
                 printShortHelp(exec_name);
 
             } else {
-                std::cerr << exec_name << ": Unknown error occured!\n";
-                std::cout << "Report bugs to <" << kAuthorEmail << ">.\n";
+                if((is_send || is_receive) && is_version) {
+                    std::cerr << exec_name << ": Option '-V' not supported"
+                        << " with '"
+                        << (is_send ? "send" : "receive")
+                        << "' command\n";
+                    printUsage(cli, exec_name, fmt);
+                    printShortHelp(exec_name);
+
+                } else {
+                    // None of the conflicting cases that we know of occured
+                    std::cerr << exec_name << ": Unknown error occured!\n";
+                    std::cout << "Report bugs to <" << kAuthorEmail << ">.\n";
+
+                }
 
             }
 
