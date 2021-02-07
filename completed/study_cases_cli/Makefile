@@ -46,18 +46,22 @@
 NAME_CT = containers
 NAME_SP = smart_pointers
 NAME_TC = test_clipp
+NAME_VAT = va_list
 
 TARGET_CT = $(NAME_CT).exe
 TARGET_SP = $(NAME_SP).exe
 TARGET_TC = $(NAME_TC).exe
+TARGET_VAT = $(NAME_VAT).exe
 
 PDB_CT = $(NAME_CT).pdb
 PDB_SP = $(NAME_SP).pdb
 PDB_TC = $(NAME_TC).pdb
+PDB_VAT = $(NAME_VAT).pdb
 
 DIR_CT = .\$(NAME_CT)
 DIR_SP = .\$(NAME_SP)
 DIR_TC = .\$(NAME_TC)
+DIR_VAT = .\$(NAME_VAT)
 
 OBJS = *.o
 ILKS = *.ilk
@@ -72,12 +76,13 @@ LFLAGS = -fcolor-diagnostics
 LFLAGS_CT = -Wl,/debug,/pdb:$(PDB_CT)
 LFLAGS_SP = -Wl,/debug,/pdb:$(PDB_SP)
 LFLAGS_TC = -Wl,/debug,/pdb:$(PDB_TC)
+LFLAGS_VAT = -Wl,/debug,/pdb:$(PDB_VAT)
 
 INCPATH = -I.\include
 
 
 # Build cases ###################################################################
-all : containers smart_pointers test_clipp
+all : containers smart_pointers test_clipp va_list
 
 containers : ct_dir ct_obj
 	@cd $(DIR_CT)
@@ -94,6 +99,11 @@ test_clipp : tc_dir tc_obj
 	$(LINKER) $(LFLAGS) $(LFLAGS_TC) -o $(TARGET_TC) $(NAME_TC).o
 	@cd ..
 
+va_list : va_dir va_obj
+	@cd $(DIR_VAT)
+	$(LINKER) $(LFLAGS) $(LFLAGS_VAT) -o $(TARGET_VAT) $(NAME_VAT).o
+	@cd ..
+
 
 # Build prerequisites #########################################################
 
@@ -107,6 +117,9 @@ sp_dir:
 tc_dir:
 	@if not exist $(DIR_TC) mkdir $(DIR_TC)
 
+va_dir:
+	@if not exist $(DIR_VAT) mkdir $(DIR_VAT)
+
 
 # Compile object files
 ct_obj:
@@ -117,6 +130,9 @@ sp_obj:
 
 tc_obj:
 	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_TC)\$(NAME_TC).o $(NAME_TC).cpp
+
+va_obj:
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_VAT)\$(NAME_VAT).o $(NAME_VAT).cpp
 
 
 # Help menu ###################################################################
@@ -130,33 +146,58 @@ help :
 	@echo [containers] - Build "Containers" study case
 	@echo [smart_pointers] - Build "Smart Pointers" study case
 	@echo [test_clipp] - Build "Test Clipp" study case
+	@echo [va_list] - Build "Variadic Function Arguments" study case
 	@echo.
 	@echo * Cleaning options
 	@echo [clean] - clear object files from all previous build
-	@echo [clean_containers] - clear object files for the "Containers" study case
-	@echo [clean_smart_pointer] - clear object files for the "Smart Pointers" study case
-	@echo [clean_test_clipp] - clear object files for the "Test Clipp" study case
+	@echo [clean_containers] - clear object files for \
+		the "Containers" study case
+	@echo [clean_smart_pointer] - clear object files for \
+		the "Smart Pointers" study case
+	@echo [clean_test_clipp] - clear object files for the \
+		"Test Clipp" study case
+	@echo [clean_va_list] - clear object files for \
+		the "Variadic Function Arguments" study case
 	@echo [cleanall] - clear all compiled files from previous builds
-	@echo [cleanall_containers] - clear all compiled files for the "Containers" study case
-	@echo [cleanall_smart_pointers] - clear all compiled files for the "Smart Pointers" study case
-	@echo [cleanall_test_clipp] - clear all compiled files for the "Test Clipp" study case
+	@echo [cleanall_containers] - clear all compiled files for \
+		the "Containers" study case
+	@echo [cleanall_smart_pointers] - clear all compiled files for \
+		the "Smart Pointers" study case
+	@echo [cleanall_test_clipp] - clear all compiled files for \
+		the "Test Clipp" study case
+	@echo [cleanall_va_list] - clear all compiled files for \
+		the "Variadic Function Arguments" study case
 
 
 # Clean intermediate files ####################################################
-clean: clean_containers clean_smart_pointers clean_test_clipp
+clean: clean_containers clean_smart_pointers clean_test_clipp clean_va_list
 
 clean_containers :
-	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) $(DIR_CT)\$(PDB_CT) $(DIR_CT)\$(ILKS))
+	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) \
+		$(DIR_CT)\$(PDB_CT) \
+		$(DIR_CT)\$(ILKS))
 
 clean_smart_pointers :
-	@if exist $(DIR_SP) (@del $(DIR_SP)\$(OBJS) $(DIR_SP)\$(PDB_SP) $(DIR_SP)\$(ILKS))
+	@if exist $(DIR_SP) (@del $(DIR_SP)\$(OBJS) \
+		$(DIR_SP)\$(PDB_SP) \
+		$(DIR_SP)\$(ILKS))
 
 clean_test_clipp :
-	@if exist $(DIR_TC) (@del $(DIR_TC)\$(OBJS) $(DIR_TC)\$(PDB_TC) $(DIR_TC)\$(ILKS))
+	@if exist $(DIR_TC) (@del $(DIR_TC)\$(OBJS) \
+		$(DIR_TC)\$(PDB_TC) \
+		$(DIR_TC)\$(ILKS))
+
+clean_va_list :
+	@if exist $(DIR_VAT) (@del $(DIR_VAT)\$(OBJS) \
+		$(DIR_VAT)\$(PDB_VAT) \
+		$(DIR_VAT)\$(ILKS))
 
 
 # Clean everything except sources #############################################
-cleanall: cleanall_containers cleanall_smart_pointers cleanall_test_clipp
+cleanall: cleanall_containers \
+	cleanall_smart_pointers \
+	cleanall_test_clipp \
+	cleanall_va_list
 
 cleanall_containers :
 	@if exist $(DIR_CT) (@rmdir /S /Q $(DIR_CT))
@@ -166,3 +207,6 @@ cleanall_smart_pointers :
 
 cleanall_test_clipp :
 	@if exist $(DIR_TC) (@rmdir /S /Q $(DIR_TC))
+
+cleanall_va_list :
+	@if exist $(DIR_VAT) (@rmdir /S /Q $(DIR_VAT))
