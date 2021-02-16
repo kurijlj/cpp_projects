@@ -139,7 +139,7 @@ void LibTIFFInterface::restore_handlers()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// An interface method to re-rout libtiff error callbacks to the current
+// An interface method to reroute libtiff error callbacks to the current
 // object. Along the way it also converts unsafe C variadic arguments to a more
 // typesafe C++ data strustures that can be easily passed to other methods
 // and functions.
@@ -199,7 +199,7 @@ void LibTIFFInterface::error_handler_interface(
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// An interface method to re-rout libtiff warning callbacks to the current
+// An interface method to reroute libtiff warning callbacks to the current
 // object. Along the way it also converts unsafe C variadic arguments to a more
 // typesafe C++ data strustures that can be easily passed to other methods
 // and functions.

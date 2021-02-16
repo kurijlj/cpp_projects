@@ -47,21 +47,25 @@ NAME_CT = containers
 NAME_SP = smart_pointers
 NAME_TC = test_clipp
 NAME_VAT = va_list
+NAME_CAST_LOGIC = cast_logical_expressions
 
 TARGET_CT = $(NAME_CT).exe
 TARGET_SP = $(NAME_SP).exe
 TARGET_TC = $(NAME_TC).exe
 TARGET_VAT = $(NAME_VAT).exe
+TARGET_CAST_LOGIC = $(NAME_CAST_LOGIC).exe
 
 PDB_CT = $(NAME_CT).pdb
 PDB_SP = $(NAME_SP).pdb
 PDB_TC = $(NAME_TC).pdb
 PDB_VAT = $(NAME_VAT).pdb
+PDB_CAST_LOGIC = $(NAME_CAST_LOGIC).pdb
 
 DIR_CT = .\$(NAME_CT)
 DIR_SP = .\$(NAME_SP)
 DIR_TC = .\$(NAME_TC)
 DIR_VAT = .\$(NAME_VAT)
+DIR_CAST_LOGIC = .\$(NAME_CAST_LOGIC)
 
 OBJS = *.o
 ILKS = *.ilk
@@ -77,12 +81,13 @@ LFLAGS_CT = -Wl,/debug,/pdb:$(PDB_CT)
 LFLAGS_SP = -Wl,/debug,/pdb:$(PDB_SP)
 LFLAGS_TC = -Wl,/debug,/pdb:$(PDB_TC)
 LFLAGS_VAT = -Wl,/debug,/pdb:$(PDB_VAT)
+LFLAGS_CAST_LOGIC = -Wl,/debug,/pdb:$(PDB_CAST_LOGIC)
 
 INCPATH = -I.\include
 
 
 # Build cases ###################################################################
-all : containers smart_pointers test_clipp va_list
+all : containers smart_pointers test_clipp va_list cast_logical_expressions
 
 containers : ct_dir ct_obj
 	@cd $(DIR_CT)
@@ -104,6 +109,12 @@ va_list : va_dir va_obj
 	$(LINKER) $(LFLAGS) $(LFLAGS_VAT) -o $(TARGET_VAT) $(NAME_VAT).o
 	@cd ..
 
+cast_logical_expressions : cast_logic_dir cast_logic_obj
+	@cd $(DIR_CAST_LOGIC)
+	$(LINKER) $(LFLAGS) $(LFLAGS_CAST_LOGIC) -o $(TARGET_CAST_LOGIC) \
+		$(NAME_CAST_LOGIC).o
+	@cd ..
+
 
 # Build prerequisites #########################################################
 
@@ -120,6 +131,9 @@ tc_dir:
 va_dir:
 	@if not exist $(DIR_VAT) mkdir $(DIR_VAT)
 
+cast_logic_dir:
+	@if not exist $(DIR_CAST_LOGIC) mkdir $(DIR_CAST_LOGIC)
+
 
 # Compile object files
 ct_obj:
@@ -134,6 +148,10 @@ tc_obj:
 va_obj:
 	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_VAT)\$(NAME_VAT).o $(NAME_VAT).cpp
 
+cast_logic_obj:
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_CAST_LOGIC)\$(NAME_CAST_LOGIC).o \
+		$(NAME_CAST_LOGIC).cpp
+
 
 # Help menu ###################################################################
 help :
@@ -147,6 +165,8 @@ help :
 	@echo [smart_pointers] - Build "Smart Pointers" study case
 	@echo [test_clipp] - Build "Test Clipp" study case
 	@echo [va_list] - Build "Variadic Function Arguments" study case
+	@echo [cast_logical_expressions] - Build "Cast to Logical Expressions" \
+		study case
 	@echo.
 	@echo * Cleaning options
 	@echo [clean] - clear object files from all previous build
@@ -158,6 +178,8 @@ help :
 		"Test Clipp" study case
 	@echo [clean_va_list] - clear object files for \
 		the "Variadic Function Arguments" study case
+	@echo [clean_cast_logical_expressions] - clear object files for \
+		the "Cast to Logical Expressions" study case
 	@echo [cleanall] - clear all compiled files from previous builds
 	@echo [cleanall_containers] - clear all compiled files for \
 		the "Containers" study case
@@ -167,10 +189,13 @@ help :
 		the "Test Clipp" study case
 	@echo [cleanall_va_list] - clear all compiled files for \
 		the "Variadic Function Arguments" study case
+	@echo [cleanall_cast_logical_expressions] - clear all compiled files for \
+		the "Cast to Logical Expressions" study case
 
 
 # Clean intermediate files ####################################################
-clean: clean_containers clean_smart_pointers clean_test_clipp clean_va_list
+clean: clean_containers clean_smart_pointers clean_test_clipp clean_va_list \
+	clean_cast_logical_expressions
 
 clean_containers :
 	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) \
@@ -192,12 +217,18 @@ clean_va_list :
 		$(DIR_VAT)\$(PDB_VAT) \
 		$(DIR_VAT)\$(ILKS))
 
+clean_cast_logical_expressions :
+	@if exist $(DIR_CAST_LOGIC) (@del $(DIR_CAST_LOGIC)\$(OBJS) \
+		$(DIR_CAST_LOGIC)\$(PDB_CAST_LOGIC) \
+		$(DIR_CAST_LOGIC)\$(ILKS))
+
 
 # Clean everything except sources #############################################
 cleanall: cleanall_containers \
 	cleanall_smart_pointers \
 	cleanall_test_clipp \
-	cleanall_va_list
+	cleanall_va_list \
+	cleanall_cast_logical_expressions
 
 cleanall_containers :
 	@if exist $(DIR_CT) (@rmdir /S /Q $(DIR_CT))
@@ -210,3 +241,6 @@ cleanall_test_clipp :
 
 cleanall_va_list :
 	@if exist $(DIR_VAT) (@rmdir /S /Q $(DIR_VAT))
+
+cleanall_cast_logical_expressions :
+	@if exist $(DIR_CAST_LOGIC) (@rmdir /S /Q $(DIR_CAST_LOGIC))
