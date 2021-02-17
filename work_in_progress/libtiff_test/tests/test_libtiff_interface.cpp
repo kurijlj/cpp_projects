@@ -68,6 +68,11 @@ const ls::test specification[] =
             SECTION ("Methods") {
                 EXPECT ("" == tiff_int.file_name());
                 EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (LibTIFFInterface::ReadMode().value()
+                        == tiff_int.file_access_mode().value());
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
             }
         }
     }

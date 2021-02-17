@@ -67,45 +67,6 @@ extern "C" {  // required by libtiff facilities
 class LibTIFFInterface
 {
 public:
-    // File access qualifier classes
-    class FileAccessMode {
-    protected:
-        std::string mode_;
-    public:
-        FileAccessMode() : mode_("none") {}
-        FileAccessMode(std::string mode) : mode_(mode) {}
-        ~FileAccessMode() {}
-        const char* c_str() { return mode_.c_str(); }
-        std::string value() { return mode_; }
-    };
-
-    class ReadMode: public FileAccessMode {
-    public:
-        ReadMode() : FileAccessMode("r") {}
-        ~ReadMode() {}
-    };
-
-    class WriteMode: public FileAccessMode {
-    public:
-        WriteMode() : FileAccessMode("w") {}
-        ~WriteMode() {}
-    };
-
-private:
-    TIFF* tiff_handle_;
-    TIFFErrorHandler old_error_handler_, old_warning_handler_;
-    bool file_opened_, print_errors_, print_warnings_;
-    std::string file_name_;
-    FileAccessMode file_access_mode_;
-
-    void error_handler(std::string module, std::string message) const
-        { throw NotImplemented(); }
-    void restore_handlers() { throw NotImplemented(); };
-    void save_handlers() { throw NotImplemented(); };
-    void warning_handler(std::string module, std::string message) const
-        { throw NotImplemented(); }
-
-public:
     // Named constants
     enum TIFFTags: unsigned long {
         image_width = 256,
@@ -158,6 +119,45 @@ public:
         ~LibtiffWarning() {}
     };
 
+    // File access qualifier classes
+    class FileAccessMode {
+    protected:
+        std::string value_;
+    public:
+        FileAccessMode() : value_("none") {}
+        FileAccessMode(std::string mode) : value_(mode) {}
+        ~FileAccessMode() {}
+        const char* c_str() { return value_.c_str(); }
+        std::string value() { return value_; }
+    };
+
+    class ReadMode: public FileAccessMode {
+    public:
+        ReadMode() : FileAccessMode("r") {}
+        ~ReadMode() {}
+    };
+
+    class WriteMode: public FileAccessMode {
+    public:
+        WriteMode() : FileAccessMode("w") {}
+        ~WriteMode() {}
+    };
+
+private:
+    TIFF* tiff_handle_;
+    TIFFErrorHandler old_error_handler_, old_warning_handler_;
+    bool file_opened_, print_errors_, print_warnings_;
+    std::string file_name_;
+    FileAccessMode file_access_mode_;
+
+    void error_handler(std::string module, std::string message) const
+        { throw NotImplemented(); }
+    void restore_handlers() { throw NotImplemented(); };
+    void save_handlers() { throw NotImplemented(); };
+    void warning_handler(std::string module, std::string message) const
+        { throw NotImplemented(); }
+
+public:
     // Constructors
     LibTIFFInterface();
     LibTIFFInterface(const std::string, FileAccessMode);
@@ -171,9 +171,15 @@ public:
 
     // Methods
     void close() { throw NotImplemented(); }
-    std::string file_name() { return file_name_; }
+    FileAccessMode file_access_mode() const { return file_access_mode_; }
+    std::string file_name() const { return file_name_; }
+    bool file_opened() const { return file_opened_; }
     int open() { throw NotImplemented(); }
-    TIFF* tiff_handle() { return tiff_handle_; }
+    bool print_errors() const { return print_errors_; }
+    bool print_errors(bool);
+    bool print_warnings() const { return print_warnings_; }
+    bool print_warnings(bool);
+    TIFF* tiff_handle() const { return tiff_handle_; }
 };
 
 
@@ -201,12 +207,12 @@ static LibTIFFInterface*   pointer_to_instance;
 
 LibTIFFInterface::LibTIFFInterface()
 {
-    file_name_ = "";
     file_access_mode_ = LibTIFFInterface::ReadMode();
+    file_name_ = "";
     file_opened_ = false;
-    tiff_handle_ = nullptr;
     print_errors_ = false;
     print_warnings_ = true;
+    tiff_handle_ = nullptr;
 }
 
 
@@ -218,12 +224,12 @@ LibTIFFInterface::LibTIFFInterface()
 
 LibTIFFInterface::LibTIFFInterface(
         const std::string file_name,
-        FileAccessMode file_access_mode
+        FileAccessMode file_access_mode = LibTIFFInterface::ReadMode()
         )
 {
     LibTIFFInterface();
-    file_name_ = file_name;
     file_access_mode_ = file_access_mode;
+    file_name_ = file_name;
 
     open();
 }
@@ -349,5 +355,15 @@ void LibTIFFInterface::warning_handler_interface(
     my_self->warning_handler(str_module, str_message);
 }
 
+
+bool LibTIFFInterface::print_errors(bool st) {
+    print_errors_ = st;
+    return print_errors_;
+}
+
+bool LibTIFFInterface::print_warnings(bool st) {
+    print_warnings_ = st;
+    return print_warnings_;
+}
 
 #endif
