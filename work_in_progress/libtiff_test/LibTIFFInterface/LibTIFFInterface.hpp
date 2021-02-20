@@ -128,7 +128,18 @@ public:
         FileAccessMode(std::string mode) : value_(mode) {}
         ~FileAccessMode() {}
         const char* c_str() { return value_.c_str(); }
+        bool is_equal_to(FileAccessMode other) const {
+            return (other.value() == value_ ? true : false);
+        }
         std::string value() { return value_; }
+
+        // Operators
+        bool operator==(FileAccessMode other) {
+            return is_equal_to(other);
+        }
+        bool operator!=(FileAccessMode other) {
+            return !is_equal_to(other);
+        }
     };
 
     class ReadMode: public FileAccessMode {

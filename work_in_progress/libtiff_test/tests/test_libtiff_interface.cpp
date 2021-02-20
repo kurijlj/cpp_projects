@@ -70,6 +70,12 @@ const ls::test specification[] =
                 EXPECT (nullptr == tiff_int.tiff_handle());
                 EXPECT (LibTIFFInterface::ReadMode().value()
                         == tiff_int.file_access_mode().value());
+                EXPECT (true == tiff_int.file_access_mode().is_equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_access_mode().is_equal_to(
+                            LibTIFFInterface::WriteMode()
+                            ));
                 EXPECT (false == tiff_int.file_opened());
                 EXPECT (false == tiff_int.print_errors());
                 EXPECT (true == tiff_int.print_warnings());

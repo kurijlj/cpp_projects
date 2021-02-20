@@ -34,10 +34,13 @@ EXTRA_DIST = \
 	libtiff.def \
 	libtiff.map \
 	libtiffxx.map \
+	tif_config.h-vms \
 	tif_config.h.cmake.in \
 	tif_config.vc.h \
+	tif_config.wince.h \
 	tiffconf.h.cmake.in \
-	tiffconf.vc.h
+	tiffconf.vc.h \
+	tiffconf.wince.h
 
 libtiffinclude_HEADERS = \
 	tiff.h \
@@ -151,4 +154,3 @@ mkg3states_LDADD = $(LIBPORT)
 faxtable: mkg3states
 	(rm -f tif_fax3sm.c && ./mkg3states -b -c const tif_fax3sm.c)
 
-AM_CPPFLAGS = -I$(top_srcdir)/libtiff -I$(top_srcdir)/port

@@ -7,34 +7,44 @@
 #ifndef _TIFFCONF_
 #define _TIFFCONF_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <inttypes.h>
+/* The size of a `int', as computed by sizeof. */
+#define SIZEOF_INT 4
 
 /* Signed 8-bit type */
-#define TIFF_INT8_T int8_t
+#define TIFF_INT8_T signed char
 
 /* Unsigned 8-bit type */
-#define TIFF_UINT8_T uint8_t
+#define TIFF_UINT8_T unsigned char
 
 /* Signed 16-bit type */
-#define TIFF_INT16_T int16_t
+#define TIFF_INT16_T signed short
 
 /* Unsigned 16-bit type */
-#define TIFF_UINT16_T uint16_t
+#define TIFF_UINT16_T unsigned short
+
+/* Signed 32-bit type formatter */
+#define TIFF_INT32_FORMAT "%d"
 
 /* Signed 32-bit type */
-#define TIFF_INT32_T int32_t
+#define TIFF_INT32_T signed int
+
+/* Unsigned 32-bit type formatter */
+#define TIFF_UINT32_FORMAT "%u"
 
 /* Unsigned 32-bit type */
-#define TIFF_UINT32_T uint32_t
+#define TIFF_UINT32_T unsigned int
+
+/* Signed 64-bit type formatter */
+#define TIFF_INT64_FORMAT "%I64d"
 
 /* Signed 64-bit type */
-#define TIFF_INT64_T int64_t
+#define TIFF_INT64_T signed __int64
+
+/* Unsigned 64-bit type formatter */
+#define TIFF_UINT64_FORMAT "%I64u"
 
 /* Unsigned 64-bit type */
-#define TIFF_UINT64_T uint64_t
-
+#define TIFF_UINT64_T unsigned __int64
 
 #if _WIN64
 /*
@@ -42,7 +52,7 @@
 */
 
 /* Signed size type */
-#  define TIFF_SSIZE_T int64_t
+#  define TIFF_SSIZE_T TIFF_INT64_T
 
 #else
 /*
@@ -50,13 +60,13 @@
 */
 
 /* Signed size type */
-#  define TIFF_SSIZE_T int32_t
+#  define TIFF_SSIZE_T signed int
 
 #endif
 
 /* Compatibility stuff. */
 
-/* Define as 0 or 1 according to the floating point format supported by the
+/* Define as 0 or 1 according to the floating point format suported by the
    machine */
 #define HAVE_IEEEFP 1
 
@@ -102,7 +112,7 @@
 /* #undef ZIP_SUPPORT */
 
 /* Support strip chopping (whether or not to convert single-strip uncompressed
-   images to multiple strips of ~8Kb to reduce memory usage) */
+   images to mutiple strips of ~8Kb to reduce memory usage) */
 #define STRIPCHOP_DEFAULT TIFF_STRIPCHOP
 
 /* Enable SubIFD tag (330) support */

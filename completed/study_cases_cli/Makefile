@@ -43,29 +43,33 @@
 
 
 # Macros definitions ##########################################################
+NAME_CAST_LOGIC = cast_logical_expressions
 NAME_CT = containers
+NAME_RN = random_numbers
 NAME_SP = smart_pointers
 NAME_TC = test_clipp
 NAME_VAT = va_list
-NAME_CAST_LOGIC = cast_logical_expressions
 
+TARGET_CAST_LOGIC = $(NAME_CAST_LOGIC).exe
 TARGET_CT = $(NAME_CT).exe
+TARGET_RN = $(NAME_RN).exe
 TARGET_SP = $(NAME_SP).exe
 TARGET_TC = $(NAME_TC).exe
 TARGET_VAT = $(NAME_VAT).exe
-TARGET_CAST_LOGIC = $(NAME_CAST_LOGIC).exe
 
+PDB_CAST_LOGIC = $(NAME_CAST_LOGIC).pdb
 PDB_CT = $(NAME_CT).pdb
+PDB_RN = $(NAME_RN).pdb
 PDB_SP = $(NAME_SP).pdb
 PDB_TC = $(NAME_TC).pdb
 PDB_VAT = $(NAME_VAT).pdb
-PDB_CAST_LOGIC = $(NAME_CAST_LOGIC).pdb
 
+DIR_CAST_LOGIC = .\$(NAME_CAST_LOGIC)
 DIR_CT = .\$(NAME_CT)
+DIR_RN = .\$(NAME_RN)
 DIR_SP = .\$(NAME_SP)
 DIR_TC = .\$(NAME_TC)
 DIR_VAT = .\$(NAME_VAT)
-DIR_CAST_LOGIC = .\$(NAME_CAST_LOGIC)
 
 OBJS = *.o
 ILKS = *.ilk
@@ -73,25 +77,43 @@ EXPS = *.exp
 LIBS = *.lib
 
 CXX = clang++
-CXXFLAGS = -c -pipe -std=c++17 -g -O0 -v -pedantic -Wall -Wextra -fcolor-diagnostics -fdiagnostics-format=vi
+CXXFLAGS = -c -pipe -std=c++17 -g -O0 -v -pedantic -Wall -Wextra \
+		   -fcolor-diagnostics -fdiagnostics-format=vi
 LINKER = clang++
 LFLAGS = -fcolor-diagnostics
 
+LFLAGS_CAST_LOGIC = -Wl,/debug,/pdb:$(PDB_CAST_LOGIC)
 LFLAGS_CT = -Wl,/debug,/pdb:$(PDB_CT)
+LFLAGS_RN = -Wl,/debug,/pdb:$(PDB_RN)
 LFLAGS_SP = -Wl,/debug,/pdb:$(PDB_SP)
 LFLAGS_TC = -Wl,/debug,/pdb:$(PDB_TC)
 LFLAGS_VAT = -Wl,/debug,/pdb:$(PDB_VAT)
-LFLAGS_CAST_LOGIC = -Wl,/debug,/pdb:$(PDB_CAST_LOGIC)
 
 INCPATH = -I.\include
 
 
 # Build cases ###################################################################
-all : containers smart_pointers test_clipp va_list cast_logical_expressions
+all : cast_logical_expressions \
+	containers \
+	random_numbers \
+	smart_pointers \
+	test_clipp \
+	va_list
+
+cast_logical_expressions : cast_logic_dir cast_logic_obj
+	@cd $(DIR_CAST_LOGIC)
+	$(LINKER) $(LFLAGS) $(LFLAGS_CAST_LOGIC) -o $(TARGET_CAST_LOGIC) \
+		$(NAME_CAST_LOGIC).o
+	@cd ..
 
 containers : ct_dir ct_obj
 	@cd $(DIR_CT)
 	$(LINKER) $(LFLAGS) $(LFLAGS_CP) -o $(TARGET_CT) $(NAME_CT).o
+	@cd ..
+
+random_numbers : random_numbers_dir random_numbers_obj
+	@cd $(DIR_RN)
+	$(LINKER) $(LFLAGS) $(LFLAGS_RN) -o $(TARGET_RN) $(NAME_RN).o
 	@cd ..
 
 smart_pointers : sp_dir sp_obj
@@ -109,18 +131,18 @@ va_list : va_dir va_obj
 	$(LINKER) $(LFLAGS) $(LFLAGS_VAT) -o $(TARGET_VAT) $(NAME_VAT).o
 	@cd ..
 
-cast_logical_expressions : cast_logic_dir cast_logic_obj
-	@cd $(DIR_CAST_LOGIC)
-	$(LINKER) $(LFLAGS) $(LFLAGS_CAST_LOGIC) -o $(TARGET_CAST_LOGIC) \
-		$(NAME_CAST_LOGIC).o
-	@cd ..
-
 
 # Build prerequisites #########################################################
 
 # Dirs
+cast_logic_dir:
+	@if not exist $(DIR_CAST_LOGIC) mkdir $(DIR_CAST_LOGIC)
+
 ct_dir:
 	@if not exist $(DIR_CT) mkdir $(DIR_CT)
+
+random_numbers_dir:
+	@if not exist $(DIR_RN) mkdir $(DIR_RN)
 
 sp_dir:
 	@if not exist $(DIR_SP) mkdir $(DIR_SP)
@@ -131,13 +153,17 @@ tc_dir:
 va_dir:
 	@if not exist $(DIR_VAT) mkdir $(DIR_VAT)
 
-cast_logic_dir:
-	@if not exist $(DIR_CAST_LOGIC) mkdir $(DIR_CAST_LOGIC)
-
 
 # Compile object files
+cast_logic_obj:
+	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_CAST_LOGIC)\$(NAME_CAST_LOGIC).o \
+		$(NAME_CAST_LOGIC).cpp
+
 ct_obj:
 	$(CXX) $(CXXFLAGS) -o $(DIR_CT)\$(NAME_CT).o $(NAME_CT).cpp
+
+random_numbers_obj:
+	$(CXX) $(CXXFLAGS) -o $(DIR_RN)\$(NAME_RN).o $(NAME_RN).cpp
 
 sp_obj:
 	$(CXX) $(CXXFLAGS) -o $(DIR_SP)\$(NAME_SP).o $(NAME_SP).cpp
@@ -148,10 +174,6 @@ tc_obj:
 va_obj:
 	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_VAT)\$(NAME_VAT).o $(NAME_VAT).cpp
 
-cast_logic_obj:
-	$(CXX) $(CXXFLAGS) $(INCPATH) -o $(DIR_CAST_LOGIC)\$(NAME_CAST_LOGIC).o \
-		$(NAME_CAST_LOGIC).cpp
-
 
 # Help menu ###################################################################
 help :
@@ -161,46 +183,65 @@ help :
 	@echo [help] - show this help message and exit
 	@echo.
 	@echo * Build options
+	@echo [cast_logical_expressions] - Build "Cast to Logical Expressions" \
+		study case
 	@echo [containers] - Build "Containers" study case
+	@echo [random_numbers] - Build "Random Numbers" study case
 	@echo [smart_pointers] - Build "Smart Pointers" study case
 	@echo [test_clipp] - Build "Test Clipp" study case
 	@echo [va_list] - Build "Variadic Function Arguments" study case
-	@echo [cast_logical_expressions] - Build "Cast to Logical Expressions" \
-		study case
 	@echo.
 	@echo * Cleaning options
 	@echo [clean] - clear object files from all previous build
+	@echo [clean_cast_logical_expressions] - clear object files for \
+		the "Cast to Logical Expressions" study case
 	@echo [clean_containers] - clear object files for \
 		the "Containers" study case
+	@echo [clean_random_numbers] = clear object files for \
+		"Random Numbers" study case
 	@echo [clean_smart_pointer] - clear object files for \
 		the "Smart Pointers" study case
 	@echo [clean_test_clipp] - clear object files for the \
 		"Test Clipp" study case
 	@echo [clean_va_list] - clear object files for \
 		the "Variadic Function Arguments" study case
-	@echo [clean_cast_logical_expressions] - clear object files for \
-		the "Cast to Logical Expressions" study case
 	@echo [cleanall] - clear all compiled files from previous builds
+	@echo [cleanall_cast_logical_expressions] - clear all compiled files for \
+		the "Cast to Logical Expressions" study case
 	@echo [cleanall_containers] - clear all compiled files for \
 		the "Containers" study case
+	@echo [cleanall_random_numbers] = clear all compiled files for \
+		"Random Numbers" study case
 	@echo [cleanall_smart_pointers] - clear all compiled files for \
 		the "Smart Pointers" study case
 	@echo [cleanall_test_clipp] - clear all compiled files for \
 		the "Test Clipp" study case
 	@echo [cleanall_va_list] - clear all compiled files for \
 		the "Variadic Function Arguments" study case
-	@echo [cleanall_cast_logical_expressions] - clear all compiled files for \
-		the "Cast to Logical Expressions" study case
 
 
 # Clean intermediate files ####################################################
-clean: clean_containers clean_smart_pointers clean_test_clipp clean_va_list \
-	clean_cast_logical_expressions
+clean: clean_cast_logical_expressions \
+	clean_containers \
+	clean_random_numbers \
+	clean_smart_pointers \
+	clean_test_clipp \
+	clean_va_list
+
+clean_cast_logical_expressions :
+	@if exist $(DIR_CAST_LOGIC) (@del $(DIR_CAST_LOGIC)\$(OBJS) \
+		$(DIR_CAST_LOGIC)\$(PDB_CAST_LOGIC) \
+		$(DIR_CAST_LOGIC)\$(ILKS))
 
 clean_containers :
 	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) \
 		$(DIR_CT)\$(PDB_CT) \
 		$(DIR_CT)\$(ILKS))
+
+clean_random_numbers :
+	@if exist $(DIR_RN) (@del $(DIR_RN)\$(OBJS) \
+		$(DIR_RN)\$(PDB_RN) \
+		$(DIR_RN)\$(ILKS))
 
 clean_smart_pointers :
 	@if exist $(DIR_SP) (@del $(DIR_SP)\$(OBJS) \
@@ -217,21 +258,23 @@ clean_va_list :
 		$(DIR_VAT)\$(PDB_VAT) \
 		$(DIR_VAT)\$(ILKS))
 
-clean_cast_logical_expressions :
-	@if exist $(DIR_CAST_LOGIC) (@del $(DIR_CAST_LOGIC)\$(OBJS) \
-		$(DIR_CAST_LOGIC)\$(PDB_CAST_LOGIC) \
-		$(DIR_CAST_LOGIC)\$(ILKS))
-
 
 # Clean everything except sources #############################################
-cleanall: cleanall_containers \
+cleanall: cleanall_cast_logical_expressions \
+	cleanall_containers \
+	cleanall_random_numbers \
 	cleanall_smart_pointers \
 	cleanall_test_clipp \
-	cleanall_va_list \
-	cleanall_cast_logical_expressions
+	cleanall_va_list
+
+cleanall_cast_logical_expressions :
+	@if exist $(DIR_CAST_LOGIC) (@rmdir /S /Q $(DIR_CAST_LOGIC))
 
 cleanall_containers :
 	@if exist $(DIR_CT) (@rmdir /S /Q $(DIR_CT))
+
+cleanall_random_numbers :
+	@if exist $(DIR_RN) (@rmdir /S /Q $(DIR_RN))
 
 cleanall_smart_pointers :
 	@if exist $(DIR_SP) (@rmdir /S /Q $(DIR_SP))
@@ -241,6 +284,3 @@ cleanall_test_clipp :
 
 cleanall_va_list :
 	@if exist $(DIR_VAT) (@rmdir /S /Q $(DIR_VAT))
-
-cleanall_cast_logical_expressions :
-	@if exist $(DIR_CAST_LOGIC) (@rmdir /S /Q $(DIR_CAST_LOGIC))
