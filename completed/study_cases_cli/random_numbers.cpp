@@ -53,17 +53,17 @@
 #include <string>    // self explanatory ...
 
 float gaussian() {
-    static int ready = 0;  // Flag to indicated stored value
+    static bool ready = false;  // Flag to indicated stored value
     static float gstore;
     static float rconst1 = (float)(2.0/RAND_MAX);
     static float rconst2 = (float)(RAND_MAX/2.0);
     float v1, v2, r, fac, gaus;
 
     // Make two numbers if none stored
-    if(0 == ready) {
+    if(!ready) {
         do {
-            v1 = (float) rand() - rconst2;
-            v2 = (float) rand() - rconst2;
+            v1 = (float)rand() - rconst2;
+            v2 = (float)rand() - rconst2;
             v1 *= rconst1;
             v2 *= rconst1;
             r = (v1 * v2) + (v2 * v2);
@@ -73,9 +73,9 @@ float gaussian() {
         fac = sqrt((-2.0f * log(r)) / r);
         gstore = v1 * fac;  // Store one
         gaus = v2 * fac;  // Return one
-        ready = 1;  // Set ready flag
+        ready = true;  // Set ready flag
     } else {
-        ready = 0;  // Reset ready flag for next pair
+        ready = false;  // Reset ready flag for next pair
         gaus = gstore;  // Return the stored one
     }
 
@@ -101,7 +101,13 @@ int main() {
         ++uniform_hist[uniform_dist(def_eng)];
     }
 
-      // Generate a normal distribution around 25
+    // Generate uniform distribution with rand()
+    std::map<int, int> rand_hist;
+    for (int n = 0; n < 10000; ++n) {
+        ++rand_hist[std::round(rand() / 1000)];
+    }
+
+      // Generate normal distribution around 25
     std::seed_seq gauss_seed{rdev(), rdev(), rdev(), rdev(), rdev(), rdev(),
         rdev(), rdev()};
     std::mt19937 mt_eng(gauss_seed);
@@ -110,6 +116,12 @@ int main() {
     std::map<int, int> normal_hist;
     for (int n = 0; n < 10000; ++n) {
         ++normal_hist[std::round(normal_dist(mt_eng))];
+    }
+
+    // Generate normal distribution using gaussian
+    std::map<int, int> gaussian_hist;
+    for (int n = 0; n < 10000; ++n) {
+        ++gaussian_hist[std::round(gaussian())];
     }
 
     std::cout << "   Uniform distribution\n";
@@ -121,11 +133,29 @@ int main() {
 
     std::cout << "\n\n";
 
+    std::cout << "   Uniform distribution using rand()\n";
+    std::cout << "  ========================================\n\n";
+    for (auto p : rand_hist) {
+        std::cout << std::setw(3) << p.first << ' '
+            << std::string(p.second/5, '*') << '\n';
+    }
+
+    std::cout << "\n\n";
+
     std::cout << "   Normal distribution\n";
     std::cout << "  ========================================\n\n";
     for (auto p : normal_hist) {
         std::cout << std::setw(3) << p.first << ' '
             << std::string(p.second/5, '*') << '\n';
+    }
+
+    std::cout << "\n\n";
+
+    std::cout << "   Normal distribution using gaussian\n";
+    std::cout << "  ========================================\n\n";
+    for (auto p : gaussian_hist) {
+        std::cout << std::setw(15) << p.first << ' '
+            << std::string(p.second/40, '*') << '\n';
     }
 
     std::cout << "\n\n";
