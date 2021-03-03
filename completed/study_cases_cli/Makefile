@@ -45,6 +45,7 @@
 # Macros definitions ##########################################################
 NAME_CAST_LOGIC = cast_logical_expressions
 NAME_CT = containers
+NAME_GS = gaussian
 NAME_RN = random_numbers
 NAME_SP = smart_pointers
 NAME_TC = test_clipp
@@ -52,6 +53,7 @@ NAME_VAT = va_list
 
 TARGET_CAST_LOGIC = $(NAME_CAST_LOGIC).exe
 TARGET_CT = $(NAME_CT).exe
+TARGET_GS = $(NAME_GS).exe
 TARGET_RN = $(NAME_RN).exe
 TARGET_SP = $(NAME_SP).exe
 TARGET_TC = $(NAME_TC).exe
@@ -59,6 +61,7 @@ TARGET_VAT = $(NAME_VAT).exe
 
 PDB_CAST_LOGIC = $(NAME_CAST_LOGIC).pdb
 PDB_CT = $(NAME_CT).pdb
+PDB_GS = $(NAME_GS).pdb
 PDB_RN = $(NAME_RN).pdb
 PDB_SP = $(NAME_SP).pdb
 PDB_TC = $(NAME_TC).pdb
@@ -66,6 +69,7 @@ PDB_VAT = $(NAME_VAT).pdb
 
 DIR_CAST_LOGIC = .\$(NAME_CAST_LOGIC)
 DIR_CT = .\$(NAME_CT)
+DIR_GS = .\$(NAME_GS)
 DIR_RN = .\$(NAME_RN)
 DIR_SP = .\$(NAME_SP)
 DIR_TC = .\$(NAME_TC)
@@ -84,6 +88,7 @@ LFLAGS = -fcolor-diagnostics
 
 LFLAGS_CAST_LOGIC = -Wl,/debug,/pdb:$(PDB_CAST_LOGIC)
 LFLAGS_CT = -Wl,/debug,/pdb:$(PDB_CT)
+LFLAGS_GS = -Wl,/debug,/pdb:$(PDB_GS)
 LFLAGS_RN = -Wl,/debug,/pdb:$(PDB_RN)
 LFLAGS_SP = -Wl,/debug,/pdb:$(PDB_SP)
 LFLAGS_TC = -Wl,/debug,/pdb:$(PDB_TC)
@@ -95,6 +100,7 @@ INCPATH = -I.\include
 # Build cases ###################################################################
 all : cast_logical_expressions \
 	containers \
+	gaussian \
 	random_numbers \
 	smart_pointers \
 	test_clipp \
@@ -109,6 +115,11 @@ cast_logical_expressions : cast_logic_dir cast_logic_obj
 containers : ct_dir ct_obj
 	@cd $(DIR_CT)
 	$(LINKER) $(LFLAGS) $(LFLAGS_CP) -o $(TARGET_CT) $(NAME_CT).o
+	@cd ..
+
+gaussian : gaussian_dir gaussian_obj
+	@cd $(DIR_GS)
+	$(LINKER) $(LFLAGS) $(LFLAGS_GS) -o $(TARGET_GS) $(NAME_GS).o
 	@cd ..
 
 random_numbers : random_numbers_dir random_numbers_obj
@@ -141,6 +152,9 @@ cast_logic_dir:
 ct_dir:
 	@if not exist $(DIR_CT) mkdir $(DIR_CT)
 
+gaussian_dir:
+	@if not exist $(DIR_GS) mkdir $(DIR_GS)
+
 random_numbers_dir:
 	@if not exist $(DIR_RN) mkdir $(DIR_RN)
 
@@ -161,6 +175,9 @@ cast_logic_obj:
 
 ct_obj:
 	$(CXX) $(CXXFLAGS) -o $(DIR_CT)\$(NAME_CT).o $(NAME_CT).cpp
+
+gaussian_obj:
+	$(CXX) $(CXXFLAGS) -o $(DIR_GS)\$(NAME_GS).o $(NAME_GS).cpp
 
 random_numbers_obj:
 	$(CXX) $(CXXFLAGS) -o $(DIR_RN)\$(NAME_RN).o $(NAME_RN).cpp
@@ -186,6 +203,7 @@ help :
 	@echo [cast_logical_expressions] - Build "Cast to Logical Expressions" \
 		study case
 	@echo [containers] - Build "Containers" study case
+	@echo [gaussian] - Build "Gaussian" study case
 	@echo [random_numbers] - Build "Random Numbers" study case
 	@echo [smart_pointers] - Build "Smart Pointers" study case
 	@echo [test_clipp] - Build "Test Clipp" study case
@@ -197,6 +215,8 @@ help :
 		the "Cast to Logical Expressions" study case
 	@echo [clean_containers] - clear object files for \
 		the "Containers" study case
+	@echo [clean_gaussian] - clear object files for \
+		the "Gaussian" study case
 	@echo [clean_random_numbers] = clear object files for \
 		"Random Numbers" study case
 	@echo [clean_smart_pointer] - clear object files for \
@@ -210,6 +230,8 @@ help :
 		the "Cast to Logical Expressions" study case
 	@echo [cleanall_containers] - clear all compiled files for \
 		the "Containers" study case
+	@echo [cleanall_gaussian] - clear all compiled files for \
+		the "Gaussian" study case
 	@echo [cleanall_random_numbers] = clear all compiled files for \
 		"Random Numbers" study case
 	@echo [cleanall_smart_pointers] - clear all compiled files for \
@@ -223,6 +245,7 @@ help :
 # Clean intermediate files ####################################################
 clean: clean_cast_logical_expressions \
 	clean_containers \
+	clean_gaussian \
 	clean_random_numbers \
 	clean_smart_pointers \
 	clean_test_clipp \
@@ -237,6 +260,11 @@ clean_containers :
 	@if exist $(DIR_CT) (@del $(DIR_CT)\$(OBJS) \
 		$(DIR_CT)\$(PDB_CT) \
 		$(DIR_CT)\$(ILKS))
+
+clean_gaussian :
+	@if exist $(DIR_GS) (@del $(DIR_GS)\$(OBJS) \
+		$(DIR_GS)\$(PDB_GS) \
+		$(DIR_GS)\$(ILKS))
 
 clean_random_numbers :
 	@if exist $(DIR_RN) (@del $(DIR_RN)\$(OBJS) \
@@ -262,6 +290,7 @@ clean_va_list :
 # Clean everything except sources #############################################
 cleanall: cleanall_cast_logical_expressions \
 	cleanall_containers \
+	cleanall_gaussian \
 	cleanall_random_numbers \
 	cleanall_smart_pointers \
 	cleanall_test_clipp \
@@ -272,6 +301,9 @@ cleanall_cast_logical_expressions :
 
 cleanall_containers :
 	@if exist $(DIR_CT) (@rmdir /S /Q $(DIR_CT))
+
+cleanall_gaussian :
+	@if exist $(DIR_GS) (@rmdir /S /Q $(DIR_GS))
 
 cleanall_random_numbers :
 	@if exist $(DIR_RN) (@rmdir /S /Q $(DIR_RN))
