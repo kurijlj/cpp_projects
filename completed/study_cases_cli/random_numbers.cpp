@@ -66,7 +66,7 @@ float gaussian() {
             v2 = (float)rand() - rconst2;
             v1 *= rconst1;
             v2 *= rconst1;
-            r = (v1 * v2) + (v2 * v2);
+            r = (v1 * v1) + (v2 * v2);
         } while (r > 1.0f);  // Make radius less than 1
 
         // Remap v1 and v2 to two Gaussian numbers

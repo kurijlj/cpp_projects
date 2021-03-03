@@ -66,7 +66,7 @@ float gaussian() {
             v2 = (float)rand() - rconst2;
             v1 *= rconst1;
             v2 *= rconst1;
-            r = (v1 * v2) + (v2 * v2);
+            r = (v1 * v1) + (v2 * v2);
         } while (r > 1.0f);  // Make radius less than 1
 
         // Remap v1 and v2 to two Gaussian numbers
@@ -84,10 +84,10 @@ float gaussian() {
 
 
 float gaussian_mod() {
-    static bool ready = false;  // Flag to indicated stored value
+    static bool ready {false};  // Flag to indicated stored value
+    float rconst1 {(float)(2.0 / RAND_MAX)};
+    float rconst2 {(float)(RAND_MAX / 2.0)};
     static float gstore;
-    static float rconst1 = (float)(2.0/RAND_MAX);
-    static float rconst2 = (float)(RAND_MAX/2.0);
     float v1, v2, r, fac, gaus;
 
     // Make two numbers if none stored
@@ -97,7 +97,7 @@ float gaussian_mod() {
             v2 = (float)rand() - rconst2;
             v1 *= rconst1;
             v2 *= rconst1;
-            r = (v1 * v2) + (v2 * v2);
+            r = (v1 * v1) + (v2 * v2);
         } while (r > 1.0f);  // Make radius less than 1
 
         // Remap v1 and v2 to two Gaussian numbers
@@ -105,9 +105,11 @@ float gaussian_mod() {
         gstore = v1 * fac;  // Store one
         gaus = v2 * fac;  // Return one
         ready = true;  // Set ready flag
+
     } else {
         ready = false;  // Reset ready flag for next pair
         gaus = gstore;  // Return the stored one
+
     }
 
     return gaus;
