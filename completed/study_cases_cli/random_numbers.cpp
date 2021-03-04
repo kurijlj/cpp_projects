@@ -52,36 +52,74 @@
 #include <random>    // self explanatory ...
 #include <string>    // self explanatory ...
 
+
+// ============================================================================
+// User defined functions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// function gaussian()
+//
+// Function used for noise generation as described in the book 'C Algorithms
+// for Real-Time DSP'. The function returns a zero mean random number with a
+// unit variance and a Gaussian (normal) distribution. To achieve so it uses a
+// Box-Muller method in the polar form to map a pair of indenpendent unifomrly
+// distributed random variables to a piar of Gaussian random variables.
+//
+// The function rand() is used to generate the two uniform random variables x1
+// and x2 from -1 to +1. The w variable is the radius squared of the random
+// point on the (x1, x2) plane. The w value is tested that it is always less
+// than 1, so that the ragion uniformly covered by (x1, x2) is a circle and so
+// that log(w) always has negative value and the argument for the square root
+// is positive. The variables y1 and y2 are the resulting indenpendent Gaussian
+// random variables. Because we only return one value at a time we store the
+// second one for the next function call. We use static variable ready to
+// indicate that we used both generated Gaussian random numbers and that two
+// new numbers should be generated.
+//
+// This algorithm is implemented for demonstaration purposes. One should use
+// standard lib's built in functions for generating random numbers following
+// normal distribution.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 float gaussian() {
     static bool ready = false;  // Flag to indicated stored value
-    static float gstore;
-    static float rconst1 = (float)(2.0/RAND_MAX);
-    static float rconst2 = (float)(RAND_MAX/2.0);
-    float v1, v2, r, fac, gaus;
+    const float kr1 = (float)(2.0 / RAND_MAX);
+    const float kr2 = (float)(RAND_MAX / 2.0);
+    static float y2;
+    float x1, x2, w, fac, y1;
 
     // Make two numbers if none stored
     if(!ready) {
         do {
-            v1 = (float)rand() - rconst2;
-            v2 = (float)rand() - rconst2;
-            v1 *= rconst1;
-            v2 *= rconst1;
-            r = (v1 * v1) + (v2 * v2);
-        } while (r > 1.0f);  // Make radius less than 1
+            x1 = (float)rand() - kr2;
+            x2 = (float)rand() - kr2;
+            x1 *= kr1;
+            x2 *= kr1;
+            w = (x1 * x1) + (x2 * x2);
+        } while (w > 1.0f);  // Make radius less than 1
 
-        // Remap v1 and v2 to two Gaussian numbers
-        fac = sqrt((-2.0f * log(r)) / r);
-        gstore = v1 * fac;  // Store one
-        gaus = v2 * fac;  // Return one
+        // Remap x1 and x2 to two Gaussian numbers
+        fac = sqrt((-2.0f * log(w)) / w);
+        y2 = x1 * fac;  // Store one
+        y1 = x2 * fac;  // Return one
         ready = true;  // Set ready flag
+
     } else {
         ready = false;  // Reset ready flag for next pair
-        gaus = gstore;  // Return the stored one
+        y1 = y2;  // Return the stored one
+
     }
 
-    return gaus;
+    return y1;
 }
 
+
+// ============================================================================
+// App's main function body
+// ============================================================================
 
 int main() {
     // Seed with a real random value, if available
@@ -154,7 +192,7 @@ int main() {
     std::cout << "   Normal distribution using gaussian\n";
     std::cout << "  ========================================\n\n";
     for (auto p : gaussian_hist) {
-        std::cout << std::setw(15) << p.first << ' '
+        std::cout << std::setw(3) << p.first << ' '
             << std::string(p.second/40, '*') << '\n';
     }
 
