@@ -61,24 +61,38 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("Empty Object") {
-        SETUP ("Initialization") {
+    CASE ("LibTIFFInterface") {
+        SETUP ("Initialization with default constructor") {
             LibTIFFInterface tiff_int {};
 
-            SECTION ("Methods") {
+            SECTION ("Parameters default values check") {
                 EXPECT ("" == tiff_int.file_name());
                 EXPECT (nullptr == tiff_int.tiff_handle());
                 EXPECT (LibTIFFInterface::ReadMode().value()
                         == tiff_int.file_access_mode().value());
-                EXPECT (true == tiff_int.file_access_mode().is_equal_to(
+                EXPECT (false == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::CreateAlwaysMode()
+                            ));
+                EXPECT (false == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::OpenAlwaysMode()
+                            ));
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
                             LibTIFFInterface::ReadMode()
                             ));
-                EXPECT (false == tiff_int.file_access_mode().is_equal_to(
-                            LibTIFFInterface::WriteMode()
+                EXPECT (false == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadWriteMode()
                             ));
                 EXPECT (false == tiff_int.file_opened());
                 EXPECT (false == tiff_int.print_errors());
                 EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.close(),
+                        LibTIFFInterface::NotImplemented
+                        );
+                EXPECT_THROWS_AS (
+                        tiff_int.test(),
+                        LibTIFFInterface::LibtiffError
+                        );
             }
         }
     }

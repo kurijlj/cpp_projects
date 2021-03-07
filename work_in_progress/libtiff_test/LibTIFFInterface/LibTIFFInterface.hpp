@@ -67,7 +67,11 @@ extern "C" {  // required by libtiff facilities
 class LibTIFFInterface
 {
 public:
+    ///////////////////////////////////////////////////////////////////////////
+    //
     // Named constants
+    //
+    ///////////////////////////////////////////////////////////////////////////
     enum TIFFTags: unsigned long {
         image_width = 256,
         image_length = 257,
@@ -78,7 +82,11 @@ public:
         orientation = 274
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
     // Exceptions classes
+    //
+    ///////////////////////////////////////////////////////////////////////////
     class TIFFInterfaceException {
     protected:
         std::string message_;
@@ -101,8 +109,8 @@ public:
     public:
         LibtiffError(std::string module, std::string message)
             : TIFFInterfaceException(
-                    module
-                    + std::string(": ERROR! ")
+                    ("" == module ? module : (module + ": "))
+                    + std::string("ERROR, ")
                     + message
                     ) {}
         ~LibtiffError() {}
@@ -112,14 +120,24 @@ public:
     public:
         LibtiffWarning(std::string module, std::string message)
             : TIFFInterfaceException(
-                    module
-                    + std::string(": WARNING! ")
+                    ("" == module ? module : (module + ": "))
+                    + std::string("WARNING, ")
                     + message
                     ) {}
         ~LibtiffWarning() {}
     };
 
-    // File access qualifier classes
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // File access qualifier classes -
+    //
+    // libtiff distincts four types of file access mode:
+    //     a  = O_RDWR | O_CREAT (OPEN_ALWAYS)
+    //     r  = O_RDONLY (OPEN_EXISTING)
+    //     r+ = O_RDWR (OPEN_ALWAYS)
+    //     w  = O_RDWR | O_CREAT | O_TRUNC (CREATE_ALWAYS)
+    //
+    ///////////////////////////////////////////////////////////////////////////
     class FileAccessMode {
     protected:
         std::string value_;
@@ -127,19 +145,29 @@ public:
         FileAccessMode() : value_("none") {}
         FileAccessMode(std::string mode) : value_(mode) {}
         ~FileAccessMode() {}
+
+        // Methods
         const char* c_str() { return value_.c_str(); }
-        bool is_equal_to(FileAccessMode other) const {
+        bool equal_to(FileAccessMode other) const {
             return (other.value() == value_ ? true : false);
         }
         std::string value() { return value_; }
 
         // Operators
-        bool operator==(FileAccessMode other) {
-            return is_equal_to(other);
-        }
-        bool operator!=(FileAccessMode other) {
-            return !is_equal_to(other);
-        }
+        bool operator==(FileAccessMode other) { return equal_to(other); }
+        bool operator!=(FileAccessMode other) { return !equal_to(other); }
+    };
+
+    class CreateAlwaysMode: public FileAccessMode {
+    public:
+        CreateAlwaysMode() : FileAccessMode("w") {}
+        ~CreateAlwaysMode() {}
+    };
+
+    class OpenAlwaysMode: public FileAccessMode {
+    public:
+        OpenAlwaysMode() : FileAccessMode("a") {}
+        ~OpenAlwaysMode() {}
     };
 
     class ReadMode: public FileAccessMode {
@@ -148,10 +176,10 @@ public:
         ~ReadMode() {}
     };
 
-    class WriteMode: public FileAccessMode {
+    class ReadWriteMode: public FileAccessMode {
     public:
-        WriteMode() : FileAccessMode("w") {}
-        ~WriteMode() {}
+        ReadWriteMode() : FileAccessMode("r+") {}
+        ~ReadWriteMode() {}
     };
 
 private:
@@ -161,12 +189,10 @@ private:
     std::string file_name_;
     FileAccessMode file_access_mode_;
 
-    void error_handler(std::string module, std::string message) const
-        { throw NotImplemented(); }
-    void restore_handlers() { throw NotImplemented(); };
-    void save_handlers() { throw NotImplemented(); };
-    void warning_handler(std::string module, std::string message) const
-        { throw NotImplemented(); }
+    void error_handler(std::string module, std::string message) const;
+    void restore_handlers();
+    void save_handlers();
+    void warning_handler(std::string module, std::string message) const;
 
 public:
     // Constructors
@@ -190,6 +216,7 @@ public:
     bool print_errors(bool);
     bool print_warnings() const { return print_warnings_; }
     bool print_warnings(bool);
+    void test() const;  // This should be deleted on release
     TIFF* tiff_handle() const { return tiff_handle_; }
 };
 
@@ -201,13 +228,67 @@ public:
 // ============================================================================
 
 // We use this instance to pass access to the object's methods to the libtiff
-static LibTIFFInterface*   pointer_to_instance;
+static LibTIFFInterface* pointer_to_instance;
 
 
 
 
 // ============================================================================
-// LibTIFFInterface methods definitions
+// Access private methods for test purposes
+// ============================================================================
+
+void LibTIFFInterface::test () const
+{
+    warning_handler("test", "This is a dummy warning.");
+    error_handler("test", "This is a dummy error.");
+}
+
+
+// ============================================================================
+// LibTIFFInterface private methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Default constructor
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void LibTIFFInterface::error_handler(
+        std::string module,
+        std::string message
+        ) const
+{
+    LibtiffError error {module, message};
+
+    if (print_errors_) std::cout << error.message() << '\n';
+    else throw error;
+}
+
+void LibTIFFInterface::restore_handlers()
+{
+    throw LibTIFFInterface::NotImplemented();
+}
+
+void LibTIFFInterface::save_handlers()
+{
+    throw LibTIFFInterface::NotImplemented();
+}
+
+void LibTIFFInterface::warning_handler(
+        std::string module,
+        std::string message
+        ) const
+{
+    LibtiffWarning warning {module, message};
+
+    if (print_warnings_) std::cout << warning.message() << '\n';
+    else throw warning;
+}
+
+
+// ============================================================================
+// LibTIFFInterface public methods definitions
 // ============================================================================
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -367,12 +448,14 @@ void LibTIFFInterface::warning_handler_interface(
 }
 
 
-bool LibTIFFInterface::print_errors(bool st) {
+bool LibTIFFInterface::print_errors(bool st)
+{
     print_errors_ = st;
     return print_errors_;
 }
 
-bool LibTIFFInterface::print_warnings(bool st) {
+bool LibTIFFInterface::print_warnings(bool st)
+{
     print_warnings_ = st;
     return print_warnings_;
 }
