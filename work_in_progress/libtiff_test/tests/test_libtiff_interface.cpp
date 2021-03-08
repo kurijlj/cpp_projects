@@ -62,7 +62,7 @@ namespace ls = lest;
 const ls::test specification[] =
 {
     CASE ("LibTIFFInterface") {
-        SETUP ("Initialization with default constructor") {
+        SETUP ("Initialization with the empty path") {
             LibTIFFInterface tiff_int {};
 
             SECTION ("Parameters default values check") {
@@ -88,19 +88,38 @@ const ls::test specification[] =
             }
 
             SECTION ("Methods functionality check") {
-                EXPECT_THROWS_AS (
-                        tiff_int.close(),
-                        LibTIFFInterface::NotImplemented
-                        );
+                tiff_int.close();
                 EXPECT_THROWS_AS (
                         tiff_int.test(),
                         LibTIFFInterface::LibtiffError
                         );
+                tiff_int.print_errors(true);
+                EXPECT_NO_THROW (tiff_int.test());
                 tiff_int.print_warnings(false);
                 EXPECT_THROWS_AS (
                         tiff_int.test(),
                         LibTIFFInterface::LibtiffWarning
                         );
+            }
+        };
+
+        SETUP ("Initialization with an TIFF file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\img20191023_12463056.tif"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\img20191023_12463056.tif"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_NO_THROW (tiff_int.open());
+                tiff_int.close();
             }
         }
     }

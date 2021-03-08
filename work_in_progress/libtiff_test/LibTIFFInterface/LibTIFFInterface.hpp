@@ -57,6 +57,7 @@ extern "C" {  // required by libtiff facilities
 }
 
 #include <cstdarg>  // required by va_list
+#include <memory>   // required by unique_ptr
 #include <string>   // self explanatory ...
 
 
@@ -144,6 +145,7 @@ public:
     public:
         FileAccessMode() : value_("none") {}
         FileAccessMode(std::string mode) : value_(mode) {}
+        FileAccessMode(const FileAccessMode &inst) : value_(inst.value()) {}
         ~FileAccessMode() {}
 
         // Methods
@@ -151,7 +153,7 @@ public:
         bool equal_to(FileAccessMode other) const {
             return (other.value() == value_ ? true : false);
         }
-        std::string value() { return value_; }
+        std::string value() const { return value_; }
 
         // Operators
         bool operator==(FileAccessMode other) { return equal_to(other); }
@@ -189,34 +191,38 @@ private:
     std::string file_name_;
     FileAccessMode file_access_mode_;
 
-    void error_handler(std::string module, std::string message) const;
+    void error_handler(const char* module, const char* fmt, ...);
     void restore_handlers();
     void save_handlers();
-    void warning_handler(std::string module, std::string message) const;
+    void warning_handler(const char* module, const char* fmt, ...);
 
 public:
     // Constructors
     LibTIFFInterface();
-    LibTIFFInterface(const std::string, FileAccessMode);
+    LibTIFFInterface(const std::string, const FileAccessMode);
 
     // Destructors
     ~LibTIFFInterface() { if(file_opened_) close(); }
 
     // Static member functions
-    static void error_handler_interface(const char*, const char*, ...);
-    static void warning_handler_interface(const char*, const char*, ...);
+    static void error_handler_interface(const char*, const char*, va_list ap);
+    static void warning_handler_interface(
+            const char*,
+            const char*,
+            va_list ap
+            );
 
     // Methods
-    void close() { throw NotImplemented(); }
+    void close();
     FileAccessMode file_access_mode() const { return file_access_mode_; }
     std::string file_name() const { return file_name_; }
     bool file_opened() const { return file_opened_; }
-    int open() { throw NotImplemented(); }
+    bool open();
     bool print_errors() const { return print_errors_; }
     bool print_errors(bool);
     bool print_warnings() const { return print_warnings_; }
     bool print_warnings(bool);
-    void test() const;  // This should be deleted on release
+    void test();  // This should be deleted on release
     TIFF* tiff_handle() const { return tiff_handle_; }
 };
 
@@ -237,10 +243,14 @@ static LibTIFFInterface* pointer_to_instance;
 // Access private methods for test purposes
 // ============================================================================
 
-void LibTIFFInterface::test () const
+void LibTIFFInterface::test ()
 {
-    warning_handler("test", "This is a dummy warning.");
-    error_handler("test", "This is a dummy error.");
+    warning_handler(
+            "LibTIFFInterface::test",
+            "%s",
+            "This is a dummy warning."
+            );
+    error_handler("LibTIFFInterface::test", "%s", "This is a dummy error.");
 }
 
 
@@ -250,37 +260,122 @@ void LibTIFFInterface::test () const
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Default constructor
+// Default error handler
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 void LibTIFFInterface::error_handler(
-        std::string module,
-        std::string message
-        ) const
+        const char* module,
+        const char* format,
+        ...
+        )
 {
-    LibtiffError error {module, message};
+    // Format error message from variadic arguments list and store it in the
+    // std::string structures.
+    int buffer_size = 0;
+    std::string str_module {}, str_message {};
+    std::va_list args, args_copy;
+
+    va_start(args, format);
+    va_copy(args_copy, args);
+
+    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
+
+    va_end(args_copy);
+
+    if(0 >= buffer_size) {
+        str_message = std::string("");
+
+    } else {
+        std::unique_ptr<char[]> buffer(new char[buffer_size]);
+        std::vsnprintf(buffer.get(), buffer_size, format, args);
+        str_message = std::string(
+                buffer.get(),
+                buffer.get() + buffer_size - 1
+                );
+
+    }
+    va_end(args);
+
+    if(nullptr == module) {
+        str_module = std::string("");
+    } else {
+        str_module = std::string(module);
+    }
+
+    LibtiffError error {str_module, str_message};
 
     if (print_errors_) std::cout << error.message() << '\n';
     else throw error;
 }
 
+
 void LibTIFFInterface::restore_handlers()
 {
-    throw LibTIFFInterface::NotImplemented();
+    TIFFSetErrorHandler(old_error_handler_);
+    TIFFSetWarningHandler(old_warning_handler_);
 }
+
 
 void LibTIFFInterface::save_handlers()
 {
-    throw LibTIFFInterface::NotImplemented();
+    TIFFErrorHandler error_handler_
+        = LibTIFFInterface::error_handler_interface;
+    TIFFErrorHandler warning_handler_
+        = LibTIFFInterface::warning_handler_interface;
+    pointer_to_instance = this;
+
+    old_error_handler_ = TIFFSetErrorHandler(error_handler_);
+    old_warning_handler_ = TIFFSetWarningHandler(warning_handler_);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Default warning handler
+//
+///////////////////////////////////////////////////////////////////////////////
+
 void LibTIFFInterface::warning_handler(
-        std::string module,
-        std::string message
-        ) const
+        const char* module,
+        const char* format,
+        ...
+        )
 {
-    LibtiffWarning warning {module, message};
+    // Format warning message from variadic arguments list and store it in the
+    // std::string structures.
+    int buffer_size = 0;
+    std::string str_module {}, str_message {};
+    std::va_list args, args_copy;
+
+    va_start(args, format);
+    va_copy(args_copy, args);
+
+    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
+
+    va_end(args_copy);
+
+    if(0 >= buffer_size) {
+        str_message = std::string("");
+
+    } else {
+        std::unique_ptr<char[]> buffer(new char[buffer_size]);
+        std::vsnprintf(buffer.get(), buffer_size, format, args);
+        str_message = std::string(
+                buffer.get(),
+                buffer.get() + buffer_size - 1
+                );
+
+    }
+    va_end(args);
+
+    if(nullptr == module) {
+        str_module = std::string("");
+    } else {
+        str_module = std::string(module);
+    }
+
+    LibtiffWarning warning {str_module, str_message};
 
     if (print_warnings_) std::cout << warning.message() << '\n';
     else throw warning;
@@ -316,14 +411,17 @@ LibTIFFInterface::LibTIFFInterface()
 
 LibTIFFInterface::LibTIFFInterface(
         const std::string file_name,
-        FileAccessMode file_access_mode = LibTIFFInterface::ReadMode()
+        const FileAccessMode file_access_mode = LibTIFFInterface::ReadMode()
         )
 {
-    LibTIFFInterface();
     file_access_mode_ = file_access_mode;
     file_name_ = file_name;
+    file_opened_ = false;
+    print_errors_ = false;
+    print_warnings_ = true;
+    tiff_handle_ = nullptr;
 
-    open();
+    // open();
 }
 
 
@@ -341,7 +439,7 @@ LibTIFFInterface::LibTIFFInterface(
 void LibTIFFInterface::error_handler_interface(
         const char* module,
         const char* format,
-        ...
+        va_list ap
         )
 {
     // Explicitly cast global variable <pointer_to_object> to a pointer
@@ -350,41 +448,8 @@ void LibTIFFInterface::error_handler_interface(
     // the given object.
     LibTIFFInterface* myself = pointer_to_instance;
 
-    // Format error message from variadic arguments list and store it in the
-    // std::string structures.
-    int buffer_size = 0;
-    std::string str_module {}, str_message {};
-    std::va_list args, args_copy;
-
-    va_start(args, format);
-    va_copy(args_copy, args);
-
-    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
-
-    va_end(args_copy);
-
-    if(0 >= buffer_size) {
-        str_message = std::string("");
-
-    } else {
-        std::unique_ptr<char[]> buffer(new char[buffer_size]);
-        std::vsnprintf(buffer.get(), buffer_size, format, args);
-        str_message = std::string(
-                buffer.get(),
-                buffer.get() + buffer_size - 1
-                );
-
-    }
-    va_end(args);
-
-    if(nullptr == module) {
-        str_module = std::string("");
-    } else {
-        str_module = std::string(module);
-    }
-
     // Call  acctual error handler
-    myself->error_handler(str_module, str_message);
+    myself->error_handler(module, format, ap);
 }
 
 
@@ -402,49 +467,43 @@ void LibTIFFInterface::error_handler_interface(
 void LibTIFFInterface::warning_handler_interface(
         const char* module,
         const char* format,
-        ...
+        va_list ap
         )
 {
     // Explicitly cast global variable <pointer_to_object> to a pointer
     // to LibTIFFInterface. WARNING: <pointer_to_object> MUST point to
     // an appropriate object!
-    LibTIFFInterface* my_self = pointer_to_instance;
-
-    // Format error message from variadic arguments list and store it in the
-    // std::string structures.
-    int buffer_size = 0;
-    std::string str_module {}, str_message {};
-    std::va_list args, args_copy;
-
-    va_start(args, format);
-    va_copy(args_copy, args);
-
-    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
-
-    va_end(args_copy);
-
-    if(0 >= buffer_size) {
-        str_message = std::string("");
-
-    } else {
-        std::unique_ptr<char[]> buffer(new char[buffer_size]);
-        std::vsnprintf(buffer.get(), buffer_size, format, args);
-        str_message = std::string(
-                buffer.get(),
-                buffer.get() + buffer_size - 1
-                );
-
-    }
-    va_end(args);
-
-    if(nullptr == module) {
-        str_module = std::string("");
-    } else {
-        str_module = std::string(module);
-    }
+    LibTIFFInterface* myself = pointer_to_instance;
 
     // Call  acctual warning handler
-    my_self->warning_handler(str_module, str_message);
+    myself->warning_handler(module, format, ap);
+}
+
+
+void LibTIFFInterface::close()
+{
+    if(file_opened_) {
+        save_handlers();
+        TIFFClose(tiff_handle_);
+        restore_handlers();
+
+        file_opened_ = false;
+    }
+}
+
+
+bool LibTIFFInterface::open()
+{
+    if(!file_opened_) {
+        save_handlers();
+        tiff_handle_ = TIFFOpen(file_name_.c_str(), file_access_mode_.c_str());
+        restore_handlers();
+    }
+
+    if(tiff_handle_) file_opened_ = true;
+    else file_opened_ = false;
+
+    return file_opened_;
 }
 
 
@@ -453,6 +512,7 @@ bool LibTIFFInterface::print_errors(bool st)
     print_errors_ = st;
     return print_errors_;
 }
+
 
 bool LibTIFFInterface::print_warnings(bool st)
 {
