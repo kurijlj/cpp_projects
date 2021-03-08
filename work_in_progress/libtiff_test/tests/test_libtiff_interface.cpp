@@ -85,6 +85,9 @@ const ls::test specification[] =
                 EXPECT (false == tiff_int.file_opened());
                 EXPECT (false == tiff_int.print_errors());
                 EXPECT (true == tiff_int.print_warnings());
+            }
+
+            SECTION ("Methods functionality check") {
                 EXPECT_THROWS_AS (
                         tiff_int.close(),
                         LibTIFFInterface::NotImplemented
@@ -92,6 +95,11 @@ const ls::test specification[] =
                 EXPECT_THROWS_AS (
                         tiff_int.test(),
                         LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.print_warnings(false);
+                EXPECT_THROWS_AS (
+                        tiff_int.test(),
+                        LibTIFFInterface::LibtiffWarning
                         );
             }
         }
