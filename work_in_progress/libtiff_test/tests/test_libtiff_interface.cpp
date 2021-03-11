@@ -103,6 +103,146 @@ const ls::test specification[] =
             }
         };
 
+        SETUP ("Initialization with an nonexisting file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\Masha.tif"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\Masha.tif"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.close();
+            }
+        };
+
+        SETUP ("Initialization with an directory") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.close();
+            }
+        };
+
+        SETUP ("Initialization with an text file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\test_dummy.txt"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\test_dummy.txt"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.close();
+            }
+        };
+
+        SETUP ("Initialization with an source file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\test_dummy.cpp"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\test_dummy.cpp"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.close();
+            }
+        };
+
+        SETUP ("Initialization with an PNG file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\img20191101_13592687.png"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\img20191101_13592687.png"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                // Following one throws an exception
+                // EXPECT_NO_THROW (tiff_int.open());
+                tiff_int.close();
+            }
+        };
+
+        SETUP ("Initialization with an false TIFF file") {
+            LibTIFFInterface tiff_int {
+                "..\\..\\data\\test_dummy.tif"
+            };
+
+            SECTION ("Parameters default values check") {
+                EXPECT ("..\\..\\data\\test_dummy.tif"
+                        == tiff_int.file_name());
+                EXPECT (nullptr == tiff_int.tiff_handle());
+                EXPECT (true == tiff_int.file_access_mode().equal_to(
+                            LibTIFFInterface::ReadMode()
+                            ));
+                EXPECT (false == tiff_int.file_opened());
+                EXPECT (false == tiff_int.print_errors());
+                EXPECT (true == tiff_int.print_warnings());
+                EXPECT_THROWS_AS (
+                        tiff_int.open(),
+                        LibTIFFInterface::LibtiffError
+                        );
+                tiff_int.close();
+            }
+        };
+
         SETUP ("Initialization with an TIFF file") {
             LibTIFFInterface tiff_int {
                 "..\\..\\data\\img20191023_12463056.tif"
