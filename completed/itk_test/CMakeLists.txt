@@ -13,12 +13,12 @@ endforeach()
 
 
 # This project is designed to be built outside the Insight source tree.
-project(HelloWorld)
+project(ITK_Test)
 
 # Find ITK.
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
-add_executable(HelloWorld HelloWorld.cxx )
+add_executable(itk_test main.cpp )
 
-target_link_libraries(HelloWorld ${ITK_LIBRARIES})
+target_link_libraries(itk_test ${ITK_LIBRARIES})
