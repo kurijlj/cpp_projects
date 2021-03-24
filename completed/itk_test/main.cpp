@@ -24,8 +24,9 @@
 //  Software Guide : EndLatex
 
 // Software Guide : BeginCodeSnippet
-#include "itkImage.h"
 #include <iostream>
+
+#include <itkImage.h>
 
 int
 main()
