@@ -1,0 +1,3 @@
+C:/Users/Ljubomir/Documents/Projects/work_in_progress/cpp_projects/work_in_progress/itk_tiff_test/build/Debug/CMakeFiles/itk_tiff_test.dir
+C:/Users/Ljubomir/Documents/Projects/work_in_progress/cpp_projects/work_in_progress/itk_tiff_test/build/Debug/CMakeFiles/edit_cache.dir
+C:/Users/Ljubomir/Documents/Projects/work_in_progress/cpp_projects/work_in_progress/itk_tiff_test/build/Debug/CMakeFiles/rebuild_cache.dir
