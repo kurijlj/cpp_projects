@@ -38,6 +38,8 @@
 
 #include <clipp.hpp>       // command line arguments parsing
 #include <validators.hpp>  // custom classes to validate user input parameters
+#include <itkImage.h>            // self explanatory ..
+#include <itkImageFileReader.h>  // self explanatory ..
 
 
 // ============================================================================
@@ -236,6 +238,17 @@ int main(int argc, char *argv[])
 
         return EXIT_FAILURE;
     }
+
+    std::cout << "Initializing data" << std::endl;
+
+    using PixelType = unsigned char;
+    constexpr unsigned int Dimension = 2;
+    using ImageType = itk::Image<PixelType, Dimension>;
+    using ReaderType = itk::ImageFileReader<ImageType>;
+
+    std::cout << "Initializing reader" << std::endl;
+
+    ReaderType::Pointer reader = ReaderType::New();
 
     return EXIT_FAILURE;
 }
