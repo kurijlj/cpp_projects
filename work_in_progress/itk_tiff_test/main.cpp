@@ -239,16 +239,23 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    std::cout << "Initializing data" << std::endl;
-
-    using PixelType = unsigned char;
+    using PixelType = short;
     constexpr unsigned int Dimension = 2;
     using ImageType = itk::Image<PixelType, Dimension>;
     using ReaderType = itk::ImageFileReader<ImageType>;
 
-    std::cout << "Initializing reader" << std::endl;
-
     ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileName(validators.input_file.value().c_str());
+
+    try {
+        reader->Update();
+    } catch (const itk::ExceptionObject & err) {
+        std::cerr << exec_name << ": (ERROR) " << err << "\n";
+
+        return EXIT_FAILURE;
+    }
+
+    ImageType::Pointer image = reader->GetOutput();
 
     return EXIT_FAILURE;
 }
