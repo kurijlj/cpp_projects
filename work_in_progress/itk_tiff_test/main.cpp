@@ -39,7 +39,12 @@
 #include <clipp.hpp>       // command line arguments parsing
 #include <validators.hpp>  // custom classes to validate user input parameters
 #include <itkImage.h>            // self explanatory ..
+// #include <itkImageIOBase.h>      // self explanatory ..
+#include <itkTIFFImageIO.h>      // self explanatory ..
+#include <itkTestingMacros.h>
+// #include <itkTIFFImageIOFactory.h>      // self explanatory ..
 #include <itkImageFileReader.h>  // self explanatory ..
+#include <itkMetaDataObject.h>  // self explanatory ..
 
 
 // ============================================================================
@@ -249,15 +254,57 @@ int main(int argc, char *argv[])
 
     try {
         reader->Update();
-    } catch (const itk::ExceptionObject & err) {
-        std::cerr << exec_name << ": (ERROR) " << err << "\n";
+
+    } catch (itk::ExceptionObject & e) {
+        std::cerr << exec_name << ": (ERROR) " << e.what() << "\n";
 
         return EXIT_FAILURE;
+
     }
 
-    ImageType::Pointer image = reader->GetOutput();
+    // itk::ImageIOBase::Pointer image_io
+    //     = itk::ImageIOFactory::CreateImageIO(
+    //         validators.input_file.value().c_str(),
+    //         itk::CommonEnums::IOFileMode::ReadMode
+    //         );
 
-    return EXIT_FAILURE;
+    // image_io->SetFileName(validators.input_file.value().c_str());
+    // std::cout << exec_name << ": Image type (";
+    // for(auto itr : image_io->GetSupportedReadExtensions()) {
+    //     std::cout << itr << ", ";
+    // }
+    // std::cout << ")\n";
+    auto tiff_image_io = itk::TIFFImageIO::New();
+    tiff_image_io->SetFileName(validators.input_file.value().c_str());
+    tiff_image_io->ReadImageInformation();
+
+    const itk::MetaDataDictionary & dictionary
+        = tiff_image_io->GetMetaDataDictionary();
+    // auto itr = dictionary.Begin();
+    // auto end = dictionary.End();
+
+    for (auto itr = dictionary.Begin(); itr != dictionary.End(); ++itr) {
+        itk::MetaDataObjectBase::Pointer entry = itr->second;
+        const std::string tagkey = itr->first;
+
+        itk::MetaDataObject<std::string>::Pointer entryvalue
+            = dynamic_cast<itk::MetaDataObject<std::string> *>(
+                    entry.GetPointer()
+                    );
+
+        if (entryvalue) {
+            std::cout << tagkey << ": " << entryvalue->GetMetaDataObjectValue()
+                << "\n";
+
+        } else {
+            std::cout << tagkey << ": " << entry << "\n";
+
+        }
+    }
+
+    ITK_TEST_EXPECT_EQUAL(tiff_image_io->GetCompressor(), "");
+
+    return EXIT_SUCCESS;
 }
 
 
