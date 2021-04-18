@@ -1,7 +1,7 @@
 // ============================================================================
-// Simple app to test basic libtiff functionality
+// <one line to give the program's name and a brief idea of what it does.>
 //
-//  Copyright (C) 2021 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
+//  Copyright (C) <yyyy> <Author Name> <author@mail.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,9 +21,27 @@
 
 // ============================================================================
 //
-// 2021-03-24 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
+// <Put documentation here>
 //
-// * main.cpp: created.
+// <yyyy>-<mm>-<dd> <Author Name> <author@mail.com>
+//
+// * <programfilename>.cpp: created.
+//
+// ============================================================================
+
+
+// ============================================================================
+//
+// References (this section should be deleted in the release version)
+//
+// * For coding style visit Google C++ Style Guide page at
+//   <https://google.github.io/styleguide/cppguide.html>.
+//
+// * For command line arguments parsing using clipp consult documentation and
+//   examples at <https://github.com/muellan/clipp>.
+//
+// * For filesystem operations (C++17) visit 'filesystem' reference at:
+//   <https://en.cppreference.com/w/cpp/filesystem>.
 //
 // ============================================================================
 
@@ -32,19 +50,14 @@
 // Headers include section
 // ============================================================================
 
-#include <cstdlib>         // required by EXIT_SUCCESS, EXIT_FAILURE
-#include <iostream>        // required by cin, cout, ...
-#include <string>          // self explanatory ...
+#include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <iostream>    // required by cin, cout, ...
+#include <string>      // self explanatory ...
+#include <set>         // self explanatory ...
+#include <vector>      // self explanatory ...
 
 #include <clipp.hpp>       // command line arguments parsing
-#include <validators.hpp>  // custom classes to validate user input parameters
-#include <itkImage.h>            // self explanatory ..
-// #include <itkImageIOBase.h>      // self explanatory ..
-#include <itkTIFFImageIO.h>      // self explanatory ..
-#include <itkTestingMacros.h>
-// #include <itkTIFFImageIOFactory.h>      // self explanatory ..
-#include <itkImageFileReader.h>  // self explanatory ..
-#include <itkMetaDataObject.h>  // self explanatory ..
+#include "validators.hpp"  // custom classes to validate user input parameters
 
 
 // ============================================================================
@@ -56,23 +69,20 @@
 // Global constants section
 // ============================================================================
 
-const std::string kAppName = "itk_tiff_test";
+const std::string kAppName = "cli_app";
 const std::string kVersionString = "0.1";
-const std::string kYearString = "2021";
+const std::string kYearString = "yyyy";
 const std::string kAuthorName = "Ljubomir Kurij";
 const std::string kAuthorEmail = "ljubomir_kurij@protonmail.com";
 const std::string kAppDoc = "\
-Simple CLI application to test basic libtiff functionality.\n\n\
+Framework for developing command line applications using \'clipp\' command\n\
+line argument parsing library.\n\n\
 Mandatory arguments to long options are mandatory for short options too.\n";
 const std::string kLicense = "\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n";
-#ifdef _WIN32 
-    const char kPathSeparator = '\\';
-#else
-    const char kPathSeparator = '/';
-#endif
+const char kPathSeparator = '\\';
 
 
 // ============================================================================
@@ -108,35 +118,54 @@ int main(int argc, char *argv[])
 {
     // Determine the exec name under wich program is beeing executed.
     std::string fullpath = argv[0];
-    size_t pos = fullpath.find_last_of(kPathSeparator);
-    size_t fullpath_last_index = fullpath.length() - 1;
+    unsigned int pos = fullpath.find_last_of(kPathSeparator);
 
-    if(fullpath_last_index != pos)
+    if(std::string::npos != pos)
         exec_name = fullpath.substr(pos + 1, std::string::npos);
     else
         exec_name = fullpath;
 
     // Define structures to store command line options arguments and validators
     struct CLIArguments {
-        bool show_help;
-        bool print_usage;
-        bool show_version;
+        bool        show_help;
+        bool        print_usage;
+        bool        show_version;
+        int         iter_no;       // Number of iterations
         std::string input_file;
+        std::string output_dir;
+        std::string color_selec;    // Color channel selection
     };
 
-    struct OptionValidators { PathValidator input_file; };
+    struct OptionValidators {
+        PathValidator                        input_file;
+        PathValidator                        output_dir;
+        NumericalInputValidator<int>         iter_no;
+        ListSelectionValidator<std::string>  color_selec;
+    };
 
-    CLIArguments user_options { false, false, false, "" };
+    CLIArguments user_options {false, false, false, 0, "", "", "all"};
 
     PathValidatorFlags input_file_flags {
             false,  // We don't accept empty path
             false,  // We don't accept nonexistent files
             false   // We don't accept empty files
     };
-    FileValidatorImp input_file_imp {""};
+    PathValidatorFlags output_dir_flags {
+            true,  // Accept empty path
+            true,  // Accept nonexistent directories
+            true   // Accept empty directories
+    };
+    FileValidatorImp           input_file_imp {""};
+    DirValidatorImp            output_dir_imp {""};
+    CntNumInterval<int>        iter_no_domain {0, 255, true, true};
+    std::set<std::string>      rgb_colors {"red", "green", "blue", "all"};
+    ListOfChoices<std::string> color_list(rgb_colors);
 
     OptionValidators validators{
-        PathValidator(input_file_imp, input_file_flags)
+        PathValidator(input_file_imp, input_file_flags),
+        PathValidator(output_dir_imp, output_dir_flags),
+        NumericalInputValidator(user_options.iter_no, iter_no_domain),
+        ListSelectionValidator(user_options.color_selec, color_list)
     };
 
     // Unsupported options aggregator.
@@ -160,6 +189,28 @@ int main(int argc, char *argv[])
             clipp::option("-V", "--version").set(user_options.show_version)
                 .doc("print program version")
         ).doc("general options:"),
+        (
+            // Take care not to omitt value filter when using
+            // path input options
+            (clipp::option("-c", "--color-channel")
+            & clipp::value(istarget, "COLOR_CHANNEL", user_options.color_selec))
+            .doc(
+                std::string("dummy color selection option. ")
+                + std::string("Valid choices are: ")
+                + color_list.str_repr()
+                ),
+            (clipp::option("-n", "--number-of-iterations")
+            & clipp::value("INTEGER_NUMBER", user_options.iter_no))
+            .doc(
+                std::string("dummy option to demonstrate parsing ")
+                + std::string("of integers. Argument can take any integer ")
+                + std::string("value from the interval ")
+                + iter_no_domain.str_repr()
+                ),
+            (clipp::option("-o", "--output_dir")
+            & clipp::value(istarget, "OUTPUT_DIR", user_options.output_dir))
+            .doc("directory to store output data to")
+        ).doc("optional arguments: "),
         clipp::any_other(unknown_options)
     );
 
@@ -228,6 +279,67 @@ int main(int argc, char *argv[])
 
         }
 
+        // Validate user input for 'color selection' cmd line option
+        try {
+            validators.color_selec.validate();
+        } catch (ListSelectionValidator<std::string>::InvalidSelection) {
+            std::cerr << exec_name << ": (ERROR) Invalid option \'"
+                << validators.color_selec.value()
+                << "\'\n";
+
+            return EXIT_FAILURE;
+
+        } catch (...) {
+            std::cerr << exec_name
+                << ": (ERROR) Unknown exception validating color selection!\n";
+
+            return EXIT_FAILURE;
+
+        }
+
+        // Validate user input for 'number of iterations' cmd line option
+        try {
+            validators.iter_no.validate();
+        } catch (NumericalInputValidator<int>::OutOfRange) {
+            std::cerr << exec_name << ": (ERROR) Input value \'"
+                << validators.iter_no.value()
+                << "\' is out of range!\n";
+
+            return EXIT_FAILURE;
+
+        } catch (...) {
+            std::cerr << exec_name
+                << ": (ERROR) Unknown exception validating directory input!\n";
+
+            return EXIT_FAILURE;
+
+        }
+
+        // Validate user input for 'output directory' cmd line option
+        try {
+            output_dir_imp = DirValidatorImp(user_options.output_dir);
+            validators.output_dir.validate();
+
+        } catch (DirValidatorImp::NotDirectory) {
+            std::cerr << exec_name << ": (ERROR) Path \'"
+                << validators.output_dir.value()
+                << "\' is not an directory!\n";
+
+            return EXIT_FAILURE;
+
+        } catch (...) {
+            std::cerr << exec_name
+                << ": (ERROR) Unknown exception validating directory input!\n";
+
+            return EXIT_FAILURE;
+
+        }
+
+        // If no output dir supplied, use the default value
+        if (validators.output_dir.is_empty_path()) {
+            output_dir_imp = DirValidatorImp(".\\output");
+        }
+
     } else {
         if(!unknown_options.empty()) {
             auto fmt = clipp::doc_formatting {}
@@ -249,97 +361,15 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    using PixelType = short;
-    constexpr unsigned int Dimension = 2;
-    using ImageType = itk::Image<PixelType, Dimension>;
-    using ReaderType = itk::ImageFileReader<ImageType>;
-
-    ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName(validators.input_file.value().c_str());
-
-    try {
-        reader->Update();
-
-    } catch (itk::ExceptionObject & e) {
-        std::cerr << exec_name << ": (ERROR) " << e.what() << "\n";
-
-        return EXIT_FAILURE;
-
-    }
-
-    itk::ImageIOBase::Pointer image_io
-        = itk::ImageIOFactory::CreateImageIO(
-            validators.input_file.value().c_str(),
-            itk::ImageIOFactory::ReadMode
-            );
-
-    image_io->SetFileName(validators.input_file.value().c_str());
-
-    // std::cout << exec_name << ": Image type (";
-
-    // for(auto itr : image_io->GetSupportedReadExtensions()) {
-    //     std::cout << itr << ", ";
-    // }
-    // std::cout << ")\n";
-    std::string img_type = image_io->GetSupportedReadExtensions()[0];
-
-    if (".tif" == img_type) {
-        // auto tiff_image_io = itk::TIFFImageIO::New();
-        // tiff_image_io->SetFileName(validators.input_file.value().c_str());
-        // tiff_image_io->ReadImageInformation();
-
-        // const itk::MetaDataDictionary & dictionary
-        //     = tiff_image_io->GetMetaDataDictionary();
-        // auto itr = dictionary.Begin();
-        // auto end = dictionary.End();
-
-        // for (auto itr = dictionary.Begin(); itr != dictionary.End(); ++itr) {
-        //     itk::MetaDataObjectBase::Pointer entry = itr->second;
-        //     const std::string tagkey = itr->first;
-
-        //     itk::MetaDataObject<std::string>::Pointer entryvalue
-        //         = dynamic_cast<itk::MetaDataObject<std::string> *>(
-        //                 entry.GetPointer()
-        //                 );
-
-        //     if (entryvalue) {
-        //         std::cout << tagkey << ": " << entryvalue->GetMetaDataObjectValue()
-        //             << "\n";
-
-        //     } else {
-        //         std::cout << tagkey << ": " << entry << "\n";
-
-        //     }
-        // }
-
-        // reader->LoadPrivateTagsDefaultOn();
-        // reader->ReadImageInformation();
-
-        const itk::MetaDataDictionary & dictionary
-            = reader->GetMetaDataKeys();
-        // auto itr = dictionary.Begin();
-        // auto end = dictionary.End();
-
-        for (auto itr = dictionary.Begin(); itr != dictionary.End(); ++itr) {
-            itk::MetaDataObjectBase::Pointer entry = itr->second;
-            const std::string tagkey = itr->first;
-
-            itk::MetaDataObject<std::string>::Pointer entryvalue
-                = dynamic_cast<itk::MetaDataObject<std::string> *>(
-                        entry.GetPointer()
-                        );
-
-            if (entryvalue) {
-                std::cout << tagkey << ": " << entryvalue->GetMetaDataObjectValue()
-                    << "\n";
-
-            } else {
-                std::cout << tagkey << ": " << entry << "\n";
-
-            }
-        }
-
-    }
+    // Print report and exit application
+    std::cout << exec_name << ": Input file\t-> "
+        << validators.input_file.value() << "\n";
+    std::cout << exec_name << ": Color channel\t-> "
+        << validators.color_selec.value() << "\n";
+    std::cout << exec_name << ": Number of iterations\t-> "
+        << validators.iter_no.value() << "\n";
+    std::cout << exec_name << ": Output dir\t-> "
+        << validators.output_dir.value() << "\n";
 
     return EXIT_SUCCESS;
 }
