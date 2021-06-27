@@ -1,0 +1,74 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../include/clipp.hpp
+cstring
+-
+string
+-
+cstdlib
+-
+cstring
+-
+cctype
+-
+memory
+-
+vector
+-
+limits
+-
+stack
+-
+algorithm
+-
+sstream
+-
+utility
+-
+iterator
+-
+functional
+-
+
+/home/great_otter/Projects/work_in_progress/cpp_projects/work_in_progress/CLI single parser [CMake clipp]/main.cpp
+cstdlib
+-
+iostream
+-
+string
+-
+set
+-
+vector
+-
+clipp.hpp
+-
+validators.hpp
+/home/great_otter/Projects/work_in_progress/cpp_projects/work_in_progress/CLI single parser [CMake clipp]/validators.hpp
+
+/home/great_otter/Projects/work_in_progress/cpp_projects/work_in_progress/CLI single parser [CMake clipp]/validators.cpp
+filesystem
+-
+validators.hpp
+/home/great_otter/Projects/work_in_progress/cpp_projects/work_in_progress/CLI single parser [CMake clipp]/validators.hpp
+
+/home/great_otter/Projects/work_in_progress/cpp_projects/work_in_progress/CLI single parser [CMake clipp]/validators.hpp
+algorithm
+-
+filesystem
+-
+limits
+-
+string
+-
+set
+-
+sstream
+-
+

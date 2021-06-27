@@ -118,9 +118,10 @@ int main(int argc, char *argv[])
 {
     // Determine the exec name under wich program is beeing executed.
     std::string fullpath = argv[0];
-    unsigned int pos = fullpath.find_last_of(kPathSeparator);
+    size_t pos = fullpath.find_last_of(kPathSeparator);
+    size_t fullpath_last_index = fullpath.length() - 1;
 
-    if(std::string::npos != pos)
+    if(fullpath_last_index != pos)
         exec_name = fullpath.substr(pos + 1, std::string::npos);
     else
         exec_name = fullpath;
@@ -164,8 +165,11 @@ int main(int argc, char *argv[])
     OptionValidators validators{
         PathValidator(input_file_imp, input_file_flags),
         PathValidator(output_dir_imp, output_dir_flags),
-        NumericalInputValidator(user_options.iter_no, iter_no_domain),
-        ListSelectionValidator(user_options.color_selec, color_list)
+        NumericalInputValidator<int>(user_options.iter_no, iter_no_domain),
+        ListSelectionValidator<std::string>(
+                user_options.color_selec,
+                color_list
+                )
     };
 
     // Unsupported options aggregator.

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/app.dir/main.cpp.o CMakeFiles/app.dir/validators.cpp.o -o app 
