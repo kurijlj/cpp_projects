@@ -2,27 +2,38 @@
 # Generic CMake file
 ###############################################################################
 
-# Set CMake requirements
-cmake_minimum_required(VERSION 3.9)
+# Works with 3.15 and tested through 3.20
+cmake_minimum_required(VERSION 3.15...3.20)
 
-# Downgrade policy level for versions lower than 3.20
-if(${CMAKE_VERSION} VERSION_LESS 3.20)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-    cmake_policy(VERSION 3.20)
-endif()
-
-# Set the project name
-project(CLI_App_Framework VERSION 0.1
-    DESCRIPTION "Framework for developing CLI applications"
+# Project name and a few useful settings. Other commands can pick up the results
+project(
+    CLI_App_Framework
+    VERSION 0.1
+    DESCRIPTION "Custom framework for developing CLI applications"
     LANGUAGES CXX)
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Only do these if this is the main project, and not if it is included through add_subdirectory
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
-# Add custom include directories.
-target_include_directories(app PUBLIC ${PROJECT_SOURCE_DIR}/include)
+  # Optionally set things like CMAKE_CXX_STANDARD, CMAKE_POSITION_INDEPENDENT_CODE here
 
-# Add the executable
-add_executable(app main.cpp validators.cpp validators.hpp clipp.hpp)
+  # Let's ensure -std=c++xx instead of -std=g++xx
+  set(CMAKE_CXX_EXTENSIONS OFF)
+
+  # Let's nicely support folders in IDEs
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+endif()
+
+# The compiled library code is here
+add_subdirectory(src)
+
+# The executable code is here
+add_subdirectory(apps)
+
+# Testing only available if this is the main app
+# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
+   AND BUILD_TESTING)
+  add_subdirectory(tests)
+endif()

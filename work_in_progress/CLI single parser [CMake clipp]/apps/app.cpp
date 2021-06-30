@@ -57,7 +57,7 @@
 #include <vector>      // self explanatory ...
 
 #include <clipp.hpp>       // command line arguments parsing
-#include "validators.hpp"  // custom classes to validate user input parameters
+#include <input_validators++/validators.hpp>  // custom classes to validate user input parameters
 
 
 // ============================================================================

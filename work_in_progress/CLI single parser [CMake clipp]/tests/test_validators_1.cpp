@@ -50,7 +50,7 @@
 #include <set>                // Required by DescreteNumericalInterval class
 #include <string>             // Self explanatory
 
-#include "..\validators.hpp"  // User input validation classes
+#include <input_validators++/validators.hpp>  // User input validation classes
 
 
 // ============================================================================

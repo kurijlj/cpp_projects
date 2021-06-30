@@ -1,6 +1,6 @@
 # Note that headers are optional, and do not affect add_library, but they will
 # not show up in IDEs unless they are listed in add_library.
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/inlcude/input_validators++/validators.hpp")
+set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/include/input_validators++/validators.hpp")
 
 # Make an automatic library - will be static or dynamic based on user setting
 add_library(input_validators++ validators.cpp ${HEADER_LIST})
