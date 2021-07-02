@@ -21,3 +21,8 @@ target_link_libraries(test_validators_2 PRIVATE input_validators++)
 # You can also run examples and check the output, as well.
 add_test(NAME test_validators_1 COMMAND test_validators_1) # Command can be a target
 add_test(NAME test_validators_2 COMMAND test_validators_2) # Command can be a target
+
+# Copy test data to binary tree
+# file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/data")
+file(COPY "${CLI_App_Framework_SOURCE_DIR}/tests/data" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/data/empty_dir")

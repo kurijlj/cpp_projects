@@ -41,6 +41,28 @@
 
 
 // ============================================================================
+// Preprocessor directives
+// ============================================================================
+
+#ifdef _WIN32
+    #define EMPTY_PATH ".\\"
+    #define MASHA_DIR ".\\Masha"
+    #define DATA_DIR ".\\data"
+    #define EMPTY_DIR ".\\data\\empty_dir"
+    #define EMPTY_FILE ".\\data\\empty_file.txt"
+    #define FILE_WITH_SOME_TEXT ".\\data\\file_with_some_text.txt"
+#else
+    #define EMPTY_PATH "./"
+    #define MASHA_DIR "./Masha"
+    #define DATA_DIR "./data"
+    #define EMPTY_DIR "./data/empty_dir"
+    #define EMPTY_FILE "./data/empty_file.txt"
+    #define FILE_WITH_SOME_TEXT "./data/file_with_some_text.txt"
+
+#endif
+
+
+// ============================================================================
 // Headers include section
 // ============================================================================
 
@@ -66,10 +88,10 @@ const ls::test specification[] =
             PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                DirValidatorImp dvi {".\\"};
+                DirValidatorImp dvi {EMPTY_PATH};
                 PathValidator vd {dvi, flags};
 
-                EXPECT (".\\" == vd.value());
+                EXPECT (EMPTY_PATH == vd.value());
                 EXPECT (false == vd.is_empty_path());
                 EXPECT (true == vd.exists());
                 EXPECT (true == vd.is_proper_type());
@@ -84,10 +106,10 @@ const ls::test specification[] =
             PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                FileValidatorImp fvi {".\\data\\empty_file.txt"};
+                FileValidatorImp fvi {EMPTY_FILE};
                 PathValidator vd {fvi, flags};
 
-                EXPECT (".\\data\\empty_file.txt" == vd.value());
+                EXPECT (EMPTY_FILE == vd.value());
                 EXPECT (false == vd.is_empty_path());
                 EXPECT (true == vd.exists());
                 EXPECT (true == vd.is_proper_type());

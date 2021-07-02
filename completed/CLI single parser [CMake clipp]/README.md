@@ -1,0 +1,20 @@
+# CLI Single Parser App Framework [CMake clipp]
+Small C++ single parser app framework for developing CLI applications using
+"clipp" command line argument parsing library and "CMake" build system.
+
+
+## Compiling Instructions
+Build as regular CMake project:
+1. Create build directory and `cd` into it. Than create directory structure and
+makefiles using:
+`$ CXX=/usr/bin/clang++ cmake -S ../.. -B . -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_TESTING:BOOL=FALSE`
+
+2. Compile using:
+`$ make`
+
+Where build paramters can take following values:
+```
+-DCMAKE_BUILD_TYPE=(Debug/RelWithDebInfo/Release/MinSizeRel)
+-DBUILD_SHARED_LIBS:BOOL=(TRUE/FALSE)
+-DBUILD_TESTING:BOOL=(TRUE/FALSE)
+```
