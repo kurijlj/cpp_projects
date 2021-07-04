@@ -7,7 +7,7 @@ Small C++ single parser app framework for developing CLI applications using
 Build as regular CMake project:
 1. Create build directory and `cd` into it. Than create directory structure and
 makefiles using:
-`$ CXX=/usr/bin/clang++ cmake -S ../.. -B . -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_TESTING:BOOL=FALSE`
+`$ CXX=/usr/bin/clang++ cmake -S ../.. -B . -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS:BOOL=FALSE -DBUILD_TESTING:BOOL=FALSE`
 
 2. Compile using:
 `$ make`

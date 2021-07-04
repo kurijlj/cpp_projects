@@ -44,14 +44,14 @@
 // Preprocessor directives
 // ============================================================================
 
-#ifdef _WIN32
+#if defined(_WIN32)  // we are dealing with windows environment
     #define EMPTY_PATH ".\\"
     #define MASHA_DIR ".\\Masha"
     #define DATA_DIR ".\\data"
     #define EMPTY_DIR ".\\data\\empty_dir"
     #define EMPTY_FILE ".\\data\\empty_file.txt"
     #define FILE_WITH_SOME_TEXT ".\\data\\file_with_some_text.txt"
-#else
+#else  // non windows environment
     #define EMPTY_PATH "./"
     #define MASHA_DIR "./Masha"
     #define DATA_DIR "./data"
