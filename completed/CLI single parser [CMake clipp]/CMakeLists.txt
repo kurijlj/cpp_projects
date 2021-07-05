@@ -12,6 +12,12 @@ project(
     DESCRIPTION "Custom framework for developing CLI applications"
     LANGUAGES CXX)
 
+# Append custom flags
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    list(APPEND flags "-v" "-Wall" "-Wextra" "-pedantic" "-fcolor-diagnostic" "-fdiagnostic-format=vi")
+    message("C++ compiler flags: ${CMAKE_CXX_FLAGS}")
+endif()
+
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
