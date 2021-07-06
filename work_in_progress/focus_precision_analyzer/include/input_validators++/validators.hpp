@@ -500,7 +500,7 @@ std::string ListOfChoices<T>::str_repr() const {
     int cntr = 1;
 
     for (auto it=valid_values_.cbegin(); it != valid_values_.cend(); ++it) {
-        oss << "\"" << *it << "\"" << (cntr < noe ? ", " : "");
+        oss << *it << (cntr < noe ? ", " : "");
         cntr++;
     }
 

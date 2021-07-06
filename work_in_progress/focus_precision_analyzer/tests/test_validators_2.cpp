@@ -41,11 +41,33 @@
 
 
 // ============================================================================
+// Preprocessor directives
+// ============================================================================
+
+#if defined(_WIN32)  // we are dealing with windows environment
+    #define EMPTY_PATH ".\\"
+    #define MASHA_DIR ".\\Masha"
+    #define DATA_DIR ".\\data"
+    #define EMPTY_DIR ".\\data\\empty_dir"
+    #define EMPTY_FILE ".\\data\\empty_file.txt"
+    #define FILE_WITH_SOME_TEXT ".\\data\\file_with_some_text.txt"
+#else  // non windows environment
+    #define EMPTY_PATH "./"
+    #define MASHA_DIR "./Masha"
+    #define DATA_DIR "./data"
+    #define EMPTY_DIR "./data/empty_dir"
+    #define EMPTY_FILE "./data/empty_file.txt"
+    #define FILE_WITH_SOME_TEXT "./data/file_with_some_text.txt"
+
+#endif
+
+
+// ============================================================================
 // Headers include section
 // ============================================================================
 
 #include <lest.hpp>  // required by unit testing framework
-#include "..\validators.hpp"  // User input validation classes
+#include <input_validators++/validators.hpp>  // User input validation classes
 
 
 // ============================================================================
@@ -63,13 +85,13 @@ const ls::test specification[] =
 {
     CASE ("Directory Validator") {
         SETUP ("aep: true, ane: true, aes: true") {
-            const PathValidatorFlags flags {true, true, true};
+            PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                const DirValidatorImp dvi {".\\"};
-                const PathValidator vd {dvi, flags};
+                DirValidatorImp dvi {EMPTY_PATH};
+                PathValidator vd {dvi, flags};
 
-                EXPECT (".\\" == vd.value());
+                EXPECT (EMPTY_PATH == vd.value());
                 EXPECT (false == vd.is_empty_path());
                 EXPECT (true == vd.exists());
                 EXPECT (true == vd.is_proper_type());
@@ -81,13 +103,13 @@ const ls::test specification[] =
 
     CASE ("File Validator") {
         SETUP ("aep: true, ane: true, aes: true") {
-            const PathValidatorFlags flags {true, true, true};
+            PathValidatorFlags flags {true, true, true};
 
             SECTION ("Empty path") {
-                const FileValidatorImp fvi {"..\\..\\data\\empty_file.txt"};
-                const PathValidator vd {fvi, flags};
+                FileValidatorImp fvi {EMPTY_FILE};
+                PathValidator vd {fvi, flags};
 
-                EXPECT ("..\\..\\data\\empty_file.txt" == vd.value());
+                EXPECT (EMPTY_FILE == vd.value());
                 EXPECT (false == vd.is_empty_path());
                 EXPECT (true == vd.exists());
                 EXPECT (true == vd.is_proper_type());

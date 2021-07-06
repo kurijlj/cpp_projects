@@ -51,18 +51,25 @@
 // ============================================================================
 
 #include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <ctime>       // self explanatory ...
+#include <filesystem>  // Used for testing directory and file status
+#include <fstream>     // required for reading files
 #include <iostream>    // required by cin, cout, ...
+#include <regex>       // self explanatory ...
 #include <string>      // self explanatory ...
 #include <set>         // self explanatory ...
 #include <vector>      // self explanatory ...
 
 #include <clipp.hpp>       // command line arguments parsing
-#include "validators.hpp"  // custom classes to validate user input parameters
+#include <input_validators++/validators.hpp>  // custom classes to validate
+                                              // user input parameters
 
 
 // ============================================================================
 // Define namespace aliases
 // ============================================================================
+
+namespace fs = std::filesystem;
 
 
 // ============================================================================
@@ -118,9 +125,10 @@ int main(int argc, char *argv[])
 {
     // Determine the exec name under wich program is beeing executed.
     std::string fullpath = argv[0];
-    unsigned int pos = fullpath.find_last_of(kPathSeparator);
+    size_t pos = fullpath.find_last_of(kPathSeparator);
+    size_t fullpath_last_index = fullpath.length() - 1;
 
-    if(std::string::npos != pos)
+    if(fullpath_last_index != pos)
         exec_name = fullpath.substr(pos + 1, std::string::npos);
     else
         exec_name = fullpath;
@@ -130,42 +138,24 @@ int main(int argc, char *argv[])
         bool        show_help;
         bool        print_usage;
         bool        show_version;
-        int         iter_no;       // Number of iterations
         std::string input_file;
-        std::string output_dir;
-        std::string color_selec;    // Color channel selection
     };
 
     struct OptionValidators {
-        PathValidator                        input_file;
-        PathValidator                        output_dir;
-        NumericalInputValidator<int>         iter_no;
-        ListSelectionValidator<std::string>  color_selec;
+        PathValidator input_file;
     };
 
-    CLIArguments user_options {false, false, false, 0, "", "", "all"};
+    CLIArguments user_options {false, false, false, ""};
 
     PathValidatorFlags input_file_flags {
             false,  // We don't accept empty path
             false,  // We don't accept nonexistent files
             false   // We don't accept empty files
     };
-    PathValidatorFlags output_dir_flags {
-            true,  // Accept empty path
-            true,  // Accept nonexistent directories
-            true   // Accept empty directories
-    };
-    FileValidatorImp           input_file_imp {""};
-    DirValidatorImp            output_dir_imp {""};
-    CntNumInterval<int>        iter_no_domain {0, 255, true, true};
-    std::set<std::string>      rgb_colors {"red", "green", "blue", "all"};
-    ListOfChoices<std::string> color_list(rgb_colors);
+    FileValidatorImp input_file_imp {""};
 
     OptionValidators validators{
-        PathValidator(input_file_imp, input_file_flags),
-        PathValidator(output_dir_imp, output_dir_flags),
-        NumericalInputValidator(user_options.iter_no, iter_no_domain),
-        ListSelectionValidator(user_options.color_selec, color_list)
+        PathValidator(input_file_imp, input_file_flags)
     };
 
     // Unsupported options aggregator.
@@ -189,28 +179,6 @@ int main(int argc, char *argv[])
             clipp::option("-V", "--version").set(user_options.show_version)
                 .doc("print program version")
         ).doc("general options:"),
-        (
-            // Take care not to omitt value filter when using
-            // path input options
-            (clipp::option("-c", "--color-channel")
-            & clipp::value(istarget, "COLOR_CHANNEL", user_options.color_selec))
-            .doc(
-                std::string("dummy color selection option. ")
-                + std::string("Valid choices are: ")
-                + color_list.str_repr()
-                ),
-            (clipp::option("-n", "--number-of-iterations")
-            & clipp::value("INTEGER_NUMBER", user_options.iter_no))
-            .doc(
-                std::string("dummy option to demonstrate parsing ")
-                + std::string("of integers. Argument can take any integer ")
-                + std::string("value from the interval ")
-                + iter_no_domain.str_repr()
-                ),
-            (clipp::option("-o", "--output_dir")
-            & clipp::value(istarget, "OUTPUT_DIR", user_options.output_dir))
-            .doc("directory to store output data to")
-        ).doc("optional arguments: "),
         clipp::any_other(unknown_options)
     );
 
@@ -279,97 +247,81 @@ int main(int argc, char *argv[])
 
         }
 
-        // Validate user input for 'color selection' cmd line option
-        try {
-            validators.color_selec.validate();
-        } catch (ListSelectionValidator<std::string>::InvalidSelection) {
-            std::cerr << exec_name << ": (ERROR) Invalid option \'"
-                << validators.color_selec.value()
-                << "\'\n";
+    }
 
-            return EXIT_FAILURE;
 
-        } catch (...) {
-            std::cerr << exec_name
-                << ": (ERROR) Unknown exception validating color selection!\n";
+    // Print report and exit application
+    std::cout << exec_name << ": Input file \""
+        << validators.input_file.value() << "\"\n";
 
-            return EXIT_FAILURE;
+    // Extract filename
+    std::string log_filename =  fs::path(validators.input_file.value())
+        .filename().string();
 
-        }
+    // Validate log file name pattern
+    std::regex log_filename_pattern(
+            "QAFocusPrecisionTest\\([0-9]{4}(-[0-9]{2}){2} "
+            "([0-9]{2}\\.){2}[0-9]{2}\\)\\.rmd"
+            );
 
-        // Validate user input for 'number of iterations' cmd line option
-        try {
-            validators.iter_no.validate();
-        } catch (NumericalInputValidator<int>::OutOfRange) {
-            std::cerr << exec_name << ": (ERROR) Input value \'"
-                << validators.iter_no.value()
-                << "\' is out of range!\n";
-
-            return EXIT_FAILURE;
-
-        } catch (...) {
-            std::cerr << exec_name
-                << ": (ERROR) Unknown exception validating directory input!\n";
-
-            return EXIT_FAILURE;
-
-        }
-
-        // Validate user input for 'output directory' cmd line option
-        try {
-            output_dir_imp = DirValidatorImp(user_options.output_dir);
-            validators.output_dir.validate();
-
-        } catch (DirValidatorImp::NotDirectory) {
-            std::cerr << exec_name << ": (ERROR) Path \'"
-                << validators.output_dir.value()
-                << "\' is not an directory!\n";
-
-            return EXIT_FAILURE;
-
-        } catch (...) {
-            std::cerr << exec_name
-                << ": (ERROR) Unknown exception validating directory input!\n";
-
-            return EXIT_FAILURE;
-
-        }
-
-        // If no output dir supplied, use the default value
-        if (validators.output_dir.is_empty_path()) {
-            output_dir_imp = DirValidatorImp(".\\output");
-        }
-
-    } else {
-        if(!unknown_options.empty()) {
-            auto fmt = clipp::doc_formatting {}
-                .first_column(0)
-                .last_column(79);
-
-            // Print only first option on the stack
-            std::cerr << exec_name << ": Unknown option "
-                << unknown_options.front() << "\n";
-            printUsage(cli, exec_name, fmt);
-            printShortHelp(exec_name);
-
-        } else {
-            std::cerr << exec_name << ": Unknown error occured!\n";
-            std::cout << "Report bugs to <" << kAuthorEmail << ">.\n";
-
-        }
+    if(!std::regex_match(log_filename, log_filename_pattern)) {
+        std::cout << exec_name << ": Invalid file name \""
+            << validators.input_file.value() << "\". File does not match "
+            "Focus Precision Test log file name pattern.\n";
 
         return EXIT_FAILURE;
     }
 
-    // Print report and exit application
-    std::cout << exec_name << ": Input file\t-> "
-        << validators.input_file.value() << "\n";
-    std::cout << exec_name << ": Color channel\t-> "
-        << validators.color_selec.value() << "\n";
-    std::cout << exec_name << ": Number of iterations\t-> "
-        << validators.iter_no.value() << "\n";
-    std::cout << exec_name << ": Output dir\t-> "
-        << validators.output_dir.value() << "\n";
+    // We have a file with the valid filename, so we can extract time and date
+    // of the log creation
+    std::string log_date_str = log_filename.substr(21, 10);
+    std::string log_time_str = log_filename.substr(32, 8);
+
+    // Convert to the time structure
+    std::tm log_time;
+    sscanf(log_date_str.c_str(),
+            "%4d-%2d-%2d",
+            &log_time.tm_year,
+            &log_time.tm_mon,
+            &log_time.tm_mday
+            );
+    sscanf(log_time_str.c_str(),
+            "%2d.%2d.%2d",
+            &log_time.tm_hour,
+            &log_time.tm_min,
+            &log_time.tm_sec
+            );
+
+    std::cout << exec_name << ": Log date "
+        << log_time.tm_mon << "/"
+        << log_time.tm_mday << "/"
+        << log_time.tm_year << "\n";
+
+    std::cout << exec_name << ": Log time "
+        << log_time.tm_hour << ":"
+        << log_time.tm_min << ":"
+        << log_time.tm_sec << "\n";
+
+    // Try to open file for reading
+    std::cout << exec_name << ": Opening file \""
+        << validators.input_file.value() << "\" ...\n";
+
+    std::ifstream input_file;
+    input_file.open(validators.input_file.value());
+
+    if(input_file.is_open()) {
+        std::cout << exec_name << ": File \""
+            << validators.input_file.value() << "\" successfully opened!\n";
+    } else {
+        std::cout << exec_name << ": Unable to open file \""
+            << validators.input_file.value() << "\n";
+    }
+
+    std::cout << exec_name << ": Closing file \""
+        << validators.input_file.value() << "\" ...\n";
+    input_file.close();
+
+
 
     return EXIT_SUCCESS;
 }
