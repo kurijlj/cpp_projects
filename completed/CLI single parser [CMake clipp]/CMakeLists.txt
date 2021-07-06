@@ -14,8 +14,7 @@ project(
 
 # Append custom flags
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    list(APPEND flags "-v" "-Wall" "-Wextra" "-pedantic" "-fcolor-diagnostic" "-fdiagnostic-format=vi")
-    message("C++ compiler flags: ${CMAKE_CXX_FLAGS}")
+    add_compile_options(-v -Wall -Wextra -pedantic -fcolor-diagnostics -fdiagnostics-format=vi)
 endif()
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
