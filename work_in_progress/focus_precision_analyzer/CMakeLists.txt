@@ -12,6 +12,22 @@ project(
     DESCRIPTION "Custom framework for developing CLI applications"
     LANGUAGES CXX)
 
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set target properties required by Qt
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# We don't need following since we require minimum CMake v3.15
+# if(CMAKE_VERSION VERSION_LESS "3.7.0")
+#     set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# endif()
+
+find_package(Qt5 COMPONENTS Core REQUIRED)
+
 # Append custom flags
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-v -Wall -Wextra -pedantic -fcolor-diagnostics -fdiagnostics-format=vi)

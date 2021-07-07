@@ -9,4 +9,4 @@ target_include_directories(app PRIVATE ../include)
 
 target_compile_features(app PRIVATE cxx_std_17)
 
-target_link_libraries(app PRIVATE input_validators++)
+target_link_libraries(app PRIVATE input_validators++ Qt::Core)

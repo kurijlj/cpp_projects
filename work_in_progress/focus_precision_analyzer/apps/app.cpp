@@ -50,6 +50,7 @@
 // Headers include section
 // ============================================================================
 
+// Standard Library Headers
 #include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
 #include <ctime>       // self explanatory ...
 #include <filesystem>  // Used for testing directory and file status
@@ -60,7 +61,15 @@
 #include <set>         // self explanatory ...
 #include <vector>      // self explanatory ...
 
-#include <clipp.hpp>       // command line arguments parsing
+// Qt Library Headers
+#include <QFile>        // required for testing file existance
+#include <QString>      // self explanatory ...
+#include <QIODevice>    // required for file acces flags
+#include <QTextStream>  // self explanatory ...
+#include <QStringList>  // required for storing split data fields
+
+// Custom Libraries Headers
+#include <clipp.hpp>                          // command line arguments parsing
 #include <input_validators++/validators.hpp>  // custom classes to validate
                                               // user input parameters
 
@@ -306,22 +315,41 @@ int main(int argc, char *argv[])
     std::cout << exec_name << ": Opening file \""
         << validators.input_file.value() << "\" ...\n";
 
-    std::ifstream input_file;
-    input_file.open(validators.input_file.value());
+    // std::ifstream input_file;
+    // input_file.open(validators.input_file.value());
+    QFile *log_file = new QFile(validators.input_file.value().c_str());
 
-    if(input_file.is_open()) {
+    // if(input_file.is_open()) {
+    if(log_file->open(QIODevice::ReadOnly | QIODevice::Text)) {
         std::cout << exec_name << ": File \""
             << validators.input_file.value() << "\" successfully opened!\n";
     } else {
         std::cout << exec_name << ": Unable to open file \""
             << validators.input_file.value() << "\n";
+
+        // ... clean up and close application.
+        delete log_file;
+        return EXIT_FAILURE;
+    }
+
+    // No trouble opening file so start reading it.
+    QTextStream in(log_file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split(", ");
+        for (int i = 0; i < fields.size(); ++i) {
+            std::cout << "\t\'" << fields.at(i).toStdString() << "\'";
+        }
+        std::cout << "\n";
     }
 
     std::cout << exec_name << ": Closing file \""
         << validators.input_file.value() << "\" ...\n";
-    input_file.close();
+    // input_file.close();
+    log_file->close();
 
-
+    // Clean up and close application.
+    delete log_file;
 
     return EXIT_SUCCESS;
 }
