@@ -333,15 +333,32 @@ int main(int argc, char *argv[])
     }
 
     // No trouble opening file so start reading it.
+    int lineno = 1;
     QTextStream in(log_file);
-    while (!in.atEnd()) {
+    // while (!in.atEnd()) {
+    for (;;) {
         QString line = in.readLine();
         QStringList fields = line.split(", ");
-        for (int i = 0; i < fields.size(); ++i) {
-            std::cout << "\t\'" << fields.at(i).toStdString() << "\'";
+        if(5 == fields.size()) {
+            QString field = fields[0];
+            // field.remove(QChar('"'), Qt::CaseInsensitive);
+
+            std::regex log_entry_pattern("\"[XYZ]1-[12]\"");
+            if(!std::regex_match(field.toStdString(), log_entry_pattern)) {
+                std::cout << "ERROR: line " << lineno
+                    << " contains noncompliant row label ("
+                    << field.toStdString() << ")\n";
+            }
+        } else {
+            std::cout << "ERROR: line " << lineno
+                << " contains noncompliant number of data columns\n";
         }
-        std::cout << "\n";
+
+        if (in.atEnd()) break;
+        lineno++;
     }
+
+    std::cout << "Lines read: " << lineno << "\n";
 
     std::cout << exec_name << ": Closing file \""
         << validators.input_file.value() << "\" ...\n";
