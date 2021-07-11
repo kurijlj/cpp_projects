@@ -7,9 +7,9 @@ cmake_minimum_required(VERSION 3.15...3.20)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
-    CLI_App_Framework
+    Focus_Precision_Analyzer
     VERSION 0.1
-    DESCRIPTION "Custom framework for developing CLI applications"
+    DESCRIPTION "Analyze Focus Precision Tests Logs"
     LANGUAGES CXX)
 
 # Set C++ standard
