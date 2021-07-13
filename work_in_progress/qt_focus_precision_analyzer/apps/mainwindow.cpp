@@ -106,10 +106,12 @@
 // ============================================================================
 
 // Qt Library headers
-#include <QDate> 
-#include <QDateTime> 
+#include <QDate>
+#include <QDateTime>
+#include <QFileInfo>
 #include <QRegExp>
-#include <QTime> 
+#include <QTextStream>
+#include <QTime>
 #include <QtWidgets>
 
 // Class header
@@ -179,11 +181,13 @@ void MainWindow::openLog()
     QString file_name = QFileDialog::getOpenFileName(
             this,
             "Open Focus Precision Test Log File (.rmd)",
-            ".",
+            last_log_dir_,
             "Focus Precision Test log files (*.rmd)"
             );
     if (!file_name.isEmpty())
     {
+        QFileInfo selected_file_name(file_name);
+        last_log_dir_ = selected_file_name.absolutePath();
         loadLogFile(file_name);
     }
 }
@@ -202,14 +206,19 @@ bool MainWindow::saveSessionAs()
     QFileDialog dialog(
             this,
             "Save Log for " + session_title_,
-            "./" + session_title_ + ".log",
+            QDir::toNativeSeparators(
+                session_save_dir_ + "/" +  session_save_name_
+                ),
             "Session log files (*.log)"
             );
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     if (dialog.exec() != QDialog::Accepted)
         return false;
-    return saveSessionLog(dialog.selectedFiles().first());
+    QFileInfo saved_file_name(dialog.selectedFiles().first());
+    session_save_dir_ = saved_file_name.absolutePath();
+    session_save_name_ = saved_file_name.fileName();
+    return saveSessionLog(session_save_dir_ + "/" + session_save_name_);
 }
 
 void MainWindow::about()
@@ -245,8 +254,8 @@ void MainWindow::about()
 
 void MainWindow::documentWasModified()
 {
+    setWindowTitle("Focus Precision Analyzer - " + session_title_ + " [*]");
     setWindowModified(text_edit_->document()->isModified());
-    setWindowTitle(session_title_ + " - Focus Precision Analyzer [*]");
 }
 
 void MainWindow::showMessage(const QString &msg, MainWindow::MessageType type)
@@ -518,6 +527,19 @@ void MainWindow::loadLogFile(const QString &file_name)
             MainWindow::Info
             );
 
+    // Read file contents
+    QTextStream in(&log_file);
+    while (!in.atEnd()) {
+        QString record = "| ";
+        QString line = in.readLine();
+        QStringList fields = line.split(", ");
+        for (int i = 0; i < fields.size(); ++i) {
+            record += fields.at(i) + " |";
+        }
+        showMessage(record, MainWindow::Info);
+
+    }
+
 }
 
 bool MainWindow::saveSessionLog(const QString &file_name)
@@ -554,8 +576,8 @@ bool MainWindow::saveSessionLog(const QString &file_name)
 
     session_log_file_ = file_name;
     text_edit_->document()->setModified(false);
-    setWindowTitle(session_title_ + " - Focus Precision Analyzer");
-    statusBar()->showMessage(tr("Session saved"), 2000);
+    setWindowTitle("Focus Precision Analyzer - " + session_title_);
+    statusBar()->showMessage(session_title_ + tr(" saved"), 3000);
     return true;
 }
 
@@ -564,9 +586,19 @@ void MainWindow::setSession()
     text_edit_->document()->setModified(false);
     setWindowModified(false);
 
+    // Set default save and load directories
+    session_save_dir_ = "./";
+    last_log_dir_ = "./";
+
+    // Initialize session title and session save name
     QDateTime now(QDateTime::currentDateTime());
-    session_title_ = tr("Session ") + now.toString("yyyy-MMM-dd hh.mm.ss");
-    setWindowTitle(session_title_ + " - Focus Precision Analyzer [*]");
+    // session_title_ = tr("Session ") + now.toString("yyyy-MMM-dd hh.mm.ss");
+    // setWindowTitle(session_title_ + " - Focus Precision Analyzer [*]");
+    session_title_ = tr("Session ") + now.toString("yyyy-MMM-dd hh:mm:ss");
+    setWindowTitle("Focus Precision Analyzer - " + session_title_ + " [*]");
+    session_save_name_ = "Session "
+        + now.toString("yyyy-MMM-dd hh.mm.ss")
+        + ".log";
 
     // Set session welcome message
     showMessage(session_title_ + tr(" started ..."), MainWindow::Info);

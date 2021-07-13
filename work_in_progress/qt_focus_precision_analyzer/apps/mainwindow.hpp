@@ -182,8 +182,11 @@ private:
     QString strippedFileName(const QString &full_file_name);
 
     QPlainTextEdit *text_edit_;
-    QString session_title_; // used to be curFile
+    QString session_title_;
+    QString session_save_name_;
     QString session_log_file_;
+    QString session_save_dir_;
+    QString last_log_dir_;
 };
 
 #endif
