@@ -237,9 +237,10 @@ int main(int argc, char *argv[])
     // No command line options selected or application run from GUI. Proceed
     // to setting up GUI and running the application.
 
-    // Q_INIT_RESOURCE(app);
+    Q_INIT_RESOURCE(app);
 
     QApplication app(argc, argv);
+
     QCoreApplication::setOrganizationName("Ljubomir Kurij");
     QCoreApplication::setApplicationName("Focus Precision Analyzer");
     QCoreApplication::setApplicationVersion(kVersionString);

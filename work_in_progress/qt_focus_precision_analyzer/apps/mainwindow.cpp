@@ -246,7 +246,7 @@ void MainWindow::about()
 void MainWindow::documentWasModified()
 {
     setWindowModified(text_edit_->document()->isModified());
-    setWindowTitle(session_title_ + " [*] - Focus Precision Analyzer");
+    setWindowTitle(session_title_ + " - Focus Precision Analyzer [*]");
 }
 
 void MainWindow::showMessage(const QString &msg, MainWindow::MessageType type)
@@ -566,7 +566,7 @@ void MainWindow::setSession()
 
     QDateTime now(QDateTime::currentDateTime());
     session_title_ = tr("Session ") + now.toString("yyyy-MMM-dd hh.mm.ss");
-    setWindowTitle(session_title_ + " [*] - Focus Precision Analyzer");
+    setWindowTitle(session_title_ + " - Focus Precision Analyzer [*]");
 
     // Set session welcome message
     showMessage(session_title_ + tr(" started ..."), MainWindow::Info);

@@ -5,6 +5,7 @@ set(HEADER_LIST "${Focus_Precision_Analyzer_SOURCE_DIR}/include/input_validators
 add_executable(app
     app.cpp
     mainwindow.cpp mainwindow.hpp
+    app.qrc
 )
 
 target_include_directories(app PRIVATE ../extern/clipp)
@@ -29,4 +30,5 @@ set(application_resource_files
 )
 
 
-qt5_add_resources(app app.qrc FILES ${application_resource_files})
+# We don't need this because we are using AUTORCC switch
+# qt5_add_resources(app app.qrc FILES ${application_resource_files})
