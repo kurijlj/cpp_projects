@@ -528,18 +528,30 @@ void MainWindow::loadLogFile(const QString &file_name)
             );
 
     // Read file contents
+    unsigned int current_row = 0;
+    unsigned int number_of_rows = 0;
     QTextStream in(&log_file);
+
     while (!in.atEnd()) {
-        QString record = "| ";
         QString line = in.readLine();
-        QStringList fields = line.split(", ");
-        for (int i = 0; i < fields.size(); ++i) {
-            record += fields.at(i) + " |";
-        }
-        showMessage(record, MainWindow::Info);
-
+        number_of_rows++;
+        current_row++;
     }
+    // Reset stream position to begining of the file
+    in.seek(0);
 
+    showMessage(tr("%1 rows read.").arg(number_of_rows), MainWindow::Info);
+
+    // while (!in.atEnd()) {
+    //     QString record = "| ";
+    //     QString line = in.readLine();
+    //     QStringList fields = line.split(", ");
+    //     for (int i = 0; i < fields.size(); ++i) {
+    //         record += fields.at(i) + " |";
+    //     }
+    //     showMessage(record, MainWindow::Info);
+
+    // }
 }
 
 bool MainWindow::saveSessionLog(const QString &file_name)
