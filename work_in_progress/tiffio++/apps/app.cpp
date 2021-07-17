@@ -50,8 +50,9 @@
 // Headers include section
 // ============================================================================
 
-#include <tiffio.h>
+// "C" system headers
 
+// Standard Library headers
 #include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
 #include <filesystem>  // Used for testing directory and file status
 #include <iostream>    // required by cin, cout, ...
@@ -59,8 +60,16 @@
 #include <set>         // self explanatory ...
 #include <vector>      // self explanatory ...
 
+// External libraries headers
+extern "C" {
+    #include <tiffio.h>
+}
+
 #include <clipp.hpp>       // command line arguments parsing
-#include <input_validators++/validators.hpp>  // custom classes to validate user input parameters
+
+// Project headers
+#include <input_validators++/validators.hpp>  // custom classes to validate
+                                              // user input parameters
 
 
 // ============================================================================

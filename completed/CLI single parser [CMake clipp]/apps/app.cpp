@@ -50,19 +50,31 @@
 // Headers include section
 // ============================================================================
 
+// Related header
+
+// "C" system headers
+
+// Standard Library headers
 #include <cstdlib>     // required by EXIT_SUCCESS, EXIT_FAILURE
+#include <filesystem>  // Used for testing directory and file status
 #include <iostream>    // required by cin, cout, ...
 #include <string>      // self explanatory ...
 #include <set>         // self explanatory ...
 #include <vector>      // self explanatory ...
 
-#include <clipp.hpp>       // command line arguments parsing
-#include <input_validators++/validators.hpp>  // custom classes to validate user input parameters
+// External libraries headers
+#include <clipp.hpp>  // command line arguments parsing
+
+// Project headers
+#include <input_validators++/validators.hpp>  // custom classes to validate
+                                              // user input parameters
 
 
 // ============================================================================
 // Define namespace aliases
 // ============================================================================
+
+namespace fs = std::filesystem;
 
 
 // ============================================================================
@@ -82,7 +94,6 @@ const std::string kLicense = "\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n";
-const char kPathSeparator = '\\';
 
 
 // ============================================================================
@@ -116,15 +127,9 @@ void showHelp(
 
 int main(int argc, char *argv[])
 {
-    // Determine the exec name under wich program is beeing executed.
-    std::string fullpath = argv[0];
-    size_t pos = fullpath.find_last_of(kPathSeparator);
-    size_t fullpath_last_index = fullpath.length() - 1;
-
-    if(fullpath_last_index != pos)
-        exec_name = fullpath.substr(pos + 1, std::string::npos);
-    else
-        exec_name = fullpath;
+    // Determine the exec name under wich program is beeing executed
+    fs::path exec_path {argv[0]};
+    exec_name = exec_path.filename().string();
 
     // Define structures to store command line options arguments and validators
     struct CLIArguments {
