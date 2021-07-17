@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 {
     // Determine the exec name under wich program is beeing executed
     fs::path exec_path {argv[0]};
-    exec_name = exec_path.filename();
+    exec_name = exec_path.filename().string();
 
     // Define structures to store command line options arguments and validators
     struct CLIArguments {
