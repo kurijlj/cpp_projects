@@ -248,6 +248,12 @@ int main(int argc, char *argv[])
     unsigned long int file_count = 0;
     unsigned long int valid_file_count = 0;
     unsigned long int total_row_count = 0;
+    unsigned long int x1_total_count = 0;
+    unsigned long int x2_total_count = 0;
+    unsigned long int y1_total_count = 0;
+    unsigned long int y2_total_count = 0;
+    unsigned long int z1_total_count = 0;
+    unsigned long int z2_total_count = 0;
 
     std::cout << exec_name << ": Scanning directory '"
         << validators.input_dir.value() << "\n";
@@ -273,12 +279,34 @@ int main(int argc, char *argv[])
                 log_stream.open(entry.path());
                 if(log_stream.is_open()){
 
-                    // We can read file. Initalize row buffer
+                    // We can read file. Initalize row buffer and field counters
+                    unsigned long int x1_count = 0;
+                    unsigned long int x2_count = 0;
+                    unsigned long int y1_count = 0;
+                    unsigned long int y2_count = 0;
+                    unsigned long int z1_count = 0;
+                    unsigned long int z2_count = 0;
                     std::string line;
 
                     file_count++;
                     while(getline(log_stream, line)) {
                         log_row_count++;
+
+                        std::string row_id = line.substr(0, 6);
+
+                        if("\"X1-1\"" == row_id) {
+                            x1_count++;
+                        } else if("\"X1-2\"" == row_id) {
+                            x2_count++;
+                        } else if("\"Y1-1\"" == row_id) {
+                            y1_count++;
+                        } else if("\"Y1-2\"" == row_id) {
+                            y2_count++;
+                        } else if("\"Z1-1\"" == row_id) {
+                            z1_count++;
+                        } else if("\"Z1-2\"" == row_id) {
+                            z2_count++;
+                        }
                     }
                     std::cout << log_row_count << " rows read.\n";
 
@@ -286,6 +314,12 @@ int main(int argc, char *argv[])
                     if(1200 <= log_row_count) {
                         valid_file_count++;
                         total_row_count += log_row_count;
+                        x1_total_count += x1_count;
+                        x2_total_count += x2_count;
+                        y1_total_count += y1_count;
+                        y2_total_count += y2_count;
+                        z1_total_count += z1_count;
+                        z2_total_count += z2_count;
                     }
 
                 } else {
@@ -304,12 +338,36 @@ int main(int argc, char *argv[])
     std::cout << exec_name << ": Total row count: " << total_row_count << "\n";
     std::cout << exec_name << ": Total files read: "
         << file_count << "\n";
+    std::cout << exec_name << ": Total \"X1\" rows read: "
+        << x1_total_count << "\n";
+    std::cout << exec_name << ": Total \"X2\" rows read: "
+        << x2_total_count << "\n";
+    std::cout << exec_name << ": Total \"Y1\" rows read: "
+        << y1_total_count << "\n";
+    std::cout << exec_name << ": Total \"Y2\" rows read: "
+        << y2_total_count << "\n";
+    std::cout << exec_name << ": Total \"Z1\" rows read: "
+        << z1_total_count << "\n";
+    std::cout << exec_name << ": Total \"Z2\" rows read: "
+        << z2_total_count << "\n";
     std::cout << exec_name << ": Valid files read: "
         << valid_file_count << "\n";
     std::cout << exec_name << ": Invalid files read: "
         << (file_count - valid_file_count) << "\n";
     std::cout << exec_name << ": Average row count: "
-        << (total_row_count / valid_file_count) << "\n\n";
+        << (total_row_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"X1\" rows count: "
+        << (x1_total_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"X2\" rows count: "
+        << (x2_total_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"Y1\" rows count: "
+        << (y1_total_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"Y2\" rows count: "
+        << (y2_total_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"Z1\" rows count: "
+        << (z1_total_count / valid_file_count) << "\n";
+    std::cout << exec_name << ": Average \"Z2\" rows count: "
+        << (z2_total_count / valid_file_count) << "\n\n";
 
     return EXIT_SUCCESS;
 }

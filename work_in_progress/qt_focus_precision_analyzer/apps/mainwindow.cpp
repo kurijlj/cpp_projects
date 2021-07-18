@@ -475,7 +475,7 @@ void MainWindow::loadLogFile(const QString &file_name)
     }
 
     showMessage(
-            tr("Validating file: %1 ...").arg(
+            tr("Verify file name integrity for \"%1\" ...").arg(
                 QDir::toNativeSeparators(file_name)
                 ),
             MainWindow::Info
@@ -491,8 +491,7 @@ void MainWindow::loadLogFile(const QString &file_name)
 
     if(!fn_pattern.exactMatch(strip_fn)) {
         showMessage(
-                tr("File name \"%1\" does not comply to focus precision test "
-                   "log files naming convention.").arg(
+                tr("File name integrity check for \"%1\": FAILED").arg(
                     QDir::toNativeSeparators(file_name)
                     ),
                 MainWindow::Error
@@ -500,6 +499,13 @@ void MainWindow::loadLogFile(const QString &file_name)
 
         return;
     }
+
+    showMessage(
+            tr("File name integrity check for \"%1\": PASSED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Info
+            );
 
     // File name matches naming convention. Let's extract time and date of
     // log's creation
@@ -528,19 +534,117 @@ void MainWindow::loadLogFile(const QString &file_name)
             );
 
     // Read file contents
+    showMessage(
+            tr("Verify data integrity for \"%1\" ...").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Info
+            );
+
+
     unsigned int current_row = 0;
-    unsigned int number_of_rows = 0;
+    unsigned int row_count = 0;
+    unsigned int invalid_row_count = 0;
+    unsigned int x1_count = 0;
+    unsigned int x2_count = 0;
+    unsigned int y1_count = 0;
+    unsigned int y2_count = 0;
+    unsigned int z1_count = 0;
+    unsigned int z2_count = 0;
     QTextStream in(&log_file);
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-        number_of_rows++;
+        QStringList fields = line.split(", ");
         current_row++;
+        row_count++;
+
+        // Verify number of columns in each row
+        if(5 != fields.size()) {
+            invalid_row_count++;
+            showMessage(
+                    tr("Incomplete dataset in row %1. "
+                        "Data fields number mismatch (%2)")
+                    .arg(current_row)
+                    .arg(fields.size()),
+                    MainWindow::Error
+                    );
+        } else {
+            // Initialize data error flag for the row
+            bool data_error = false;
+
+            // Verify row ID
+            if("\"X1-1\"" == fields.at(0)) {
+                x1_count++;
+            } else if("\"X1-2\"" == fields.at(0)) {
+                x2_count++;
+            } else if("\"Y1-1\"" == fields.at(0)) {
+                y1_count++;
+            } else if("\"Y1-2\"" == fields.at(0)) {
+                y2_count++;
+            } else if("\"Z1-1\"" == fields.at(0)) {
+                z1_count++;
+            } else if("\"Z1-2\"" == fields.at(0)) {
+                z2_count++;
+            } else {
+                data_error = true;
+                invalid_row_count++;
+                showMessage(
+                        tr("Invalid dataset in row %1, field 1. "
+                            "Row ID missing").arg(current_row),
+                        MainWindow::Error
+                        );
+            }
+
+            // Verify data fileds
+            for(unsigned int i = 1; i < 5; i++) {
+                bool failure = true;
+                unsigned long int val = fields.at(0).toInt(&failure, 10);
+
+                if(failure) {
+                    if(!data_error) {
+                        data_error = true;
+                        invalid_row_count++;
+                    }
+
+                    showMessage(
+                            tr("Invalid dataset in row %1, field %2. "
+                                "Invalid data")
+                            .arg(current_row)
+                            .arg(i + 1),
+                            MainWindow::Error
+                            );
+                }
+            }
+        }
     }
+
     // Reset stream position to begining of the file
     in.seek(0);
 
-    showMessage(tr("%1 rows read.").arg(number_of_rows), MainWindow::Info);
+    if( 0 < invalid_row_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("%1 invalid rows read.").arg(invalid_row_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    }
+
+    showMessage(
+        tr("Data integrity check for \"%1\": PASSED").arg(
+            QDir::toNativeSeparators(file_name)
+            ),
+        MainWindow::Info
+    );
+    showMessage(tr("%1 rows read.").arg(row_count), MainWindow::Info);
 
     // while (!in.atEnd()) {
     //     QString record = "| ";
