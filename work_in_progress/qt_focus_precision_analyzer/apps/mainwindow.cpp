@@ -564,7 +564,7 @@ void MainWindow::loadLogFile(const QString &file_name)
             invalid_row_count++;
             showMessage(
                     tr("Incomplete dataset in row %1. "
-                        "Data fields number mismatch (%2)")
+                        "Data fields number mismatch (expected 5, read %2)")
                     .arg(current_row)
                     .arg(fields.size()),
                     MainWindow::Error
@@ -590,28 +590,33 @@ void MainWindow::loadLogFile(const QString &file_name)
                 data_error = true;
                 invalid_row_count++;
                 showMessage(
-                        tr("Invalid dataset in row %1, field 1. "
-                            "Row ID missing").arg(current_row),
+                        tr("Invalid data in row %1, field 1. "
+                            "Invalid row ID (expected ID of format "
+                            "\"[XYZ]1-[12]\", got %2)")
+                        .arg(current_row)
+                        .arg(fields.at(0)),
                         MainWindow::Error
                         );
             }
 
             // Verify data fileds
             for(unsigned int i = 1; i < 5; i++) {
-                bool failure = true;
-                unsigned long int val = fields.at(0).toInt(&failure, 10);
+                bool success = true;
+                unsigned long int val = fields.at(i).toInt(&success, 10);
 
-                if(failure) {
+                if(!success) {
                     if(!data_error) {
                         data_error = true;
                         invalid_row_count++;
                     }
 
                     showMessage(
-                            tr("Invalid dataset in row %1, field %2. "
-                                "Invalid data")
+                            tr("Invalid data in row %1, field %2. "
+                                "Invalid field value (%3, got %4)")
                             .arg(current_row)
-                            .arg(i + 1),
+                            .arg(i + 1)
+                            .arg(fields.at(i))
+                            .arg(val),
                             MainWindow::Error
                             );
                 }
