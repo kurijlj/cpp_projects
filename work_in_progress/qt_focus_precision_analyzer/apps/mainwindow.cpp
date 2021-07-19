@@ -641,7 +641,113 @@ void MainWindow::loadLogFile(const QString &file_name)
 
         return;
 
+    } else if (1200 > row_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 1200 lines od data "
+                    "(%1 lines read)").arg(row_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > x1_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'X1-1' (%1 data points read)").arg(x1_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > x2_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'X1-2' (%1 data points read)").arg(x2_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > y1_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'Y1-1' (%1 data points read)").arg(y1_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > y2_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'Y1-2' (%1 data points read)").arg(y2_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > z1_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'Z1-1' (%1 data points read)").arg(z1_count),
+                MainWindow::Error
+                );
+
+        return;
+
+    } else if (200 > z2_count) {
+        showMessage(
+            tr("Data integrity check for \"%1\": FAILED").arg(
+                QDir::toNativeSeparators(file_name)
+                ),
+            MainWindow::Error
+        );
+        showMessage(
+                tr("Incomplete dataset. Expected at least 200 data points for "
+                    "'Z1-2' (%1 data points read)").arg(z2_count),
+                MainWindow::Error
+                );
+
+        return;
+
     }
+
 
     showMessage(
         tr("Data integrity check for \"%1\": PASSED").arg(
