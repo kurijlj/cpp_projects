@@ -127,7 +127,7 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
-class QPlainTextEdit;
+class QTextEdit;
 class QSessionManager;
 QT_END_NAMESPACE
 
@@ -151,7 +151,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-    enum MessageType {Error, Info, Warning};
+    enum MessageType {Error, Info, Title, Warning};
     void loadLogFile(const QString &file_name);
 
 protected:
@@ -181,7 +181,7 @@ private:
     void setSession();
     QString strippedFileName(const QString &full_file_name);
 
-    QPlainTextEdit *text_edit_;
+    QTextEdit *text_edit_;
     QString session_title_;
     QString session_save_name_;
     QString session_log_file_;

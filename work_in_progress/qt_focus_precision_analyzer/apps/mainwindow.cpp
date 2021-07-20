@@ -123,9 +123,14 @@
 // ============================================================================
 
 MainWindow::MainWindow()
-    : text_edit_(new QPlainTextEdit)
+    : text_edit_(new QTextEdit)
 {
     // Set main window widgets
+    text_edit_->setStyleSheet(
+            "background-color: #fdf6e3;"
+            "font-family: Tamsyn7x14, Terminal;"
+            "font-size: 10px"
+            );
     setCentralWidget(text_edit_);
     createActions();
     createStatusBar();
@@ -261,18 +266,38 @@ void MainWindow::documentWasModified()
 void MainWindow::showMessage(const QString &msg, MainWindow::MessageType type)
 {
     QDateTime now(QDateTime::currentDateTime());
-    QString type_string;
+    QString opening_tag = "<span style=color:#657b83;>";
+    QString closing_tag = "</span>";
+    QString type_string = "(II)";
 
     switch(type) {
-        case MainWindow::Error: type_string = "(EE)"; break;
-        case MainWindow::Warning: type_string = "(WW)"; break;
-        default: type_string = "(II)";
+        case MainWindow::Title:
+            opening_tag = "<span style=color:#586e75;><b>";
+            closing_tag = "</b></span>";
+            type_string = "(TT)";
+            break;
+        case MainWindow::Warning:
+            opening_tag = "<span style=color:#cb4b16;><b>";
+            closing_tag = "</b></span>";
+            type_string = "(WW)";
+            break;
+        case MainWindow::Error:
+            opening_tag = "<span style=color:#d33682;><b>";
+            closing_tag = "</b></span>";
+            type_string = "(EE)";
+            break;
+        default:
+            opening_tag = "<span style=color:#657b83;>";
+            closing_tag = "</span>";
+            type_string = "(II)";
     };
 
-    text_edit_->appendPlainText(
-            now.toString("hh:mm:ss ")
+    text_edit_->append(
+            opening_tag
+            + now.toString("hh:mm:ss ")
             + type_string + ": "
             + msg // + '\n'
+            + closing_tag
             );
 }
 
@@ -352,7 +377,7 @@ void MainWindow::createActions()
     copyAct->setShortcuts(QKeySequence::Copy);
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
                              "clipboard"));
-    connect(copyAct, &QAction::triggered, text_edit_, &QPlainTextEdit::copy);
+    connect(copyAct, &QAction::triggered, text_edit_, &QTextEdit::copy);
     editMenu->addAction(copyAct);
     editToolBar->addAction(copyAct);
 
@@ -376,7 +401,7 @@ void MainWindow::createActions()
     copyAct->setEnabled(false);
     connect(
             text_edit_,
-            &QPlainTextEdit::copyAvailable,
+            &QTextEdit::copyAvailable,
             copyAct,
             &QAction::setEnabled
             );
@@ -482,7 +507,7 @@ void MainWindow::loadLogFile(const QString &file_name)
     }
 
     showMessage(
-            tr("File name integrity check for \"%1\": PASSED").arg(
+            tr("File name integrity check for \"%1\": <b>PASSED</b>").arg(
                 QDir::toNativeSeparators(file_name)
                 ),
             MainWindow::Info
@@ -506,11 +531,11 @@ void MainWindow::loadLogFile(const QString &file_name)
             );
 
     showMessage(
-            tr("Log date: ") + log_date.toString("d. MMMM yyyy"),
+            tr("<b>Log date:</b> ") + log_date.toString("d. MMMM yyyy"),
             MainWindow::Info
             );
     showMessage(
-            tr("Log time: ") + log_time.toString("h:mm:ss"),
+            tr("<b>Log time:</b> ") + log_time.toString("h:mm:ss"),
             MainWindow::Info
             );
 
@@ -699,7 +724,7 @@ void MainWindow::loadLogFile(const QString &file_name)
         );
     } else {
         showMessage(
-            tr("Data integrity check for \"%1\": PASSED").arg(
+            tr("Data integrity check for \"%1\": <b>PASSED</b>").arg(
                 QDir::toNativeSeparators(file_name)
                 ),
             MainWindow::Info
@@ -767,7 +792,7 @@ void MainWindow::setSession()
         + ".log";
 
     // Set session welcome message
-    showMessage(session_title_ + tr(" started ..."), MainWindow::Info);
+    showMessage(session_title_ + tr(" started ..."), MainWindow::Title);
 }
 
 QString MainWindow::strippedFileName(const QString &full_file_name)
