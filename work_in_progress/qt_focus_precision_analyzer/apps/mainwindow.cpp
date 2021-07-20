@@ -128,7 +128,8 @@ MainWindow::MainWindow()
     // Set main window widgets
     text_edit_->setStyleSheet(
             "background-color: #fdf6e3;"
-            "font-family: Tamsyn7x14, Terminal;"
+            "font-family: Liberation Mono for Powerline, "
+            "Misc Tamsyn, Tamsyn7x14, Terminal;"
             "font-size: 10px"
             );
     setCentralWidget(text_edit_);
