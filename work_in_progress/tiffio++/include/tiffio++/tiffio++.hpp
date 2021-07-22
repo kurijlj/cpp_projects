@@ -195,8 +195,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     class FileAccessMode {
     public:
-        enum MajorModeParam {Append, Read, Write};
-        enum MinorModeParam {
+        enum AccessMode {Append, Read, Write};
+        enum ModeModifier {
             ForceLittleEndian,
             ForceBigEndian,
             ForceLSB,
@@ -210,37 +210,36 @@ public:
         };
 
     private:
-        MajorModeParam major_mode_;
-        MinorModeParam minor_mode_;
+        AccessMode mode_;
+        ModeModifier modifier_;
 
     public:
         FileAccessMode()
-            : major_mode_(MajorModeParam::Read),
-              minor_mode_(MinorModeParam::None) {}
-        FileAccessMode(MajorModeParam major_mode, MinorModeParam minor_mode)
-            : major_mode_(major_mode),
-              minor_mode_(minor_mode) {}
+            : mode_(AccessMode::Read),
+              modifier_(ModeModifier::None) {}
+        FileAccessMode(AccessMode mode, ModeModifier modifier)
+            : mode_(mode),
+              modifier_(modifier) {}
         FileAccessMode(const FileAccessMode &inst)
-            : major_mode_(major_mode),
-              minor_mode_(minor_mode) {}
-            : value_(inst.value()) {}
+            : mode_(inst.mode()),
+              modifier_(inst.modifier()) {}
         ~FileAccessMode() {}
 
         // Methods
         const char* c_str();
 
-        bool equal_to(FileAccessMode other) const {
-            return ((
-                    (other.majorMode() == major_mode_)
-                    && (other.minorMode() == minor_mode_)
-                    ) ? true : false);
+        bool equalTo(FileAccessMode other) const {
+            return (((other.mode() == mode_)
+                        && (other.modifier() == modifier_))
+                    ? true : false
+                   );
         }
-        MajorModeParam majorMode() const { return major_mode_; }
-        MajorModeParam minorMode() const { return minor_mode_; }
+        AccessMode mode() const { return mode_; }
+        ModeModifier modifier() const { return modifier_; }
 
         // Operators
-        bool operator==(FileAccessMode other) { return equal_to(other); }
-        bool operator!=(FileAccessMode other) { return !equal_to(other); }
+        bool operator==(FileAccessMode other) { return equalTo(other); }
+        bool operator!=(FileAccessMode other) { return !equalTo(other); }
     };
 
 private:
@@ -248,7 +247,7 @@ private:
     TIFFErrorHandler old_error_handler_, old_warning_handler_;
     bool file_opened_, print_errors_, print_warnings_;
     std::string file_name_;
-    FileAccessMode access_mode_;
+    FileAccessMode mode_;
 
     void errorHandler(const char* module, const char* fmt, ...);
     void restoreHandlers();
@@ -257,10 +256,10 @@ private:
 
 public:
     // Constructors
-    TOFFIOObject();
-    TOFFIOObject(
+    TIFFIOObject();
+    TIFFIOObject(
             const std::string file_name,
-            const FileAccessMode access_mode
+            const FileAccessMode mode = FileAccessMode()
             );
 
     // Destructors
@@ -312,13 +311,13 @@ const char* TIFFIOObject::FileAccessMode::c_str()
 {
     std::string value;
 
-    switch(major_mode_) {
+    switch(mode_) {
         case Append: value.push_back('a'); break;
         case Read: value.push_back('r'); break;
         default: value.push_back('w');
     }
 
-    switch(minor_mode_) {
+    switch(modifier_) {
         case ForceLittleEndian: value.push_back('l'); break;
         case ForceBigEndian: value.push_back('b'); break;
         case ForceLSB: value.push_back('L'); break;
@@ -433,7 +432,7 @@ void TIFFIOObject::saveHandlers()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-void TIFFIOObject::warning_handler(
+void TIFFIOObject::warningHandler(
         const char* module,
         const char* format,
         ...
@@ -491,7 +490,7 @@ void TIFFIOObject::warning_handler(
 
 TIFFIOObject::TIFFIOObject()
 {
-    access_mode_ = TIFFIOObject::FileAccessMode();
+    mode_ = TIFFIOObject::FileAccessMode();
     file_name_ = "";
     file_opened_ = false;
     print_errors_ = true;
@@ -507,11 +506,11 @@ TIFFIOObject::TIFFIOObject()
 ///////////////////////////////////////////////////////////////////////////////
 
 TIFFIOObject::TIFFIOObject(
-        const std::string file_name
-        const FileAccessMode access_mode = TIFFIOObject::FileAccessMode()
+        const std::string file_name,
+        const FileAccessMode mode
         )
 {
-    access_mode_ = access_mode;
+    mode_ = mode;
     file_name_ = file_name;
     file_opened_ = false;
     print_errors_ = false;
@@ -546,7 +545,7 @@ void TIFFIOObject::errorHandlerInterface(
     TIFFIOObject* myself = pointer_to_instance;
 
     // Call  acctual error handler
-    myself->error_handler(module, format, ap);
+    myself->errorHandler(module, format, ap);
 }
 
 
@@ -573,16 +572,16 @@ void TIFFIOObject::warningHandlerInterface(
     TIFFIOObject* myself = pointer_to_instance;
 
     // Call  acctual warning handler
-    myself->warning_handler(module, format, ap);
+    myself->warningHandler(module, format, ap);
 }
 
 
 void TIFFIOObject::close()
 {
     if(file_opened_) {
-        save_handlers();
+        saveHandlers();
         TIFFClose(tiff_handle_);
-        restore_handlers();
+        restoreHandlers();
 
         file_opened_ = false;
     }
@@ -592,10 +591,10 @@ void TIFFIOObject::close()
 bool TIFFIOObject::open()
 {
     if(!file_opened_) {
-        save_handlers();
+        saveHandlers();
         // tiff_handle_ = TIFFOpen(file_name_.c_str(), file_access_mode_.c_str());
-        tiff_handle_ = TIFFOpen(file_name_.c_str(), access_mode_.c_str());
-        restore_handlers();
+        tiff_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
+        restoreHandlers();
     }
 
     if(tiff_handle_) file_opened_ = true;
