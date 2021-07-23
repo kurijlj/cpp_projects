@@ -50,8 +50,8 @@
 // ============================================================================
 
 
-#ifndef _TIFFIO++_HPP
-#define _TIFFIO++_HPP
+#ifndef _TIFFIOPP_HPP
+#define _TIFFIOPP_HPP
 
 
 // ============================================================================
@@ -226,7 +226,7 @@ public:
         ~FileAccessMode() {}
 
         // Methods
-        const char* c_str();
+        std::string toStdString();
 
         bool equalTo(FileAccessMode other) const {
             return (((other.mode() == mode_)
@@ -307,7 +307,7 @@ static TIFFIOObject* pointer_to_instance;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* TIFFIOObject::FileAccessMode::c_str()
+std::string TIFFIOObject::FileAccessMode::toStdString()
 {
     std::string value;
 
@@ -330,7 +330,7 @@ const char* TIFFIOObject::FileAccessMode::c_str()
         default: break;  // By default ('None') we don't add anything
     }
 
-    return value.c_str();
+    return value;
 }
 
 
@@ -593,7 +593,10 @@ bool TIFFIOObject::open()
     if(!file_opened_) {
         saveHandlers();
         // tiff_handle_ = TIFFOpen(file_name_.c_str(), file_access_mode_.c_str());
-        tiff_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
+        tiff_handle_ = TIFFOpen(
+                file_name_.c_str(),
+                mode_.toStdString().c_str()
+                );
         restoreHandlers();
     }
 

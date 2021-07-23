@@ -120,7 +120,7 @@ const ls::test specification[] =
 
             EXPECT (TIFFIOObject::FileAccessMode::Append == mode.mode());
             EXPECT (TIFFIOObject::FileAccessMode::None == mode.modifier());
-            EXPECT ("a" == std::string(mode.c_str()));
+            EXPECT ("a" == mode.toStdString());
             EXPECT (true == mode.equalTo(equal_mode));
             EXPECT (false == mode.equalTo(nonequal_mode));
             EXPECT (false == mode.equalTo(default_mode));
@@ -143,7 +143,7 @@ const ls::test specification[] =
 
             EXPECT (TIFFIOObject::FileAccessMode::Read == mode.mode());
             EXPECT (TIFFIOObject::FileAccessMode::None == mode.modifier());
-            EXPECT ("r" == std::string(mode.c_str()));
+            EXPECT ("r" == mode.toStdString());
             EXPECT (true == mode.equalTo(default_mode));
             EXPECT (true == mode.equalTo(equal_mode));
             EXPECT (false == mode.equalTo(nonequal_mode));
