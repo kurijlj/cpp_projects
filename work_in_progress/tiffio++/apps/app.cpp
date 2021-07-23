@@ -376,15 +376,19 @@ int main(int argc, char *argv[])
     std::cout << exec_name << ": Opening file '"
         << validators.input_file.value() << "' for reading ...\n";
 
-    TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "r");
+    // TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "r");
+    TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "rlLHMC");
 
     std::cout << exec_name << ": Reading file '"
         << validators.input_file.value() << "' ...\n";
 
-    TIFFClose(tif);
+    if(tif) {
+        std::cout << exec_name << ": Closing file '"
+            << validators.input_file.value() << "' ...\n";
 
-    std::cout << exec_name << ": Closing file '"
-        << validators.input_file.value() << "' ...\n";
+        TIFFClose(tif);
+
+    }
 
     return EXIT_SUCCESS;
 }

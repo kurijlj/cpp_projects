@@ -129,7 +129,7 @@ const ls::test specification[] =
 
     },
 
-    CASE ("Write Access Mode") {
+    CASE ("Read Access Mode") {
         SETUP ("Default Constructor") {
             TIFFIOObject::FileAccessMode mode = TIFFIOObject::FileAccessMode();
             TIFFIOObject::FileAccessMode equal_mode
@@ -145,6 +145,34 @@ const ls::test specification[] =
             EXPECT (TIFFIOObject::FileAccessMode::None == mode.modifier());
             EXPECT ("r" == mode.toStdString());
             EXPECT (true == mode.equalTo(default_mode));
+            EXPECT (true == mode.equalTo(equal_mode));
+            EXPECT (false == mode.equalTo(nonequal_mode));
+
+        }
+
+    },
+
+    CASE ("Write Access Mode") {
+        SETUP ("ForceLSB Modifier") {
+            TIFFIOObject::FileAccessMode mode {
+                TIFFIOObject::FileAccessMode::Write,
+                TIFFIOObject::FileAccessMode::ForceLSB
+            };
+            TIFFIOObject::FileAccessMode equal_mode {
+                TIFFIOObject::FileAccessMode::Write,
+                TIFFIOObject::FileAccessMode::ForceLSB
+            };
+            TIFFIOObject::FileAccessMode nonequal_mode {
+                TIFFIOObject::FileAccessMode::Append,
+                TIFFIOObject::FileAccessMode::None
+            };
+            TIFFIOObject::FileAccessMode default_mode
+                = TIFFIOObject::FileAccessMode();
+
+            EXPECT (TIFFIOObject::FileAccessMode::Write == mode.mode());
+            EXPECT (TIFFIOObject::FileAccessMode::ForceLSB == mode.modifier());
+            EXPECT ("wL" == mode.toStdString());
+            EXPECT (false == mode.equalTo(default_mode));
             EXPECT (true == mode.equalTo(equal_mode));
             EXPECT (false == mode.equalTo(nonequal_mode));
 

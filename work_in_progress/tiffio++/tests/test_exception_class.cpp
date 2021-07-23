@@ -74,12 +74,12 @@ namespace ls = lest;
 // Define global constants
 // ============================================================================
 
-// fs::path kRegularTiff1 = "./data/img20191023_12463056.tif"
-// fs::path kRegularTiff2 = "./data/QA20200727020.tif"
-// fs::path kRegularPng   = "./data/img20191101_13592687.png"
-// fs::path kDummyCpp     = "./data/test_dummy.cpp"
-// fs::path kDummyTif     = "./data/test_dummy.tif"
-// fs::path kDummyTxt     = "./data/test_dummy.txt"
+// const fs::path kRegularTiff1 = "./data/img20191023_12463056.tif"
+// const fs::path kRegularTiff2 = "./data/QA20200727020.tif"
+// const fs::path kRegularPng   = "./data/img20191101_13592687.png"
+// const fs::path kDummyCpp     = "./data/test_dummy.cpp"
+// const fs::path kDummyTif     = "./data/test_dummy.tif"
+// const fs::path kDummyTxt     = "./data/test_dummy.txt"
 
 
 // ============================================================================
