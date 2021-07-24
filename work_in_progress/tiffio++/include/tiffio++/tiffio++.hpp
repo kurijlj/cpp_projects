@@ -46,6 +46,7 @@
 // * For how to use libtiff visit:
 //   <http://www.libtiff.org/libtiff.html>
 //   <http://www.libtiff.org/man/index.html>
+//   <https://ncbi.github.io/cxx-toolkit/>
 //
 // ============================================================================
 
@@ -61,9 +62,11 @@
 // "C" system headers
 
 // Standard Library headers
+#include <algorithm>
 #include <cstdarg>  // required by va_list
 // #include <memory>   // required by unique_ptr
 #include <string>   // self explanatory ...
+#include <vector>   // self explanatory ...
 
 // External libraries headers
 extern "C" {
@@ -85,14 +88,84 @@ public:
     // Named constants
     //
     ///////////////////////////////////////////////////////////////////////////
-    enum TIFFTags: unsigned long {
-        image_width = 256,
-        image_length = 257,
-        bits_per_sample = 258,
-        compression = 259,
-        photometric = 262,
-        strip_offsets = 273,
-        orientation = 274
+    enum TIFFTag: unsigned long {
+    //  Tag Name                  Value         R/W    Library Use / Notes
+        Artist                    = 315,
+        BadFaxLines               = 326,
+        BitsPerSample             = 258,
+        CellLength                = 265,     //        parsed but ignored
+        CellWidth                 = 264,     //        parsed but ignored
+        CleanFaxData              = 327,     // R/W
+        ColorMap                  = 320,     // R/W
+        ColorResponseUnit         = 300,     //        parsed but ignored
+        Compression               = 259,     // R/W    choosing codec
+        ConsecutiveBadFaxLines    = 328,     // R/W
+        Copyright                 = 33432,   // R/W
+        DataType                  = 32996,   // R      obsoleted by SampleFormat tag
+        DateTime                  = 306,     // R/W
+        DocumentName              = 269,     // R/W
+        DotRange                  = 336,     // R/W
+        ExtraSamples              = 338,     // R/W    lots
+        FaxRecvParams             = 34908,   // R/W
+        FaxSubAddress             = 34909,   // R/W
+        FaxRecvTime               = 34910,   // R/W
+        FillOrder                 = 266,     // R/W    control bit order
+        FreeByteCounts            = 289,     //        parsed but ignored
+        FreeOffsets               = 288,     //        parsed but ignored
+        GrayResponseCurve         = 291,     //        parsed but ignored
+        GrayResponseUnit          = 290,     //        parsed but ignored
+        Group3Options             = 292,     // R/W    used by Group 3 codec
+        Group4Options             = 293,     // R/W
+        HostComputer              = 316,     // R/W
+        ImageDepth                = 32997,   // R/W    tile/strip calculations
+        ImageDescription          = 270,     // R/W
+        ImageLength               = 257,     // R/W    lots
+        ImageWidth                = 256,     // R/W    lots
+        InkNames                  = 333,     // R/W
+        InkSet                    = 332,     // R/W
+        JPEGTables                = 347,     // R/W    used by JPEG codec
+        Make                      = 271,     // R/W
+        Matteing                  = 32995,   // R      obsoleted by ExtraSamples tag
+        MaxSampleValue            = 281,     // R/W
+        MinSampleValue            = 280,     // R/W
+        Model                     = 272,     // R/W
+        NewSubFileType            = 254,     // R/W    called SubFileType in spec
+        NumberOfInks              = 334,     // R/W
+        Orientation               = 274,     // R/W
+        PageName                  = 285,     // R/W
+        PageNumber                = 297,     // R/W
+        PhotometricInterpretation = 262,     // R/W    used by Group 3 and JPEG codecs
+        PlanarConfiguration       = 284,     // R/W    data i/o
+        Predictor                 = 317,     // R/W    used by LZW and Deflate codecs
+        PrimaryChromacities       = 319,     // R/W
+        ReferenceBlackWhite       = 532,     // R/W
+        ResolutionUnit            = 296,     // R/W    used by Group 3 codec
+        RowsPerStrip              = 278,     // R/W    data i/o
+        SampleFormat              = 339,     // R/W
+        SamplesPerPixel           = 277,     // R/W    lots
+        SMinSampleValue           = 340,     // R/W
+        SMaxSampleValue           = 341,     // R/W
+        Software                  = 305,     // R/W
+        StoNits                   = 37439,   // R/W
+        StripByteCounts           = 279,     // R/W    data i/o
+        StripOffsets              = 273,     // R/W    data i/o
+        SubFileType               = 255,     // R/W    called OSubFileType in spec
+        TargetPrinter             = 337,     // R/W
+        Thresholding              = 263,     // R/W
+        TileByteCounts            = 324,     // R/W    data i/o
+        TileDepth                 = 32998,   // R/W    tile/strip calculations
+        TileLength                = 323,     // R/W    data i/o
+        TileOffsets               = 324,     // R/W    data i/o
+        TileWidth                 = 322,     // R/W    data i/o
+        TransferFunction          = 301,     // R/W
+        WhitePoint                = 318,     // R/W
+        XPosition                 = 286,     // R/W
+        XResolution               = 282,     // R/W
+        YCbCrCoefficients         = 529,     // R/W    used by TIFFRGBAImage support
+        YCbCrPositioning          = 531,     // R/W    tile/strip size calulcations
+        YCbCrSubsampling          = 530,     // R/W
+        YPosition                 = 286,     // R/W
+        YResolution               = 283,     // R/W    used by Group 3 codec
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -143,8 +216,21 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     //
-    // File Access Flags  - from the libtiff man pages:
-    // libtiff distincts three types of file access mode:
+    // File Access Flags  - libtiff's documentation states numerous file access
+    // modifiers besides regular access qualifiers ('r', 'w' and 'a') for
+    // selecting file access mode. One can read more about them in the comments
+    // below. Nontheless by inspecting libtiff's source code one can clearly
+    // see that function _TIFFgetMode() only takes into account four following
+    // file access qualifiers:
+    //
+    //     a  - append
+    //     r  - read
+    //     r+ - read and write
+    //     w  - write
+    //
+    //
+    // From the libtiff man pages: libtiff distincts three types of file
+    // access mode:
     //
     //     a  - append
     //     r  - read
@@ -155,20 +241,20 @@ public:
     // the read-write-append specification.
     //
     //     l  - When creating a new file force information be written with
-    //          Little-Endian byte order (but see below). By default the library
-    //          will create new files using the native CPU byte order.
+    //          Little-Endian byte order (but see below). By default the
+    //          library will create new files using the native CPU byte order.
     //     b  - When creating a new file force information be written with
     //          Big-Endian byte order (but see below). By default the library
     //          will create new files using the native CPU byte order.
-    //     L  - Force image data that is read or written to be treated with bits
-    //          filled from Least Significant Bit ( LSB ) to Most Significant
-    //          Bit ( MSB ). Note that this is the opposite to the way the
-    //          library has worked from its inception.
-    //     B  - Force image data that is read or written to be treated with bits
-    //          filled from Most Significant Bit ( MSB ) to Least Significant
-    //          Bit ( LSB ); this is the default.
-    //     H  - Force image data that is read or written to be treated with bits
-    //          filled in the same order as the native CPU.
+    //     L  - Force image data that is read or written to be treated with
+    //          bits filled from Least Significant Bit ( LSB ) to Most
+    //          Significant Bit ( MSB ). Note that this is the opposite to the
+    //          way the library has worked from its inception.
+    //     B  - Force image data that is read or written to be treated with
+    //          bits filled from Most Significant Bit ( MSB ) to Least
+    //          Significant Bit ( LSB ); this is the default.
+    //     H  - Force image data that is read or written to be treated with
+    //          bits filled in the same order as the native CPU.
     //     M  - Enable the use of memory-mapped files for images opened
     //          read-only. If the underlying system does not support
     //          memory-mapped files or if the specific image being opened
@@ -179,10 +265,11 @@ public:
     //     C  - Enable the use of ``strip chopping'' when reading images that
     //          are comprised of a single strip or tile of uncompressed data.
     //          Strip chopping is a mechanism by which the library will
-    //          automatically convert the single-strip image to multiple strips,
-    //          each of which has about 8 Kilobytes of data. This facility can
-    //          be useful in reducing the amount of memory used to read an image
-    //          because the library normally reads each strip in its entirety.
+    //          automatically convert the single-strip image to multiple
+    //          strips, each of which has about 8 Kilobytes of data. This
+    //          facility can be useful in reducing the amount of memory used to
+    //          read an image because the library normally reads each strip in
+    //          its entirety.
     //          Strip chopping does however alter the apparent contents of the
     //          image because when an image is divided into multiple strips it
     //          looks as though the underlying file contains multiple separate
@@ -195,47 +282,24 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     class FileAccessMode {
     public:
-        enum AccessMode {Append, Read, Write};
-        enum ModeModifier {
-            ForceLittleEndian,
-            ForceBigEndian,
-            ForceLSB,
-            ForceMSB,
-            ForceNativeCPUOrder,
-            EnableMemoryMappedFiles,
-            DisableMemoryMappedFiles,
-            EnableStripChopping,
-            DisableStripChopping,
-            None
-        };
+        enum Mode: unsigned int {Append, Read, ReadWrite, Write};
 
     private:
-        AccessMode mode_;
-        ModeModifier modifier_;
+        Mode value_;
 
     public:
-        FileAccessMode()
-            : mode_(AccessMode::Read),
-              modifier_(ModeModifier::None) {}
-        FileAccessMode(AccessMode mode, ModeModifier modifier)
-            : mode_(mode),
-              modifier_(modifier) {}
-        FileAccessMode(const FileAccessMode &inst)
-            : mode_(inst.mode()),
-              modifier_(inst.modifier()) {}
+        FileAccessMode() : value_(FileAccessMode::Read) {}
+        FileAccessMode(FileAccessMode::Mode value) : value_(value) {}
+        FileAccessMode(const FileAccessMode &inst) : value_(inst.value()) {}
         ~FileAccessMode() {}
 
         // Methods
-        std::string toStdString();
+        const char* c_str();
 
         bool equalTo(FileAccessMode other) const {
-            return (((other.mode() == mode_)
-                        && (other.modifier() == modifier_))
-                    ? true : false
-                   );
+            return (other.value() == value_ ? true : false);
         }
-        AccessMode mode() const { return mode_; }
-        ModeModifier modifier() const { return modifier_; }
+        FileAccessMode::Mode value() const { return value_; }
 
         // Operators
         bool operator==(FileAccessMode other) { return equalTo(other); }
@@ -243,16 +307,16 @@ public:
     };
 
 private:
-    TIFF* tiff_handle_;
+    TIFF* tif_handle_;
     TIFFErrorHandler old_error_handler_, old_warning_handler_;
     bool file_opened_, print_errors_, print_warnings_;
     std::string file_name_;
     FileAccessMode mode_;
 
-    void errorHandler(const char* module, const char* fmt, ...);
+    void errorHandler(const char* module, const char* fmt, va_list args);
     void restoreHandlers();
     void saveHandlers();
-    void warningHandler(const char* module, const char* fmt, ...);
+    void warningHandler(const char* module, const char* fmt, va_list args);
 
 public:
     // Constructors
@@ -263,19 +327,28 @@ public:
             );
 
     // Destructors
-    ~TIFFIOObject() {}
+    ~TIFFIOObject() { close(); }
 
     // Static member functions
-    static void errorHandlerInterface(const char*, const char*, va_list ap);
+    static void errorHandlerInterface(
+            const char*,
+            const char*,
+            va_list args
+            );
     static void warningHandlerInterface(
             const char*,
             const char*,
-            va_list ap
+            va_list args
             );
 
     // Methods
     void close();
+    template <class T> bool readTagValue(const TIFFTag tag, T* fld_val);
     bool open();
+    void printErrors(bool val) { print_errors_ = val; }
+    bool printErrors() { return print_errors_; }
+    void printWarnings(bool val) { print_warnings_ = val; }
+    bool printWarnings() { return print_warnings_; }
 
 };
 
@@ -307,30 +380,16 @@ static TIFFIOObject* pointer_to_instance;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFIOObject::FileAccessMode::toStdString()
+const char* TIFFIOObject::FileAccessMode::c_str()
 {
-    std::string value;
-
-    switch(mode_) {
-        case Append: value.push_back('a'); break;
-        case Read: value.push_back('r'); break;
-        default: value.push_back('w');
+    switch(value_) {
+        case Append: return "a";
+        case ReadWrite: return "r+";
+        case Write: return "w";
+        default: break;
     }
 
-    switch(modifier_) {
-        case ForceLittleEndian: value.push_back('l'); break;
-        case ForceBigEndian: value.push_back('b'); break;
-        case ForceLSB: value.push_back('L'); break;
-        case ForceMSB: value.push_back('B'); break;
-        case ForceNativeCPUOrder: value.push_back('H'); break;
-        case EnableMemoryMappedFiles: value.push_back('M'); break;
-        case DisableMemoryMappedFiles: value.push_back('m'); break;
-        case EnableStripChopping: value.push_back('C'); break;
-        case DisableStripChopping: value.push_back('c'); break;
-        default: break;  // By default ('None') we don't add anything
-    }
-
-    return value;
+    return "r";
 }
 
 
@@ -351,35 +410,28 @@ std::string TIFFIOObject::FileAccessMode::toStdString()
 void TIFFIOObject::errorHandler(
         const char* module,
         const char* format,
-        ...
+        va_list args
         )
 {
-    // Format error message from variadic arguments list and store it in the
-    // std::string structures.
-    int buffer_size = 0;
+    int buffer_size = 1024;
     std::string str_module {}, str_message {};
-    std::va_list args, args_copy;
 
-    va_start(args, format);
-    va_copy(args_copy, args);
+    std::vector<char> buffer(buffer_size);
 
-    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
-
-    va_end(args_copy);
-
-    if(0 >= buffer_size) {
-        str_message = std::string("");
-
-    } else {
-        std::unique_ptr<char[]> buffer(new char[buffer_size]);
-        std::vsnprintf(buffer.get(), buffer_size, format, args);
-        str_message = std::string(
-                buffer.get(),
-                buffer.get() + buffer_size - 1
-                );
-
+    buffer.data()[buffer_size-1] = buffer.data()[buffer_size-2] = 0;
+    int n = vsnprintf(buffer.data(), buffer_size, format, args);
+    while (n >= buffer_size || buffer.data()[buffer_size-2]) {
+        if (buffer.data()[buffer_size-1]) {
+            std::cout << "Buffer overrun by buggy vsnprintf\n";
+        }
+        buffer_size = std::max(buffer_size << 1, n);
+        buffer.clear();
+        buffer.resize(buffer_size);
+        buffer.data()[buffer_size-1] = buffer.data()[buffer_size-2] = 0;
+        n = vsnprintf(buffer.data(), buffer_size, format, args);
     }
-    va_end(args);
+
+    str_message = (n > 0) ? std::string(buffer.data()) : std::string("");
 
     if(nullptr == module) {
         str_module = std::string("");
@@ -435,35 +487,28 @@ void TIFFIOObject::saveHandlers()
 void TIFFIOObject::warningHandler(
         const char* module,
         const char* format,
-        ...
+        va_list args
         )
 {
-    // Format warning message from variadic arguments list and store it in the
-    // std::string structures.
-    int buffer_size = 0;
+    int buffer_size = 1024;
     std::string str_module {}, str_message {};
-    std::va_list args, args_copy;
 
-    va_start(args, format);
-    va_copy(args_copy, args);
+    std::vector<char> buffer(buffer_size);
 
-    buffer_size = std::vsnprintf(nullptr, 0, format, args_copy) + 1;
-
-    va_end(args_copy);
-
-    if(0 >= buffer_size) {
-        str_message = std::string("");
-
-    } else {
-        std::unique_ptr<char[]> buffer(new char[buffer_size]);
-        std::vsnprintf(buffer.get(), buffer_size, format, args);
-        str_message = std::string(
-                buffer.get(),
-                buffer.get() + buffer_size - 1
-                );
-
+    buffer.data()[buffer_size-1] = buffer.data()[buffer_size-2] = 0;
+    int n = vsnprintf(buffer.data(), buffer_size, format, args);
+    while (n >= buffer_size || buffer.data()[buffer_size-2]) {
+        if (buffer.data()[buffer_size-1]) {
+            std::cout << "Buffer overrun by buggy vsnprintf\n";
+        }
+        buffer_size = std::max(buffer_size << 1, n);
+        buffer.clear();
+        buffer.resize(buffer_size);
+        buffer.data()[buffer_size-1] = buffer.data()[buffer_size-2] = 0;
+        n = vsnprintf(buffer.data(), buffer_size, format, args);
     }
-    va_end(args);
+
+    str_message = (n > 0) ? std::string(buffer.data()) : std::string("");
 
     if(nullptr == module) {
         str_module = std::string("");
@@ -495,7 +540,7 @@ TIFFIOObject::TIFFIOObject()
     file_opened_ = false;
     print_errors_ = true;
     print_warnings_ = true;
-    tiff_handle_ = nullptr;
+    tif_handle_ = nullptr;
 }
 
 
@@ -513,9 +558,9 @@ TIFFIOObject::TIFFIOObject(
     mode_ = mode;
     file_name_ = file_name;
     file_opened_ = false;
-    print_errors_ = false;
+    print_errors_ = true;
     print_warnings_ = true;
-    tiff_handle_ = nullptr;
+    tif_handle_ = nullptr;
 
     // open();
 }
@@ -535,7 +580,7 @@ TIFFIOObject::TIFFIOObject(
 void TIFFIOObject::errorHandlerInterface(
         const char* module,
         const char* format,
-        va_list ap
+        va_list args
         )
 {
     // Explicitly cast global variable <pointer_to_object> to a pointer
@@ -545,7 +590,7 @@ void TIFFIOObject::errorHandlerInterface(
     TIFFIOObject* myself = pointer_to_instance;
 
     // Call  acctual error handler
-    myself->errorHandler(module, format, ap);
+    myself->errorHandler(module, format, args);
 }
 
 
@@ -563,7 +608,7 @@ void TIFFIOObject::errorHandlerInterface(
 void TIFFIOObject::warningHandlerInterface(
         const char* module,
         const char* format,
-        va_list ap
+        va_list args
         )
 {
     // Explicitly cast global variable <pointer_to_object> to a pointer
@@ -572,15 +617,27 @@ void TIFFIOObject::warningHandlerInterface(
     TIFFIOObject* myself = pointer_to_instance;
 
     // Call  acctual warning handler
-    myself->warningHandler(module, format, ap);
+    myself->warningHandler(module, format, args);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Close a previously opened TIFF file
+//
+// This is a wrapper for the TIFFClose function. It closes a file asociated
+// with TIFFIOObject instance.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
 
 void TIFFIOObject::close()
 {
     if(file_opened_) {
         saveHandlers();
-        TIFFClose(tiff_handle_);
+        TIFFClose(tif_handle_);
         restoreHandlers();
 
         file_opened_ = false;
@@ -588,19 +645,59 @@ void TIFFIOObject::close()
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Get the value(s) of a tag in an open TIFF file
+//
+// This is a wrapper for the TIFFGetField function. It returns the value of a
+// tag or pseudo-tag associated with the the current directory of the open TIFF
+// file. It returns 'true' if the tag is defined in the current directory,
+// otherwise a 'false' is returned.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
+{
+    bool success = false;
+
+    if(file_opened_) {
+        saveHandlers();
+        if(TIFFGetField(tif_handle_, tag, fld_val)) {
+            success = true;
+        }
+        restoreHandlers();
+    }
+
+    return success;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Open a TIFF file for reading or writing
+//
+// This is a wrapper for the TIFFOpen function. It opens a file asociated
+// with TIFFIOObject instance. Upon successful completion it returns a true.
+// Otherwise, false is returned.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 bool TIFFIOObject::open()
 {
     if(!file_opened_) {
         saveHandlers();
-        // tiff_handle_ = TIFFOpen(file_name_.c_str(), file_access_mode_.c_str());
-        tiff_handle_ = TIFFOpen(
-                file_name_.c_str(),
-                mode_.toStdString().c_str()
-                );
+        tif_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
         restoreHandlers();
     }
 
-    if(tiff_handle_) file_opened_ = true;
+    if(tif_handle_) file_opened_ = true;
     else file_opened_ = false;
 
     return file_opened_;

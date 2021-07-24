@@ -74,12 +74,12 @@ namespace ls = lest;
 // Define global constants
 // ============================================================================
 
-// const fs::path kRegularTiff1 = "./data/img20191023_12463056.tif";
-// const fs::path kRegularTiff2 = "./data/QA20200727020.tif";
-// const fs::path kRegularPng   = "./data/img20191101_13592687.png";
-// const fs::path kDummyCpp     = "./data/test_dummy.cpp";
-// const fs::path kDummyTif     = "./data/test_dummy.tif";
-// const fs::path kDummyTxt     = "./data/test_dummy.txt";
+const fs::path kRegularTif1 = "./data/img20191023_12463056.tif";
+const fs::path kRegularTif2 = "./data/QA20200727020.tif";
+const fs::path kRegularPng   = "./data/img20191101_13592687.png";
+const fs::path kDummyCpp     = "./data/test_dummy.cpp";
+const fs::path kDummyTif     = "./data/test_dummy.tif";
+const fs::path kDummyTxt     = "./data/test_dummy.txt";
 
 
 // ============================================================================
@@ -88,44 +88,102 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("LibtiffError Class Tests") {
-        SETUP ("Module Known") {
-            TIFFIOObject::LibtiffError error {
-                "dummy_module",
-                "This is error message"
-            };
+    CASE ("Regular Tif 1") {
+        TIFFIOObject tif_obj {
+            kRegularTif1,
+            TIFFIOObject::FileAccessMode::Read
+        };
 
-            EXPECT ("dummy_module: ERROR, This is error message"
-                    == error.message());
-        }
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
 
-        SETUP ("Module Unknown") {
-            TIFFIOObject::LibtiffError error {"", "This is error message"};
-
-            EXPECT ("ERROR, This is error message" == error.message());
-        }
     },
 
-    CASE ("LibtiffWarning Class Tests") {
-        SETUP ("Module Known") {
-            TIFFIOObject::LibtiffWarning warning {
-                "dummy_module",
-                "This is warning message"
-            };
+    CASE ("Regular Tif 2") {
+        TIFFIOObject tif_obj {
+            kRegularTif2,
+            TIFFIOObject::FileAccessMode::Read
+        };
 
-            EXPECT ("dummy_module: WARNING, This is warning message"
-                    == warning.message());
-        }
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
 
-        SETUP ("Module Unknown") {
-            TIFFIOObject::LibtiffWarning warning {
-                "",
-                "This is warning message"
-            };
+    },
 
-            EXPECT ("WARNING, This is warning message" == warning.message());
-        }
-    }
+    CASE ("Regular PNG") {
+        TIFFIOObject tif_obj {
+            kRegularPng,
+            TIFFIOObject::FileAccessMode::Read
+        };
+
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_THROWS(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::TIFFIOException);
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::LibtiffError);
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("Dummy CPP") {
+        TIFFIOObject tif_obj {
+            kDummyCpp,
+            TIFFIOObject::FileAccessMode::Read
+        };
+
+        EXPECT_NO_THROW(tif_obj.open());
+
+    },
+
+    CASE ("Dummy Tif") {
+        TIFFIOObject tif_obj {
+            kDummyTif,
+            TIFFIOObject::FileAccessMode::Read
+        };
+
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_THROWS(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::TIFFIOException);
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::LibtiffError);
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("Dummy Txt") {
+        TIFFIOObject tif_obj {
+            kDummyTxt,
+            TIFFIOObject::FileAccessMode::Read
+        };
+
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_THROWS(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::TIFFIOException);
+        EXPECT_NO_THROW(tif_obj.close());
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::LibtiffError);
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
 
 };
 

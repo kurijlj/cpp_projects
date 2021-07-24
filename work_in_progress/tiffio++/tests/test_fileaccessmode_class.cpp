@@ -74,12 +74,12 @@ namespace ls = lest;
 // Define global constants
 // ============================================================================
 
-// fs::path kRegularTiff1 = "./data/img20191023_12463056.tif"
-// fs::path kRegularTiff2 = "./data/QA20200727020.tif"
-// fs::path kRegularPng   = "./data/img20191101_13592687.png"
-// fs::path kDummyCpp     = "./data/test_dummy.cpp"
-// fs::path kDummyTif     = "./data/test_dummy.tif"
-// fs::path kDummyTxt     = "./data/test_dummy.txt"
+// const fs::path kRegularTiff1 = "./data/img20191023_12463056.tif";
+// const fs::path kRegularTiff2 = "./data/QA20200727020.tif";
+// const fs::path kRegularPng   = "./data/img20191101_13592687.png";
+// const fs::path kDummyCpp     = "./data/test_dummy.cpp";
+// const fs::path kDummyTif     = "./data/test_dummy.tif";
+// const fs::path kDummyTxt     = "./data/test_dummy.txt";
 
 
 // ============================================================================
@@ -89,94 +89,120 @@ namespace ls = lest;
 const ls::test specification[] =
 {
     CASE ("Append Access Mode") {
-        SETUP ("Copy Constructor") {
-            TIFFIOObject::FileAccessMode mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::ForceLittleEndian
-            };
-            TIFFIOObject::FileAccessMode mode_copy
-                = TIFFIOObject::FileAccessMode(mode);
+        TIFFIOObject::FileAccessMode mode {
+            TIFFIOObject::FileAccessMode::Append
+        };
+        TIFFIOObject::FileAccessMode equal_mode {
+            TIFFIOObject::FileAccessMode::Append
+        };
+        TIFFIOObject::FileAccessMode nonequal_mode {
+            TIFFIOObject::FileAccessMode::Write
+        };
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
 
-            EXPECT (true == mode.equalTo(mode_copy));
-            EXPECT (false == mode_copy.equalTo(TIFFIOObject::FileAccessMode()));
-
-        }
-
-        SETUP ("None Modifier") {
-            TIFFIOObject::FileAccessMode mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::None
-            };
-            TIFFIOObject::FileAccessMode equal_mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::None
-            };
-            TIFFIOObject::FileAccessMode nonequal_mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::ForceLittleEndian
-            };
-            TIFFIOObject::FileAccessMode default_mode
-                = TIFFIOObject::FileAccessMode();
-
-            EXPECT (TIFFIOObject::FileAccessMode::Append == mode.mode());
-            EXPECT (TIFFIOObject::FileAccessMode::None == mode.modifier());
-            EXPECT ("a" == mode.toStdString());
-            EXPECT (true == mode.equalTo(equal_mode));
-            EXPECT (false == mode.equalTo(nonequal_mode));
-            EXPECT (false == mode.equalTo(default_mode));
-
-        }
+        EXPECT (TIFFIOObject::FileAccessMode::Append == mode.value());
+        EXPECT ("a" == std::string(mode.c_str()));
+        EXPECT (false == mode.equalTo(default_mode));
+        EXPECT (true == mode.equalTo(equal_mode));
+        EXPECT (false == mode.equalTo(nonequal_mode));
 
     },
 
     CASE ("Read Access Mode") {
-        SETUP ("Default Constructor") {
-            TIFFIOObject::FileAccessMode mode = TIFFIOObject::FileAccessMode();
-            TIFFIOObject::FileAccessMode equal_mode
-                = TIFFIOObject::FileAccessMode();
-            TIFFIOObject::FileAccessMode nonequal_mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::None
-            };
-            TIFFIOObject::FileAccessMode default_mode
-                = TIFFIOObject::FileAccessMode();
+        TIFFIOObject::FileAccessMode mode {
+            TIFFIOObject::FileAccessMode::Read
+        };
+        TIFFIOObject::FileAccessMode equal_mode {
+            TIFFIOObject::FileAccessMode::Read
+        };
+        TIFFIOObject::FileAccessMode nonequal_mode {
+            TIFFIOObject::FileAccessMode::Write
+        };
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
 
-            EXPECT (TIFFIOObject::FileAccessMode::Read == mode.mode());
-            EXPECT (TIFFIOObject::FileAccessMode::None == mode.modifier());
-            EXPECT ("r" == mode.toStdString());
-            EXPECT (true == mode.equalTo(default_mode));
-            EXPECT (true == mode.equalTo(equal_mode));
-            EXPECT (false == mode.equalTo(nonequal_mode));
+        EXPECT (TIFFIOObject::FileAccessMode::Read == mode.value());
+        EXPECT ("r" == std::string(mode.c_str()));
+        EXPECT (true == mode.equalTo(default_mode));
+        EXPECT (true == mode.equalTo(equal_mode));
+        EXPECT (false == mode.equalTo(nonequal_mode));
 
-        }
+    },
+
+    CASE ("ReadWrite Access Mode") {
+        TIFFIOObject::FileAccessMode mode {
+            TIFFIOObject::FileAccessMode::ReadWrite
+        };
+        TIFFIOObject::FileAccessMode equal_mode {
+            TIFFIOObject::FileAccessMode::ReadWrite
+        };
+        TIFFIOObject::FileAccessMode nonequal_mode {
+            TIFFIOObject::FileAccessMode::Write
+        };
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
+
+        EXPECT (TIFFIOObject::FileAccessMode::ReadWrite == mode.value());
+        EXPECT ("r+" == std::string(mode.c_str()));
+        EXPECT (false == mode.equalTo(default_mode));
+        EXPECT (true == mode.equalTo(equal_mode));
+        EXPECT (false == mode.equalTo(nonequal_mode));
 
     },
 
     CASE ("Write Access Mode") {
-        SETUP ("ForceLSB Modifier") {
-            TIFFIOObject::FileAccessMode mode {
-                TIFFIOObject::FileAccessMode::Write,
-                TIFFIOObject::FileAccessMode::ForceLSB
-            };
-            TIFFIOObject::FileAccessMode equal_mode {
-                TIFFIOObject::FileAccessMode::Write,
-                TIFFIOObject::FileAccessMode::ForceLSB
-            };
-            TIFFIOObject::FileAccessMode nonequal_mode {
-                TIFFIOObject::FileAccessMode::Append,
-                TIFFIOObject::FileAccessMode::None
-            };
-            TIFFIOObject::FileAccessMode default_mode
-                = TIFFIOObject::FileAccessMode();
+        TIFFIOObject::FileAccessMode mode {
+            TIFFIOObject::FileAccessMode::Write
+        };
+        TIFFIOObject::FileAccessMode equal_mode {
+            TIFFIOObject::FileAccessMode::Write
+        };
+        TIFFIOObject::FileAccessMode nonequal_mode {
+            TIFFIOObject::FileAccessMode::ReadWrite
+        };
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
 
-            EXPECT (TIFFIOObject::FileAccessMode::Write == mode.mode());
-            EXPECT (TIFFIOObject::FileAccessMode::ForceLSB == mode.modifier());
-            EXPECT ("wL" == mode.toStdString());
-            EXPECT (false == mode.equalTo(default_mode));
-            EXPECT (true == mode.equalTo(equal_mode));
-            EXPECT (false == mode.equalTo(nonequal_mode));
+        EXPECT (TIFFIOObject::FileAccessMode::Write == mode.value());
+        EXPECT ("w" == std::string(mode.c_str()));
+        EXPECT (false == mode.equalTo(default_mode));
+        EXPECT (true == mode.equalTo(equal_mode));
+        EXPECT (false == mode.equalTo(nonequal_mode));
 
-        }
+    },
+
+    CASE ("Default Constructor Access Mode") {
+        TIFFIOObject::FileAccessMode mode
+            = TIFFIOObject::FileAccessMode();
+        TIFFIOObject::FileAccessMode nonequal_mode {
+            TIFFIOObject::FileAccessMode::ReadWrite
+        };
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
+
+        EXPECT (TIFFIOObject::FileAccessMode::Read == mode.value());
+        EXPECT ("r" == std::string(mode.c_str()));
+        EXPECT (true == mode.equalTo(default_mode));
+        EXPECT (false == mode.equalTo(nonequal_mode));
+
+    },
+
+    CASE ("Copy Constructor") {
+        TIFFIOObject::FileAccessMode mode
+            = TIFFIOObject::FileAccessMode();
+        TIFFIOObject::FileAccessMode mode_copy
+            = TIFFIOObject::FileAccessMode(mode);
+        TIFFIOObject::FileAccessMode default_mode
+            = TIFFIOObject::FileAccessMode();
+
+        EXPECT (TIFFIOObject::FileAccessMode::Read == mode.value());
+        EXPECT (TIFFIOObject::FileAccessMode::Read == mode_copy.value());
+        EXPECT ("r" == std::string(mode.c_str()));
+        EXPECT ("r" == std::string(mode_copy.c_str()));
+        EXPECT (true == mode.equalTo(mode_copy));
+        EXPECT (true == mode.equalTo(default_mode));
+        EXPECT (true == mode_copy.equalTo(default_mode));
 
     },
 

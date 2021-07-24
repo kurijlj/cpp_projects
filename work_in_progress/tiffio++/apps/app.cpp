@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
         << validators.input_file.value() << "' for reading ...\n";
 
     // TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "r");
-    TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "rlLHMC");
+    TIFF* tif = TIFFOpen(validators.input_file.value().c_str(), "rblLHMC");
 
     std::cout << exec_name << ": Reading file '"
         << validators.input_file.value() << "' ...\n";

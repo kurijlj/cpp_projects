@@ -53,6 +53,7 @@
 
 // Standard Library headers
 #include <filesystem>  // Used manipulating filesystem paths
+#include <iostream>
 #include <string>      // self explanatory ...
 
 // External libraries headers
@@ -74,12 +75,11 @@ namespace ls = lest;
 // Define global constants
 // ============================================================================
 
-// const fs::path kRegularTiff1 = "./data/img20191023_12463056.tif";
-// const fs::path kRegularTiff2 = "./data/QA20200727020.tif";
-// const fs::path kRegularPng   = "./data/img20191101_13592687.png";
-// const fs::path kDummyCpp     = "./data/test_dummy.cpp";
-// const fs::path kDummyTif     = "./data/test_dummy.tif";
-// const fs::path kDummyTxt     = "./data/test_dummy.txt";
+const fs::path kGkQA1 = "./data/img20191023_12463056.tif";
+const fs::path kGkQA2 = "./data/QA20200727020.tif";
+const fs::path kCells = "./data/at3_1m4_01.tif";
+const fs::path kMri   = "./data/mri.tif";
+const fs::path kRoi   = "./data/roi_14.tif";
 
 
 // ============================================================================
@@ -88,44 +88,38 @@ namespace ls = lest;
 
 const ls::test specification[] =
 {
-    CASE ("LibtiffError Class Tests") {
-        SETUP ("Module Known") {
-            TIFFIOObject::LibtiffError error {
-                "dummy_module",
-                "This is error message"
-            };
+    CASE ("Gamma Knife QA #1") {
+        TIFFIOObject tif_obj {
+            kGkQA1,
+            TIFFIOObject::FileAccessMode::Read
+        };
+        unsigned long int width = 0;
+        unsigned long int length = 0;
 
-            EXPECT ("dummy_module: ERROR, This is error message"
-                    == error.message());
-        }
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+        EXPECT_NO_THROW(tif_obj.open());
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+        EXPECT(true == tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+        EXPECT(843 == width);
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageLength,
+                    &length
+                    ));
+        EXPECT(true == tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageLength,
+                    &length
+                    ));
+        EXPECT(547 == length);
+        EXPECT_NO_THROW(tif_obj.close());
 
-        SETUP ("Module Unknown") {
-            TIFFIOObject::LibtiffError error {"", "This is error message"};
-
-            EXPECT ("ERROR, This is error message" == error.message());
-        }
     },
-
-    CASE ("LibtiffWarning Class Tests") {
-        SETUP ("Module Known") {
-            TIFFIOObject::LibtiffWarning warning {
-                "dummy_module",
-                "This is warning message"
-            };
-
-            EXPECT ("dummy_module: WARNING, This is warning message"
-                    == warning.message());
-        }
-
-        SETUP ("Module Unknown") {
-            TIFFIOObject::LibtiffWarning warning {
-                "",
-                "This is warning message"
-            };
-
-            EXPECT ("WARNING, This is warning message" == warning.message());
-        }
-    }
 
 };
 
