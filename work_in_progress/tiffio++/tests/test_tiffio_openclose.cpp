@@ -89,10 +89,10 @@ const fs::path kDummyTxt     = "./data/test_dummy.txt";
 const ls::test specification[] =
 {
     CASE ("Regular Tif 1") {
-        TIFFIOObject tif_obj {
-            kRegularTif1,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kRegularTif1.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
+        );
 
         EXPECT_NO_THROW(tif_obj.open());
         EXPECT_NO_THROW(tif_obj.close());
@@ -104,10 +104,10 @@ const ls::test specification[] =
     },
 
     CASE ("Regular Tif 2") {
-        TIFFIOObject tif_obj {
-            kRegularTif2,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kRegularTif2.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
+        );
 
         EXPECT_NO_THROW(tif_obj.open());
         EXPECT_NO_THROW(tif_obj.close());
@@ -119,10 +119,10 @@ const ls::test specification[] =
     },
 
     CASE ("Regular PNG") {
-        TIFFIOObject tif_obj {
-            kRegularPng,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kRegularPng.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
+        );
 
         EXPECT_NO_THROW(tif_obj.open());
         EXPECT_NO_THROW(tif_obj.close());
@@ -139,7 +139,7 @@ const ls::test specification[] =
 
     CASE ("Dummy CPP") {
         TIFFIOObject tif_obj {
-            kDummyCpp,
+            kDummyCpp.string(),
             TIFFIOObject::FileAccessMode::Read
         };
 
@@ -148,10 +148,10 @@ const ls::test specification[] =
     },
 
     CASE ("Dummy Tif") {
-        TIFFIOObject tif_obj {
-            kDummyTif,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kDummyTif.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
+        );
 
         EXPECT_NO_THROW(tif_obj.open());
         EXPECT_NO_THROW(tif_obj.close());
@@ -167,10 +167,10 @@ const ls::test specification[] =
     },
 
     CASE ("Dummy Txt") {
-        TIFFIOObject tif_obj {
-            kDummyTxt,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kDummyTxt.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
+        );
 
         EXPECT_NO_THROW(tif_obj.open());
         EXPECT_NO_THROW(tif_obj.close());

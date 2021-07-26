@@ -55,6 +55,7 @@
 #include <filesystem>  // Used manipulating filesystem paths
 #include <iostream>
 #include <string>      // self explanatory ...
+#include <vector>
 
 // External libraries headers
 #include <lest.hpp>  // Required by unit testing framework
@@ -89,34 +90,419 @@ const fs::path kRoi   = "./data/roi_14.tif";
 const ls::test specification[] =
 {
     CASE ("Gamma Knife QA #1") {
-        TIFFIOObject tif_obj {
-            kGkQA1,
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kGkQA1.string(),
             TIFFIOObject::FileAccessMode::Read
-        };
-        unsigned long int width = 0;
-        unsigned long int length = 0;
+        );
+        unsigned int compression       = 0;   // Compression
+        unsigned long int depth        = 0;   // ImageDepth
+        unsigned int samples_per_pixel = 0;   // SamplesPerPixel
+        unsigned int sample_format     = 0;   // SampleFormat
+        unsigned int bits_per_sample   = 0;   // BitsPerSample
+        unsigned long int length       = 0;   // ImageLength
+        unsigned long int width        = 0;   // ImageWidth
+        unsigned int orientation       = 0;   // Orientation
+        unsigned int resolution_unit   = 0;   // ResolutionUnit
+        std::vector<char>    date_time(20);   // DateTime
+        float x_resolution             = 0.0; // XResolution
+        float y_resolution             = 0.0; // YResolution
+
+        date_time.data()[0] = date_time.data()[19] = 0;
 
         tif_obj.printErrors(false);
         tif_obj.printWarnings(false);
+
         EXPECT_NO_THROW(tif_obj.open());
+
+        // Test reading Compression tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Compression,
+                    &compression
+                    ));
+
+        // Test reading ImageDepth tag
         EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
-                    TIFFIOObject::ImageWidth,
-                    &width
+                    TIFFIOObject::ImageDepth,
+                    &depth
                     ));
-        EXPECT(true == tif_obj.readTagValue<unsigned long int>(
-                    TIFFIOObject::ImageWidth,
-                    &width
+
+        // Test reading SamplesPerPixel tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SamplesPerPixel,
+                    &samples_per_pixel
                     ));
-        EXPECT(843 == width);
+
+        // Test reading SampleFormat tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SampleFormat,
+                    &sample_format
+                    ));
+
+        // Test reading BitsPerSample tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::BitsPerSample,
+                    &bits_per_sample
+                    ));
+
+        // Test reading ImageLength flag
         EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
                     TIFFIOObject::ImageLength,
                     &length
                     ));
-        EXPECT(true == tif_obj.readTagValue<unsigned long int>(
+
+        // Test reading ImageWidth flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+
+        // Test reading Orientation flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Orientation,
+                    &orientation
+                    ));
+
+        // Test reading ResolutionUnit flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::ResolutionUnit,
+                    &resolution_unit
+                    ));
+
+        // Test reading DateTime flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<char>(
+                    TIFFIOObject::DateTime,
+                    date_time.data()
+                    ));
+
+        // Test reading XResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::XResolution,
+                    &x_resolution
+                    ));
+
+        // Test reading YResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::YResolution,
+                    &y_resolution
+                    ));
+
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("Gamma Knife QA #2") {
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kGkQA2.string(),
+            TIFFIOObject::FileAccessMode::Read
+        );
+        unsigned int compression       = 0;   // Compression
+        unsigned long int depth        = 0;   // ImageDepth
+        unsigned int samples_per_pixel = 0;   // SamplesPerPixel
+        unsigned int sample_format     = 0;   // SampleFormat
+        unsigned int bits_per_sample   = 0;   // BitsPerSample
+        unsigned long int length       = 0;   // ImageLength
+        unsigned long int width        = 0;   // ImageWidth
+        unsigned int orientation       = 0;   // Orientation
+        unsigned int resolution_unit   = 0;   // ResolutionUnit
+        std::vector<char>    date_time(20);   // DateTime
+        float x_resolution             = 0.0; // XResolution
+        float y_resolution             = 0.0; // YResolution
+
+        date_time.data()[0] = date_time.data()[19] = 0;
+
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+
+        EXPECT_NO_THROW(tif_obj.open());
+
+        // Test reading Compression tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Compression,
+                    &compression
+                    ));
+
+        // Test reading ImageDepth tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageDepth,
+                    &depth
+                    ));
+
+        // Test reading SamplesPerPixel tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SamplesPerPixel,
+                    &samples_per_pixel
+                    ));
+
+        // Test reading SampleFormat tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SampleFormat,
+                    &sample_format
+                    ));
+
+        // Test reading BitsPerSample tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::BitsPerSample,
+                    &bits_per_sample
+                    ));
+
+        // Test reading ImageLength flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
                     TIFFIOObject::ImageLength,
                     &length
                     ));
-        EXPECT(547 == length);
+
+        // Test reading ImageWidth flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+
+        // Test reading Orientation flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Orientation,
+                    &orientation
+                    ));
+
+        // Test reading ResolutionUnit flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::ResolutionUnit,
+                    &resolution_unit
+                    ));
+
+        // Test reading DateTime flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<char>(
+                    TIFFIOObject::DateTime,
+                    date_time.data()
+                    ));
+
+        // Test reading XResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::XResolution,
+                    &x_resolution
+                    ));
+
+        // Test reading YResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::YResolution,
+                    &y_resolution
+                    ));
+
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("Cells") {
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kCells.string(),
+            TIFFIOObject::FileAccessMode::Read
+        );
+        unsigned int compression       = 0;   // Compression
+        unsigned long int depth        = 0;   // ImageDepth
+        unsigned int samples_per_pixel = 0;   // SamplesPerPixel
+        unsigned int sample_format     = 0;   // SampleFormat
+        unsigned int bits_per_sample   = 0;   // BitsPerSample
+        unsigned long int length       = 0;   // ImageLength
+        unsigned long int width        = 0;   // ImageWidth
+        unsigned int orientation       = 0;   // Orientation
+        unsigned int resolution_unit   = 0;   // ResolutionUnit
+        std::vector<char>    date_time(20);   // DateTime
+        float x_resolution             = 0.0; // XResolution
+        float y_resolution             = 0.0; // YResolution
+
+        date_time.data()[0] = date_time.data()[19] = 0;
+
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+
+        EXPECT_NO_THROW(tif_obj.open());
+
+        // Test reading Compression tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Compression,
+                    &compression
+                    ));
+
+        // Test reading ImageDepth tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageDepth,
+                    &depth
+                    ));
+
+        // Test reading SamplesPerPixel tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SamplesPerPixel,
+                    &samples_per_pixel
+                    ));
+
+        // Test reading SampleFormat tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SampleFormat,
+                    &sample_format
+                    ));
+
+        // Test reading BitsPerSample tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::BitsPerSample,
+                    &bits_per_sample
+                    ));
+
+        // Test reading ImageLength flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageLength,
+                    &length
+                    ));
+
+        // Test reading ImageWidth flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+
+        // Test reading Orientation flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Orientation,
+                    &orientation
+                    ));
+
+        // Test reading ResolutionUnit flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::ResolutionUnit,
+                    &resolution_unit
+                    ));
+
+        // Test reading DateTime flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<char>(
+                    TIFFIOObject::DateTime,
+                    date_time.data()
+                    ));
+
+        // Test reading XResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::XResolution,
+                    &x_resolution
+                    ));
+
+        // Test reading YResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::YResolution,
+                    &y_resolution
+                    ));
+
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("MRI") {
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kMri.string(),
+            TIFFIOObject::FileAccessMode::Read
+        );
+        unsigned int compression       = 0;   // Compression
+        unsigned long int depth        = 0;   // ImageDepth
+        unsigned int samples_per_pixel = 0;   // SamplesPerPixel
+        unsigned int sample_format     = 0;   // SampleFormat
+        unsigned int bits_per_sample   = 0;   // BitsPerSample
+        unsigned long int length       = 0;   // ImageLength
+        unsigned long int width        = 0;   // ImageWidth
+        unsigned int orientation       = 0;   // Orientation
+        unsigned int resolution_unit   = 0;   // ResolutionUnit
+        std::vector<char>    date_time(20);   // DateTime
+        float x_resolution             = 0.0; // XResolution
+        float y_resolution             = 0.0; // YResolution
+
+        date_time.data()[0] = date_time.data()[19] = 0;
+
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(false);
+
+        EXPECT_NO_THROW(tif_obj.open());
+
+        // Test reading Compression tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Compression,
+                    &compression
+                    ));
+
+        // Test reading ImageDepth tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageDepth,
+                    &depth
+                    ));
+
+        // Test reading SamplesPerPixel tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SamplesPerPixel,
+                    &samples_per_pixel
+                    ));
+
+        // Test reading SampleFormat tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::SampleFormat,
+                    &sample_format
+                    ));
+
+        // Test reading BitsPerSample tag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::BitsPerSample,
+                    &bits_per_sample
+                    ));
+
+        // Test reading ImageLength flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageLength,
+                    &length
+                    ));
+
+        // Test reading ImageWidth flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned long int>(
+                    TIFFIOObject::ImageWidth,
+                    &width
+                    ));
+
+        // Test reading Orientation flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::Orientation,
+                    &orientation
+                    ));
+
+        // Test reading ResolutionUnit flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<unsigned int>(
+                    TIFFIOObject::ResolutionUnit,
+                    &resolution_unit
+                    ));
+
+        // Test reading DateTime flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<char>(
+                    TIFFIOObject::DateTime,
+                    date_time.data()
+                    ));
+
+        // Test reading XResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::XResolution,
+                    &x_resolution
+                    ));
+
+        // Test reading YResolution flag
+        EXPECT_NO_THROW(tif_obj.readTagValue<float>(
+                    TIFFIOObject::YResolution,
+                    &y_resolution
+                    ));
+
+        EXPECT_NO_THROW(tif_obj.close());
+
+    },
+
+    CASE ("ROI") {
+        TIFFIOObject tif_obj = TIFFIOObject(
+            kRoi.string(),
+            TIFFIOObject::FileAccessMode::Read
+        );
+
+        tif_obj.printErrors(false);
+        tif_obj.printWarnings(true);
+
+        EXPECT_THROWS_AS(tif_obj.open(), TIFFIOObject::LibtiffError);
         EXPECT_NO_THROW(tif_obj.close());
 
     },
