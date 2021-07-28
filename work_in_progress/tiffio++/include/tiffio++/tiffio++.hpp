@@ -343,12 +343,15 @@ public:
 
     // Methods
     void close();
-    template <class T> bool readTagValue(const TIFFTag tag, T* fld_val);
+    std::string compression();
+    std::string imageOrientation();
     bool open();
     void printErrors(bool val) { print_errors_ = val; }
     bool printErrors() { return print_errors_; }
     void printWarnings(bool val) { print_warnings_ = val; }
     bool printWarnings() { return print_warnings_; }
+    template <class T> bool readTagValue(const TIFFTag tag, T* fld_val);
+    std::string resolutionUnits();
 
 };
 
@@ -647,6 +650,118 @@ void TIFFIOObject::close()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Read compression code from image tag and return compression description
+// string. It calls readTagValue() method to retrieve compression code from
+// image data.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::compression()
+{
+    unsigned int code = 0;
+    if(readTagValue<unsigned int>(TIFFIOObject::Compression, &code)) {
+        switch(code) {
+            case 1: return std::string("None");
+            case 2: return std::string("Modified Huffman");
+            case 3: return std::string("CCITT T.4");
+            case 4: return std::string("CCITT T.6");
+            case 5: return std::string("Lempel-Ziv & Welch");
+            case 6: return std::string("JPEG 6.0");
+            case 7: return std::string("JPEG DCT compression");
+            case 8: return std::string("Adobe Deflate");
+            case 9: return std::string("TIFF/FX T.85 JBIG");
+            case 10: return std::string("TIFF/FX T.43 JBIG");
+            case 32766: return std::string("NeXT 2-bit RLE");
+            case 32771: return std::string("#1 w/ word alignment");
+            case 32773: return std::string("PackBits (Macintosh RLE)");
+            case 32809: return std::string("ThunderScan RLE");
+            case 32895: return std::string("ANSI IT8 CT w/padding");
+            case 32896: return std::string("ANSI IT8 Linework RLE");
+            case 32897: return std::string("ANSI IT8 Monochrome picture");
+            case 32898: return std::string("ANSI IT8 Binary line art");
+            case 32908: return std::string("Pixar companded 10bit LZW");
+            case 32909: return std::string("Pixar companded 11bit ZIP");
+            case 32946: return std::string("Deflate");
+            case 32947: return std::string("Kodak DCS");
+            case 34661: return std::string("ISO JBIG");
+            case 34676: return std::string("SGI Log Luminance RLE");
+            case 34677: return std::string("SGI Log 24-bit packed");
+            case 34712: return std::string("Leadtools JPEG2000");
+            case 34887: return std::string("ESRI Lerc");
+            case 34888: return std::string("ESRI Lerc");
+            case 34889: return std::string("ESRI Lerc");
+            case 34925: return std::string("LZMA2");
+            case 50000: return std::string("ZSTD");
+            case 50001: return std::string("WEBP");
+            case 50002: return std::string("JPEGXL");
+            default: return std::string("Unknown");
+        }
+
+    }
+
+    return std::string("");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read image orientation code from image tag and return image orientation
+// description string. It calls readTagValue() method to retrieve compression
+// code from image data.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::imageOrientation() {
+    unsigned int code = 0;
+    if(readTagValue<unsigned int>(TIFFIOObject::Orientation, &code)) {
+        switch(code) {
+            case 1: return std::string("Top-Left");
+            case 2: return std::string("Top-Right");
+            case 3: return std::string("Bottom-Right");
+            case 4: return std::string("Bottom-Left");
+            case 5: return std::string("Left-Top");
+            case 6: return std::string("Right-Top");
+            case 7: return std::string("Right-Bottom");
+            case 8: return std::string("Left-Bottom");
+            default: return std::string("Unknown");
+        }
+
+    }
+
+    return std::string("");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Open a TIFF file for reading or writing
+//
+// This is a wrapper for the TIFFOpen function. It opens a file asociated
+// with TIFFIOObject instance. Upon successful completion it returns a true.
+// Otherwise, false is returned.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+bool TIFFIOObject::open()
+{
+    if(!file_opened_) {
+        saveHandlers();
+        tif_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
+        restoreHandlers();
+    }
+
+    if(tif_handle_) file_opened_ = true;
+    else file_opened_ = false;
+
+    return file_opened_;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Get the value(s) of a tag in an open TIFF file
 //
 // This is a wrapper for the TIFFGetField function. It returns the value of a
@@ -678,29 +793,26 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Open a TIFF file for reading or writing
-//
-// This is a wrapper for the TIFFOpen function. It opens a file asociated
-// with TIFFIOObject instance. Upon successful completion it returns a true.
-// Otherwise, false is returned.
-//
-// All error messages are directed to the errorHandler() method. Likewise,
-// warning messages are directed to the warningHandler() method.
+// Read resolution units code from image tag and return resolution units
+// string. It calls readTagValue() method to retrieve resolution units code
+// from image data.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-bool TIFFIOObject::open()
+std::string TIFFIOObject::resolutionUnits()
 {
-    if(!file_opened_) {
-        saveHandlers();
-        tif_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
-        restoreHandlers();
+    unsigned int code = 0;
+    if(readTagValue<unsigned int>(TIFFIOObject::ResolutionUnit, &code)) {
+        switch(code) {
+            case 1: return std::string("None");
+            case 2: return std::string("dpi");
+            case 3: return std::string("dots/cm");
+            default: return std::string("Unknown");
+        }
+
     }
 
-    if(tif_handle_) file_opened_ = true;
-    else file_opened_ = false;
-
-    return file_opened_;
+    return std::string("");
 }
 
 
