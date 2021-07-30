@@ -30,6 +30,10 @@
 //
 // Documentation:
 //
+// 2021-07-30 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
+//
+// * added: relative air humidity.
+//
 // 2021-07-29 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
 //
 // * added: inch, hectopascal, kilopascal, centigray, with symbols.
@@ -414,9 +418,20 @@ namespace PHYSICS {
     // Miscellaneous
     //
     ///////////////////////////////////////////////////////////////////////////
-    static const double perCent     = 0.01 ;
-    static const double perThousand = 0.001;
-    static const double perMillion  = 0.000001;
+    static const double per_cent     = 0.01 ;
+    static const double per_thousand = 0.001;
+    static const double per_million  = 0.000001;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Relative air humidity (commonly used in dosimetry)
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    static const double relative_air_humidity = per_cent;
+
+    // symbols
+    static const double RH = relative_air_humidity;
 
 }  // namespace PHYSICS
 
