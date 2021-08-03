@@ -23,37 +23,41 @@ void QSpreadsheetHeaderView::mousePressEvent (QMouseEvent * event)
 
     if (buttonMenuRect(logicalIndex).contains(event->pos())) {
         QMenu menu(this);
-        QAction *hideCol = menu.addAction("Hide column");
-        QAction *sortAZ = menu.addAction("Sort sheet A->Z");
-        QAction *sortZA = menu.addAction("Sort sheet Z->A");
+        // QAction *hideCol = menu.addAction("Hide column");
+        // QAction *sortAZ = menu.addAction("Sort sheet A->Z");
+        // QAction *sortZA = menu.addAction("Sort sheet Z->A");
+        QAction *copy = menu.addAction("Copy ...");
 
         // Disable hide column if only one column remains. Otherwise
         // the gui is no more available to show them back.
-        hideCol->setEnabled(hiddenSectionCount() < count() - 1);
+        // hideCol->setEnabled(hiddenSectionCount() < count() - 1);
 
         QAction *res = menu.exec(mapToGlobal(event->pos()));
 
-        if (res == hideCol) {
-            hideSection(logicalIndex);
-            updateSection(logicalIndex-1);
+        // if (res == hideCol) {
+        //     hideSection(logicalIndex);
+        //     updateSection(logicalIndex-1);
+        // }
+        // if (res == sortAZ)
+        //     model()->sort(logicalIndex, Qt::AscendingOrder);
+        // if (res == sortZA)
+        //     model()->sort(logicalIndex, Qt::DescendingOrder);
+        if (res == copy) {
+            // model()->copy(logicalIndex);
         }
-        if (res == sortAZ)
-            model()->sort(logicalIndex, Qt::AscendingOrder);
-        if (res == sortZA)
-            model()->sort(logicalIndex, Qt::DescendingOrder);
     }
 
-    // Catch previous arrow mouse click.
-    if (prevRect(logicalIndex).contains(event->pos())) {
-        showSection(logicalIndex - 1);
-        updateSection(logicalIndex - 2);
-    }
+    //// Catch previous arrow mouse click.
+    //if (prevRect(logicalIndex).contains(event->pos())) {
+    //    showSection(logicalIndex - 1);
+    //    updateSection(logicalIndex - 2);
+    //}
 
-    // Catch next arrow mouse click.
-    if (nextRect(logicalIndex).contains(event->pos())) {
-        showSection(logicalIndex + 1);
-        updateSection(logicalIndex + 2);
-    }
+    //// Catch next arrow mouse click.
+    //if (nextRect(logicalIndex).contains(event->pos())) {
+    //    showSection(logicalIndex + 1);
+    //    updateSection(logicalIndex + 2);
+    //}
 }
 
 
@@ -78,13 +82,13 @@ void QSpreadsheetHeaderView::paintSection(QPainter *painter, const QRect &rect, 
     if (!rect.isValid() || isSortIndicatorShown())
         return;
 
-    if (isSectionHidden(logicalIndex - 1)) {
-        drawPrevButton(painter, logicalIndex);
-    }
+    // if (isSectionHidden(logicalIndex - 1)) {
+    //     drawPrevButton(painter, logicalIndex);
+    // }
 
-    if (isSectionHidden(logicalIndex + 1)) {
-        drawNextButton(painter, logicalIndex);
-    }
+    // if (isSectionHidden(logicalIndex + 1)) {
+    //     drawNextButton(painter, logicalIndex);
+    // }
 
     QPoint pos = mapFromGlobal(QCursor::pos());
     if (rect.contains(pos)) {
@@ -107,26 +111,26 @@ QRect QSpreadsheetHeaderView::buttonMenuRect(int logicalIndex) const
 }
 
 
-QRect QSpreadsheetHeaderView::prevRect(int logicalIndex) const
-{
-    if (isSectionHidden(logicalIndex))
-        return QRect();
+// QRect QSpreadsheetHeaderView::prevRect(int logicalIndex) const
+// {
+//     if (isSectionHidden(logicalIndex))
+//         return QRect();
+// 
+//     QRect sr = sectionRect(logicalIndex);
+// 
+//     return QRect(sr.left() + 1, sr.center().y() - 6, 13, 13);
+// }
 
-    QRect sr = sectionRect(logicalIndex);
 
-    return QRect(sr.left() + 1, sr.center().y() - 6, 13, 13);
-}
-
-
-QRect QSpreadsheetHeaderView::nextRect(int logicalIndex) const
-{
-    if (isSectionHidden(logicalIndex))
-        return QRect();
-
-    QRect sr = sectionRect(logicalIndex);
-
-    return QRect(sr.right() - 13, sr.center().y() - 6, 13, 13);
-}
+// QRect QSpreadsheetHeaderView::nextRect(int logicalIndex) const
+// {
+//     if (isSectionHidden(logicalIndex))
+//         return QRect();
+// 
+//     QRect sr = sectionRect(logicalIndex);
+// 
+//     return QRect(sr.right() - 13, sr.center().y() - 6, 13, 13);
+// }
 
 
 void QSpreadsheetHeaderView::drawMenuButton(QPainter *painter, int logicalIndex, bool enabled) const
@@ -145,27 +149,27 @@ void QSpreadsheetHeaderView::drawMenuButton(QPainter *painter, int logicalIndex,
 }
 
 
-void QSpreadsheetHeaderView::drawPrevButton(QPainter *painter, int logicalIndex) const
-{
-    QRect rect = prevRect(logicalIndex);
+// void QSpreadsheetHeaderView::drawPrevButton(QPainter *painter, int logicalIndex) const
+// {
+//     QRect rect = prevRect(logicalIndex);
+// 
+//     painter->setPen(QColor(71,71,71));
+//     painter->drawLine(rect.left()+1, rect.center().y() - 3, rect.left()+1, rect.center().y() + 3);
+//     painter->drawLine(rect.left()+2, rect.center().y() - 2, rect.left()+2, rect.center().y() + 2);
+//     painter->drawLine(rect.left()+3, rect.center().y() - 1, rect.left()+3, rect.center().y() + 1);
+//     painter->drawPoint(rect.left()+4, rect.center().y());
+// }
 
-    painter->setPen(QColor(71,71,71));
-    painter->drawLine(rect.left()+1, rect.center().y() - 3, rect.left()+1, rect.center().y() + 3);
-    painter->drawLine(rect.left()+2, rect.center().y() - 2, rect.left()+2, rect.center().y() + 2);
-    painter->drawLine(rect.left()+3, rect.center().y() - 1, rect.left()+3, rect.center().y() + 1);
-    painter->drawPoint(rect.left()+4, rect.center().y());
-}
 
-
-void QSpreadsheetHeaderView::drawNextButton(QPainter *painter, int logicalIndex) const
-{
-    QRect rect = nextRect(logicalIndex);
-
-    painter->setPen(QColor(71,71,71));
-    painter->drawLine(rect.right()-2, rect.center().y() - 3, rect.right()-2, rect.center().y() + 3);
-    painter->drawLine(rect.right()-3, rect.center().y() - 2, rect.right()-3, rect.center().y() + 2);
-    painter->drawLine(rect.right()-4, rect.center().y() - 1, rect.right()-4, rect.center().y() + 1);
-    painter->drawPoint(rect.right()-5, rect.center().y());
-}
+// void QSpreadsheetHeaderView::drawNextButton(QPainter *painter, int logicalIndex) const
+// {
+//     QRect rect = nextRect(logicalIndex);
+// 
+//     painter->setPen(QColor(71,71,71));
+//     painter->drawLine(rect.right()-2, rect.center().y() - 3, rect.right()-2, rect.center().y() + 3);
+//     painter->drawLine(rect.right()-3, rect.center().y() - 2, rect.right()-3, rect.center().y() + 2);
+//     painter->drawLine(rect.right()-4, rect.center().y() - 1, rect.right()-4, rect.center().y() + 1);
+//     painter->drawPoint(rect.right()-5, rect.center().y());
+// }
 
 
