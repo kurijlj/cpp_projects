@@ -8,6 +8,7 @@ set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/extern/armadillo/include/armadi
 #add_executable(test_validators_2 test_validators_2.cpp)
 add_executable(test_table_view
     test_table_view.cpp
+    ../apps/table_view_widget.cpp ../apps/table_view_widget.hpp
     ../apps/data_model.cpp ../apps/data_model.hpp
     ../apps/custom_header_view.cpp ../apps/custom_header_view.hpp
     )

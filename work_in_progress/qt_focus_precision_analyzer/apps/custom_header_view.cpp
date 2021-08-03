@@ -1,13 +1,12 @@
 #include "custom_header_view.hpp"
 
 #include <QCursor>
-// #include <QHeaderView>
 #include <QHoverEvent>
 #include <QMenu>
 #include <QPainter>
 
 
-QSpreadsheetHeaderView::QSpreadsheetHeaderView(Qt::Orientation orientation, QWidget * parent)
+CustomHeaderView::CustomHeaderView(Qt::Orientation orientation, QWidget * parent)
     : QHeaderView(orientation, parent)
 {
     // Required to refresh button menu when the mouse leave the header.
@@ -15,7 +14,7 @@ QSpreadsheetHeaderView::QSpreadsheetHeaderView(Qt::Orientation orientation, QWid
 }
 
 
-void QSpreadsheetHeaderView::mousePressEvent (QMouseEvent * event)
+void CustomHeaderView::mousePressEvent (QMouseEvent * event)
 {
     QHeaderView::mousePressEvent(event);
 
@@ -23,45 +22,19 @@ void QSpreadsheetHeaderView::mousePressEvent (QMouseEvent * event)
 
     if (buttonMenuRect(logicalIndex).contains(event->pos())) {
         QMenu menu(this);
-        // QAction *hideCol = menu.addAction("Hide column");
-        // QAction *sortAZ = menu.addAction("Sort sheet A->Z");
-        // QAction *sortZA = menu.addAction("Sort sheet Z->A");
         QAction *copy = menu.addAction("Copy ...");
-
-        // Disable hide column if only one column remains. Otherwise
-        // the gui is no more available to show them back.
-        // hideCol->setEnabled(hiddenSectionCount() < count() - 1);
 
         QAction *res = menu.exec(mapToGlobal(event->pos()));
 
-        // if (res == hideCol) {
-        //     hideSection(logicalIndex);
-        //     updateSection(logicalIndex-1);
-        // }
-        // if (res == sortAZ)
-        //     model()->sort(logicalIndex, Qt::AscendingOrder);
-        // if (res == sortZA)
-        //     model()->sort(logicalIndex, Qt::DescendingOrder);
         if (res == copy) {
             // model()->copy(logicalIndex);
         }
     }
 
-    //// Catch previous arrow mouse click.
-    //if (prevRect(logicalIndex).contains(event->pos())) {
-    //    showSection(logicalIndex - 1);
-    //    updateSection(logicalIndex - 2);
-    //}
-
-    //// Catch next arrow mouse click.
-    //if (nextRect(logicalIndex).contains(event->pos())) {
-    //    showSection(logicalIndex + 1);
-    //    updateSection(logicalIndex + 2);
-    //}
 }
 
 
-void QSpreadsheetHeaderView::mouseMoveEvent(QMouseEvent * event)
+void CustomHeaderView::mouseMoveEvent(QMouseEvent * event)
 {
     QHeaderView::mouseMoveEvent(event);
 
@@ -71,7 +44,7 @@ void QSpreadsheetHeaderView::mouseMoveEvent(QMouseEvent * event)
 }
 
 
-void QSpreadsheetHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
+void CustomHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
     painter->save();
 
@@ -82,14 +55,6 @@ void QSpreadsheetHeaderView::paintSection(QPainter *painter, const QRect &rect, 
     if (!rect.isValid() || isSortIndicatorShown())
         return;
 
-    // if (isSectionHidden(logicalIndex - 1)) {
-    //     drawPrevButton(painter, logicalIndex);
-    // }
-
-    // if (isSectionHidden(logicalIndex + 1)) {
-    //     drawNextButton(painter, logicalIndex);
-    // }
-
     QPoint pos = mapFromGlobal(QCursor::pos());
     if (rect.contains(pos)) {
         drawMenuButton(painter, logicalIndex, buttonMenuRect(logicalIndex).contains(pos));
@@ -97,13 +62,13 @@ void QSpreadsheetHeaderView::paintSection(QPainter *painter, const QRect &rect, 
 }
 
 
-QRect QSpreadsheetHeaderView::sectionRect(int logicalIndex) const
+QRect CustomHeaderView::sectionRect(int logicalIndex) const
 {
     return QRect(sectionViewportPosition(logicalIndex), 0, sectionSize(logicalIndex), height());
 }
 
 
-QRect QSpreadsheetHeaderView::buttonMenuRect(int logicalIndex) const
+QRect CustomHeaderView::buttonMenuRect(int logicalIndex) const
 {
     QRect sr = sectionRect(logicalIndex);
 
@@ -111,29 +76,7 @@ QRect QSpreadsheetHeaderView::buttonMenuRect(int logicalIndex) const
 }
 
 
-// QRect QSpreadsheetHeaderView::prevRect(int logicalIndex) const
-// {
-//     if (isSectionHidden(logicalIndex))
-//         return QRect();
-// 
-//     QRect sr = sectionRect(logicalIndex);
-// 
-//     return QRect(sr.left() + 1, sr.center().y() - 6, 13, 13);
-// }
-
-
-// QRect QSpreadsheetHeaderView::nextRect(int logicalIndex) const
-// {
-//     if (isSectionHidden(logicalIndex))
-//         return QRect();
-// 
-//     QRect sr = sectionRect(logicalIndex);
-// 
-//     return QRect(sr.right() - 13, sr.center().y() - 6, 13, 13);
-// }
-
-
-void QSpreadsheetHeaderView::drawMenuButton(QPainter *painter, int logicalIndex, bool enabled) const
+void CustomHeaderView::drawMenuButton(QPainter *painter, int logicalIndex, bool enabled) const
 {
     QRect brect = buttonMenuRect(logicalIndex);
 
@@ -147,29 +90,5 @@ void QSpreadsheetHeaderView::drawMenuButton(QPainter *painter, int logicalIndex,
     painter->drawLine(brect.left()+5, brect.top()+7, brect.right()-5, brect.top()+7);
     painter->drawPoint(brect.left()+6, brect.top()+8);
 }
-
-
-// void QSpreadsheetHeaderView::drawPrevButton(QPainter *painter, int logicalIndex) const
-// {
-//     QRect rect = prevRect(logicalIndex);
-// 
-//     painter->setPen(QColor(71,71,71));
-//     painter->drawLine(rect.left()+1, rect.center().y() - 3, rect.left()+1, rect.center().y() + 3);
-//     painter->drawLine(rect.left()+2, rect.center().y() - 2, rect.left()+2, rect.center().y() + 2);
-//     painter->drawLine(rect.left()+3, rect.center().y() - 1, rect.left()+3, rect.center().y() + 1);
-//     painter->drawPoint(rect.left()+4, rect.center().y());
-// }
-
-
-// void QSpreadsheetHeaderView::drawNextButton(QPainter *painter, int logicalIndex) const
-// {
-//     QRect rect = nextRect(logicalIndex);
-// 
-//     painter->setPen(QColor(71,71,71));
-//     painter->drawLine(rect.right()-2, rect.center().y() - 3, rect.right()-2, rect.center().y() + 3);
-//     painter->drawLine(rect.right()-3, rect.center().y() - 2, rect.right()-3, rect.center().y() + 2);
-//     painter->drawLine(rect.right()-4, rect.center().y() - 1, rect.right()-4, rect.center().y() + 1);
-//     painter->drawPoint(rect.right()-5, rect.center().y());
-// }
 
 

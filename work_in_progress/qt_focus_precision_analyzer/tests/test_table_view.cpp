@@ -51,19 +51,22 @@
 //! [Quoting ModelView Tutorial]
 // main.cpp
 #include <QApplication>
-#include <QTableView>
-#include <custom_header_view.hpp>
-#include <data_model.hpp>
+// #include <QTableView>
+// #include <custom_header_view.hpp>
+// #include <data_model.hpp>
+#include <table_view_widget.hpp>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QTableView table_view;
-    QSpreadsheetHeaderView *header = new QSpreadsheetHeaderView(Qt::Horizontal);
-    DataModel data_model;
-    table_view.setHorizontalHeader(header);
-    table_view.setModel(&data_model);
-    table_view.show();
+    // QTableView table_view;
+    // QSpreadsheetHeaderView *header = new QSpreadsheetHeaderView(Qt::Horizontal);
+    // DataModel data_model;
+    // table_view.setHorizontalHeader(header);
+    // table_view.setModel(&data_model);
+    // table_view.show();
+    TableViewWidget main_widget;
+    main_widget.show();
     return a.exec();
 }
 //! [Quoting ModelView Tutorial]

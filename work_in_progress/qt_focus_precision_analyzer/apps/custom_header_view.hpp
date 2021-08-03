@@ -1,25 +1,16 @@
-#ifndef QSPREADSHEETHEADERVIEW_H
-#define QSPREADSHEETHEADERVIEW_H
+#ifndef CUSTOMHEADERVIEW_HPP
+#define CUSTOMHEADERVIEW_HPP
 
-// #include <QCursor>
 #include <QHeaderView>
-// #include <QHoverEvent>
-// #include <QMenu>
-// #include <QPainter>
 
-/*!
-    \class QSpreadsheetHeaderView
-    \brief The QSpreadsheetHeaderView class is a special QHeaderView that mimic Google Spreadsheet header.
-    version 1.0
-    \sa QHeaderView
-*/
-class QSpreadsheetHeaderView : public QHeaderView
+
+class CustomHeaderView : public QHeaderView
 {
     Q_OBJECT
 
 public:
-    QSpreadsheetHeaderView(Qt::Orientation orientation, QWidget * parent = nullptr);
-    ~QSpreadsheetHeaderView() { }
+    CustomHeaderView(Qt::Orientation orientation, QWidget * parent = nullptr);
+    ~CustomHeaderView() { }
 
 protected:
     void mousePressEvent(QMouseEvent * event);
@@ -28,15 +19,11 @@ protected:
 
     QRect sectionRect(int logicalIndex) const;
     QRect buttonMenuRect(int logicalIndex) const;
-    // QRect prevRect(int logicalIndex) const;
-    // QRect nextRect(int logicalIndex) const;
 
     void drawMenuButton(QPainter *painter, int logicalIndex, bool enabled) const;
-    // void drawPrevButton(QPainter *painter, int logicalIndex) const;
-    // void drawNextButton(QPainter *painter, int logicalIndex) const;
 private:
 
 };
 
 
-#endif /* QSPREADSHEETHEADERVIEW_H */
+#endif // CUSTOMHEADERVIEW_HPP
