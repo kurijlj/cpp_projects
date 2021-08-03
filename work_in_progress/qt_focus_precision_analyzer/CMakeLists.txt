@@ -51,6 +51,9 @@ endif()
 # The compiled library code is here
 add_subdirectory(src)
 
+# The Armadillo library code is here
+add_subdirectory(extern/armadillo)
+
 # The executable code is here
 add_subdirectory(apps)
 
