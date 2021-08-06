@@ -1,4 +1,6 @@
-// #include <QAction>
+#ifndef TABLEVIEWWIDGET_HPP
+#define TABLEVIEWWIDGET_HPP
+
 #include <QTableView>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -25,3 +27,6 @@ public:
         void show();
 
 };
+
+
+#endif // TABLEVIEWWIDGET_HPP
