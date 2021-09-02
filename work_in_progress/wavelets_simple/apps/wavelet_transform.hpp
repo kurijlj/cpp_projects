@@ -75,7 +75,7 @@
 
 
 // ============================================================================
-// Utility function section
+// Utility functions section
 // ============================================================================
 
 bool is_power_of_two(double N)
@@ -87,6 +87,30 @@ bool is_power_of_two(double N)
 
     return std::pow(2, exponent) == N;
 }
+
+
+// ============================================================================
+// Utility classes section
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class Exception
+//
+// TODO: Put class description here
+//
+///////////////////////////////////////////////////////////////////////////////
+
+class Exception {
+protected:
+    std::string message_;
+
+public:
+    Exception() : message_("General exception!") {}
+    Exception(std::string message) : message_(message) {}
+    ~Exception() {}
+    std::string message() const { return message_; }
+};
 
 
 // ============================================================================
@@ -110,6 +134,24 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     Wavelet() {}
     ~Wavelet() {}
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Class exceptions
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class BuffersSizeMismatch : public Exception {
+    public:
+        BuffersSizeMismatch(std::string message)
+            : Exception("Data buffers size mismatch!") {}
+        ~BuffersSizeMismatch() {}
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Virtual methods
+    //
+    ///////////////////////////////////////////////////////////////////////////
     virtual void forwardTransform(
             const std::vector<double> &data,
             std::vector<double> &dest,
@@ -128,6 +170,106 @@ public:
             const std::vector<double> &data,
             const unsigned int data_size
             ) {}
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class Daub4
+//
+// TODO: Put class description here
+//
+///////////////////////////////////////////////////////////////////////////////
+
+class Daub4 : Wavelet {
+public:
+    static std::vector<double> C_ {
+        0.4829629131445341,
+        0.8365163037378077,
+        0.2241438680420134,
+        -0.1294095225512603
+    };
+
+public:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Constructors and Destructor
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    Daub4() {}
+    ~Daub4() {}
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Public methods
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    void forwardTransform(
+            const std::vector<double> &data,
+            std::vector<double> &dest,
+            const unsigned int order
+            ) {
+        // Do some basic sanity checks first
+        if(data.size() != dest.size()) throw BufferSizeMismatch();
+
+        unsigned int offset, i, j;
+
+        for(i=0,j=0; j<order-3; j+=2,i++) {
+            dest[i] = C_[0]*data[j]
+                + C_[1]*data[j+1]
+                + C_[2]*data[j+2]
+                + C_[3]*data[j+3];
+            dest[i+offset] = C_[3]*data[j]
+                - C_[2]*data[j+1]
+                + C_[1]*data[j+2]
+                - C_[0]*data[j+3];
+
+        }
+
+        dest[i] = C_[0]*data[order-2]
+            + C_[1]*data[order-1]
+            + C_[2]*data[0]
+            + C_[3]*data[1];
+        dest[i+offset] = C_[3]*data[order-2]
+            - C_[2]*data[order-1]
+            + C_[1]*data[0]
+            - C_[0]*data[1];
+
+    }
+
+    void inverseTransform(
+            const std::vector<double> &data,
+            std::vector<double> &dest,
+            const unsigned int order
+            ) {
+        // Do some basic sanity checks first
+        if(data.size() != dest.size()) throw BufferSizeMismatch();
+
+        unsigned int offset, i, j;
+
+        dest[0] = C_[2]*data[offset-1]
+            + C_[1]*data[order-1]
+            + C_[0]*data[0]
+            + C_[3]*data[offset];
+        dest[1] = C3*a[offset-1]
+            -C0*a[order-1]
+            +C1*a[0]
+            -C2*a[offset];
+
+        for(i=0,j=2; j<offset-1; i++) {
+            dest[j++] = C_[2]*data[i]
+                + C_[1]*data[i+offset]
+                + C_[0]*data[i+1]
+                + C_[3]*data[i+offset+1];
+            dest[j++] = C_[3]*data[i]
+                - C_[0]*data[i+offset]
+                + C_[1]*data[i+1]
+                - C_[2]*data[i+offset+1];
+
+        }
+
+    }
 
 };
 
@@ -160,21 +302,10 @@ public:
     // Class exceptions
     //
     ///////////////////////////////////////////////////////////////////////////
-    class WTException {
-    protected:
-        std::string message_;
-
-    public:
-        WTException() : message_("") {}
-        WTException(std::string message) : message_(message) {}
-        ~WTException() {}
-        std::string message() const { return message_; }
-    };
-
-    class WrongDataSize : public WTException {
+    class WrongDataSize : public Exception {
     public:
         WrongDataSize(std::string message)
-            : WTException(message) {}
+            : Exception(message) {}
         ~WrongDataSize() {}
     };
 
@@ -235,20 +366,6 @@ private:
     }
 
 };
-
-
-// void wt1(std::vector<double> &data, const Int isign, Wavelet &wlet)
-// {
-//     Int nn, n=a.size();
-//     if (n < 4) return;
-//     if (isign >= 0) {
-//         wlet.condition(a,n,1);
-//         for (nn=n;nn>=4;nn>>=1) wlet.filt(a,nn,isign);
-//     } else {
-//         for (nn=4;nn<=n;nn<<=1) wlet.filt(a,nn,isign);
-//         wlet.condition(a,n,-1);
-//     }
-// }
 
 
 #endif  // WAVELET_TRANSFORM_HPP
