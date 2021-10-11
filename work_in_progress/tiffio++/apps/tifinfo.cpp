@@ -298,10 +298,12 @@ int main(int argc, char *argv[])
         unsigned long int length       = 0;   // ImageLength
         unsigned int samples_per_pixel = 0;   // SamplesPerPixel
         unsigned int bits_per_sample   = 0;   // BitsPerSample
+        unsigned int planar_config     = 0;   // PlanarConfiguration
         float x_resolution             = 0.0; // XResolution
         float y_resolution             = 0.0; // YResolution
         unsigned int resolution_units  = 0;   // ResolutionUnit
-        std::string units_string;
+        std::string planar_cnfg_string {""};
+        std::string units_string {""};
 
         tif.readTagValue<unsigned long int>(TIFFIOObject::ImageLength, &length);
         tif.readTagValue<unsigned long int>(TIFFIOObject::ImageWidth, &width);
@@ -313,32 +315,38 @@ int main(int argc, char *argv[])
                 TIFFIOObject::BitsPerSample,
                 &bits_per_sample
                 );
+        tif.readTagValue<unsigned int>(
+                TIFFIOObject::PlanarConfiguration,
+                &planar_config
+                );
         tif.readTagValue<float>(TIFFIOObject::XResolution, &x_resolution);
         tif.readTagValue<float>(TIFFIOObject::YResolution, &y_resolution);
-
-        if(tif.readTagValue<unsigned int>(
+        tif.readTagValue<unsigned int>(
                 TIFFIOObject::ResolutionUnit,
                 &resolution_units
-                )) {
-                    switch(resolution_units) {
-                        case 2: units_string = std::string("dpi"); break;
-                        case 3: units_string = std::string("dots/cm"); break;
-                        default: units_string = std::string("");
-                }
+                );
 
-        } else {
-            units_string = std::string("");
+        switch(planar_config) {
+            case 1: planar_cnfg_string = std::string("Chunky"); break;
+            case 2: planar_cnfg_string = std::string("Planar"); break;
+            default: ;
+        }
+        switch(resolution_units) {
+            case 2: units_string = std::string("dpi"); break;
+            case 3: units_string = std::string("dots/cm"); break;
+            default: ;
         }
 
-        std::cout << "              width: " << width << "\n";
-        std::cout << "             length: " << length << "\n";
-        std::cout << "        compression: " << tif.compression() << "\n";
-        std::cout << "  samples per pixel: " << samples_per_pixel << "\n";
-        std::cout << "    bits per sample: " << bits_per_sample << "\n";
-        std::cout << "         resolution: " << x_resolution << " "
+        std::cout << "                 width: " << width << "\n";
+        std::cout << "                length: " << length << "\n";
+        std::cout << "           compression: " << tif.compression() << "\n";
+        std::cout << "     samples per pixel: " << samples_per_pixel << "\n";
+        std::cout << "       bits per sample: " << bits_per_sample << "\n";
+        std::cout << "  planar configuration: " << planar_cnfg_string << "\n";
+        std::cout << "            resolution: " << x_resolution << " "
             << units_string << " X " << y_resolution << " "
             << units_string << "\n";
-        std::cout << "        orientation: "
+        std::cout << "           orientation: "
             << tif.imageOrientation() << "\n\n";
 
     } catch (TIFFIOObject::LibtiffWarning w) {
