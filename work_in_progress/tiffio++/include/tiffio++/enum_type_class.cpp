@@ -14,6 +14,7 @@ public:
     public:
         EnumeratedType() {}
         EnumeratedType(T value) : value_(value) {}
+        EnumeratedType(const EnumeratedType &inst) : value_(inst.value()) {}
         ~EnumeratedType() {}
 
         // Methods
@@ -26,6 +27,7 @@ public:
         T value() const { return value_; }
 
         // Operators
+        void operator=(const EnumeratedType &other) { value_ = other.value(); }
         bool operator==(const EnumeratedType &other) { return equalTo(other); }
         bool operator!=(const EnumeratedType &other) { return !equalTo(other); }
 

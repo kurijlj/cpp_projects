@@ -85,194 +85,6 @@ class TIFFIOObject {
 public:
     ///////////////////////////////////////////////////////////////////////////
     //
-    // Named constants
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    enum Compression: unsigned int {
-    //  Format Name    Value        Library Use / Notes
-        None           = 1,      // dump mode
-        CCITTRLE       = 2,      // CCITT modified Huffman RLE
-        CCITT_T4       = 3,      // CCITT T.4 (TIFF 6 name)
-        CCITT_T6       = 4,      // CCITT T.6 (TIFF 6 name)
-        LZW            = 5,      // Lempel-Ziv  & Welch
-        JPEG           = 6,      // 6.0 JPEG
-        JPEG_DCT       = 7,      // JPEG DCT compression
-        AdobeDeflate   = 8,      // Deflate compression as recognized by Adobe
-        TIFFFX_T85     = 9,      // TIFF/FX T.85 JBIG compression
-        TIFFFX_T43     = 10,     // TIFF/FX T.43 colour by layered JBIG compression
-        NeXT           = 32766,  // NeXT 2-bit RLE
-        CCITTRLEW      = 32771,  // #1 w/ word alignment
-        PackBits       = 32773,  // Macintosh RLE
-        ThunderScan    = 32809,  // ThunderScan RLE
-        ANSI_IT8CTPAD  = 32895,  // ANSI IT8 CT w/padding
-        ANSI_IT8LW     = 32896,  // ANSI IT8 Linework RLE
-        ANSI_IT8MP     = 32897,  // ANSI IT8 Monochrome picture
-        ANSI_IT8BL     = 32898,  // ANSI IT8 Binary line art
-        PixarFilm      = 32908,  // Pixar companded 10bit LZW
-        PixarLog       = 32909,  // Pixar companded 11bit ZIP
-        Deflate        = 32946,  // Deflate compression
-        KodakDCS       = 32947,  // Kodak DCS encoding
-        ISO_JBIG       = 34661,  // ISO JBIG
-        SGILog         = 34676,  // SGI Log Luminance RLE
-        SGILog24       = 34677,  // SGI Log 24-bit packed
-        JPEG2000       = 34712,  // Leadtools JPEG2000
-        ESRILerc7      = 34887,  // ESRI Lerc codec: https://github.com/Esri/lerc
-        ESRILerc8      = 34888,  // ESRI Lerc codec: https://github.com/Esri/lerc
-        ESRILerc9      = 34889,  // ESRI Lerc codec: https://github.com/Esri/lerc
-        LZMA2          = 34925,  // LZMA2
-        ZSTD           = 50000,  // ZSTD: WARNING not registered in Adobe-maintained registry
-        WEBP           = 50001,  // WEBP: WARNING not registered in Adobe-maintained registry
-        JPEGXL         = 50002,  // JPEGXL: WARNING not registered in Adobe-maintained registry
-
-    };
-
-    enum FillOrder: unsigned int {
-    //  Format Name    Value    Library Use / Notes
-        MSB2LSB        = 1,  // most significant -> least significant
-        LSB2MSB        = 2,  // least significant -> most significant
-
-    };
-
-    enum ImageOrientation: unsigned int {
-    //  Format Name    Value    Library Use / Notes
-        TopLeft        = 1,  // row 0 top, col 0 lhs
-        TopRight       = 2,  // row 0 top, col 0 rhs
-        BottomRight    = 3,  // row 0 bottom, col 0 rhs
-        BottomLeft     = 4,  // row 0 bottom, col 0 lhs
-        LeftTop        = 5,  // row 0 lhs, col 0 top
-        RightTop       = 6,  // row 0 rhs, col 0 top
-        RightBottom    = 7,  // row 0 rhs, col 0 bottom
-        LeftBottom     = 8,  // row 0 lhs, col 0 bottom
-
-    };
-
-    enum Photometric: unsigned int {
-    //  Format Name    Value        Library Use / Notes
-        MinIsWhite         = 0,      // min value is white
-        MinIsBlack         = 1,      // min value is black
-        RGB                = 2,      // RGB color model
-        Palette            = 3,      // color map indexed
-        Mask               = 4,      // holdout mask
-        Separated          = 5,      // color separations
-        YCBCR              = 6,      // CCIR 601
-        CIELab             = 8,      // 1976 CIE L*a*b*
-        ICCLab             = 9,      // ICC L*a*b* [Adobe TIFF Technote 4]
-        ITULab             = 10,     // ITU L*a*b*
-        CFA                = 32803,  // color filter array
-        CIELogL            = 32844,  // CIE Log2(L)
-        CIELogLUV          = 32845,  // CIE Log2(L) (u',v')
-
-    };
-
-    enum PlanarConfig: unsigned int {
-    //  Format Name    Value    Library Use / Notes
-        Single         = 1,  // single image plane
-        Separate       = 2,  // separate planes of data
-
-    };
-
-    enum ResolutionUnits: unsigned int {
-    //  Format Name    Value    Library Use / Notes
-        None           = 1,  // no meaningful units
-        Inch           = 2,  // Imperial
-        Centimeter     = 3,  // Metric
-
-    };
-
-    enum SampleFormat: unsigned int {
-    //  Format Name    Value      Library Use / Notes
-        Uint           = 1,    // unsigned integer data
-        Int            = 2,    // signed integer data
-        IEEEFP         = 3,    // IEEE floating point data
-        Void           = 4,    // untyped data
-        ComplexInt     = 5,    // complex signed int data
-        ComplexIEEEFP  = 6,    // complex ieee floating point data
-
-    };
-
-    enum TIFFTag: unsigned long int {
-    //  Tag Name                  Value         R/W    Library Use / Notes
-        Artist                    = 315,
-        BadFaxLines               = 326,
-        BitsPerSample             = 258,
-        CellLength                = 265,     //        parsed but ignored
-        CellWidth                 = 264,     //        parsed but ignored
-        CleanFaxData              = 327,     // R/W
-        ColorMap                  = 320,     // R/W
-        ColorResponseUnit         = 300,     //        parsed but ignored
-        Compression               = 259,     // R/W    choosing codec
-        ConsecutiveBadFaxLines    = 328,     // R/W
-        Copyright                 = 33432,   // R/W
-        DataType                  = 32996,   // R      obsoleted by SampleFormat tag
-        DateTime                  = 306,     // R/W
-        DocumentName              = 269,     // R/W
-        DotRange                  = 336,     // R/W
-        ExtraSamples              = 338,     // R/W    lots
-        FaxRecvParams             = 34908,   // R/W
-        FaxSubAddress             = 34909,   // R/W
-        FaxRecvTime               = 34910,   // R/W
-        FillOrder                 = 266,     // R/W    control bit order
-        FreeByteCounts            = 289,     //        parsed but ignored
-        FreeOffsets               = 288,     //        parsed but ignored
-        GrayResponseCurve         = 291,     //        parsed but ignored
-        GrayResponseUnit          = 290,     //        parsed but ignored
-        Group3Options             = 292,     // R/W    used by Group 3 codec
-        Group4Options             = 293,     // R/W
-        HostComputer              = 316,     // R/W
-        ImageDepth                = 32997,   // R/W    tile/strip calculations
-        ImageDescription          = 270,     // R/W
-        ImageLength               = 257,     // R/W    lots
-        ImageWidth                = 256,     // R/W    lots
-        InkNames                  = 333,     // R/W
-        InkSet                    = 332,     // R/W
-        JPEGTables                = 347,     // R/W    used by JPEG codec
-        Make                      = 271,     // R/W
-        Matteing                  = 32995,   // R      obsoleted by ExtraSamples tag
-        MaxSampleValue            = 281,     // R/W
-        MinSampleValue            = 280,     // R/W
-        Model                     = 272,     // R/W
-        NewSubFileType            = 254,     // R/W    called SubFileType in spec
-        NumberOfInks              = 334,     // R/W
-        Orientation               = 274,     // R/W
-        PageName                  = 285,     // R/W
-        PageNumber                = 297,     // R/W
-        PhotometricInterpretation = 262,     // R/W    used by Group 3 and JPEG codecs
-        PlanarConfiguration       = 284,     // R/W    data i/o
-        Predictor                 = 317,     // R/W    used by LZW and Deflate codecs
-        PrimaryChromacities       = 319,     // R/W
-        ReferenceBlackWhite       = 532,     // R/W
-        ResolutionUnit            = 296,     // R/W    used by Group 3 codec
-        RowsPerStrip              = 278,     // R/W    data i/o
-        SampleFormat              = 339,     // R/W
-        SamplesPerPixel           = 277,     // R/W    lots
-        SMinSampleValue           = 340,     // R/W
-        SMaxSampleValue           = 341,     // R/W
-        Software                  = 305,     // R/W
-        StoNits                   = 37439,   // R/W
-        StripByteCounts           = 279,     // R/W    data i/o
-        StripOffsets              = 273,     // R/W    data i/o
-        SubFileType               = 255,     // R/W    called OSubFileType in spec
-        TargetPrinter             = 337,     // R/W
-        Thresholding              = 263,     // R/W
-        TileByteCounts            = 324,     // R/W    data i/o
-        TileDepth                 = 32998,   // R/W    tile/strip calculations
-        TileLength                = 323,     // R/W    data i/o
-        TileOffsets               = 324,     // R/W    data i/o
-        TileWidth                 = 322,     // R/W    data i/o
-        TransferFunction          = 301,     // R/W
-        WhitePoint                = 318,     // R/W
-        XPosition                 = 286,     // R/W
-        XResolution               = 282,     // R/W
-        YCbCrCoefficients         = 529,     // R/W    used by TIFFRGBAImage support
-        YCbCrPositioning          = 531,     // R/W    tile/strip size calulcations
-        YCbCrSubsampling          = 530,     // R/W
-        YPosition                 = 286,     // R/W
-        YResolution               = 283,     // R/W    used by Group 3 codec
-
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    //
     // Exceptions classes
     //
     ///////////////////////////////////////////////////////////////////////////
@@ -318,6 +130,127 @@ public:
                     + message
                     ) {}
         ~LibtiffWarning() {}
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Named constants classes
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Abstract base class for all named constant classes
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    template <class T>
+    class EnumeratedType {
+    protected:
+        T value_;
+
+    public:
+        EnumeratedType() {}
+        EnumeratedType(T value) : value_(value) {}
+        EnumeratedType(const EnumeratedType &inst) : value_(inst.value()) {}
+        ~EnumeratedType() {}
+
+        // Methods
+        virtual std::string str() const = 0;
+        virtual const char* c_str() const = 0;
+
+        bool equalTo(const EnumeratedType &other) const {
+            return (other.value() == value_ ? true : false);
+        }
+        T value() const { return value_; }
+
+        // Operators
+        void operator=(const EnumeratedType &other) { value_ = other.value(); }
+        bool operator==(const EnumeratedType &other) { return equalTo(other); }
+        bool operator!=(const EnumeratedType &other) { return !equalTo(other); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Compression class - Image data compression codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class Compression : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value        Library Use / Notes
+            None           = 1,      // dump mode
+            CCITTRLE       = 2,      // CCITT modified Huffman RLE
+            CCITT_T4       = 3,      // CCITT T.4 (TIFF 6 name)
+            CCITT_T6       = 4,      // CCITT T.6 (TIFF 6 name)
+            LZW            = 5,      // Lempel-Ziv  & Welch
+            JPEG           = 6,      // 6.0 JPEG
+            JPEG_DCT       = 7,      // JPEG DCT compression
+            AdobeDeflate   = 8,      // Deflate compression as recognized by Adobe
+            TIFFFX_T85     = 9,      // TIFF/FX T.85 JBIG compression
+            TIFFFX_T43     = 10,     // TIFF/FX T.43 colour by layered JBIG compression
+            NeXT           = 32766,  // NeXT 2-bit RLE
+            CCITTRLEW      = 32771,  // #1 w/ word alignment
+            PackBits       = 32773,  // Macintosh RLE
+            ThunderScan    = 32809,  // ThunderScan RLE
+            ANSI_IT8CTPAD  = 32895,  // ANSI IT8 CT w/padding
+            ANSI_IT8LW     = 32896,  // ANSI IT8 Linework RLE
+            ANSI_IT8MP     = 32897,  // ANSI IT8 Monochrome picture
+            ANSI_IT8BL     = 32898,  // ANSI IT8 Binary line art
+            PixarFilm      = 32908,  // Pixar companded 10bit LZW
+            PixarLog       = 32909,  // Pixar companded 11bit ZIP
+            Deflate        = 32946,  // Deflate compression
+            KodakDCS       = 32947,  // Kodak DCS encoding
+            ISO_JBIG       = 34661,  // ISO JBIG
+            SGILog         = 34676,  // SGI Log Luminance RLE
+            SGILog24       = 34677,  // SGI Log 24-bit packed
+            JPEG2000       = 34712,  // Leadtools JPEG2000
+            ESRILerc7      = 34887,  // ESRI Lerc codec: https://github.com/Esri/lerc
+            ESRILerc8      = 34888,  // ESRI Lerc codec: https://github.com/Esri/lerc
+            ESRILerc9      = 34889,  // ESRI Lerc codec: https://github.com/Esri/lerc
+            LZMA2          = 34925,  // LZMA2
+            ZSTD           = 50000,  // ZSTD: WARNING not registered in Adobe-maintained registry
+            WEBP           = 50001,  // WEBP: WARNING not registered in Adobe-maintained registry
+            JPEGXL         = 50002,  // JPEGXL: WARNING not registered in Adobe-maintained registry
+
+        };
+
+        Compression() : EnumeratedType(Compression::None) {}
+        Compression(Compression::Code value) : EnumeratedType(value) {}
+        Compression(const Compression &inst)
+            : EnumeratedType(inst.value()) {}
+        ~Compression() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // FillOrder class - Image byte fill order codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class FillOrder : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value    Library Use / Notes
+            MSB2LSB        = 1,  // most significant -> least significant
+            LSB2MSB        = 2,  // least significant -> most significant
+
+        };
+
+        FillOrder() : EnumeratedType(MSB2LSB) {}
+        FillOrder(FillOrder::Code value) : EnumeratedType(value) {}
+        FillOrder(const FillOrder &inst)
+            : EnumeratedType(inst.value()) {}
+        ~FillOrder() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
 
     };
 
@@ -387,30 +320,273 @@ public:
     //     c  - Disable the use of strip chopping when reading images.
     //
     ///////////////////////////////////////////////////////////////////////////
-    class FileAccessMode {
+    class FileAccessMode : EnumeratedType<unsigned short>{
     public:
-        enum Mode: unsigned int {Append, Read, ReadWrite, Write};
+        enum Mode: unsigned short {Append, Read, ReadWrite, Write};
 
-    private:
-        Mode value_;
-
-    public:
-        FileAccessMode() : value_(FileAccessMode::Read) {}
-        FileAccessMode(FileAccessMode::Mode value) : value_(value) {}
-        FileAccessMode(const FileAccessMode &inst) : value_(inst.value()) {}
+        FileAccessMode() : EnumeratedType(FileAccessMode::Read) {}
+        FileAccessMode(FileAccessMode::Mode value) : EnumeratedType(value) {}
+        FileAccessMode(const FileAccessMode &inst)
+            : EnumeratedType(inst.value()) {}
         ~FileAccessMode() {}
 
         // Methods
-        const char* c_str();
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
 
-        bool equalTo(FileAccessMode other) const {
-            return (other.value() == value_ ? true : false);
-        }
-        FileAccessMode::Mode value() const { return value_; }
+    };
 
-        // Operators
-        bool operator==(FileAccessMode other) { return equalTo(other); }
-        bool operator!=(FileAccessMode other) { return !equalTo(other); }
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // ImageOrientation class - Image dorientation codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class ImageOrientation : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value    Library Use / Notes
+            TopLeft        = 1,  // row 0 top, col 0 lhs
+            TopRight       = 2,  // row 0 top, col 0 rhs
+            BottomRight    = 3,  // row 0 bottom, col 0 rhs
+            BottomLeft     = 4,  // row 0 bottom, col 0 lhs
+            LeftTop        = 5,  // row 0 lhs, col 0 top
+            RightTop       = 6,  // row 0 rhs, col 0 top
+            RightBottom    = 7,  // row 0 rhs, col 0 bottom
+            LeftBottom     = 8,  // row 0 lhs, col 0 bottom
+
+        };
+
+        ImageOrientation() : EnumeratedType(TopLeft) {}
+        ImageOrientation(ImageOrintation::Code value) : EnumeratedType(value) {}
+        ImageOrientation(const ImageOrientation &inst)
+            : EnumeratedType(inst.value()) {}
+        ~ImageOrientation() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Photometric class - Photometric interpretation codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class Photometric : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value        Library Use / Notes
+            MinIsWhite         = 0,      // min value is white
+            MinIsBlack         = 1,      // min value is black
+            RGB                = 2,      // RGB color model
+            Palette            = 3,      // color map indexed
+            Mask               = 4,      // holdout mask
+            Separated          = 5,      // color separations
+            YCBCR              = 6,      // CCIR 601
+            CIELab             = 8,      // 1976 CIE L*a*b*
+            ICCLab             = 9,      // ICC L*a*b* [Adobe TIFF Technote 4]
+            ITULab             = 10,     // ITU L*a*b*
+            CFA                = 32803,  // color filter array
+            CIELogL            = 32844,  // CIE Log2(L)
+            CIELogLUV          = 32845,  // CIE Log2(L) (u',v')
+
+        };
+
+        Photometric() : EnumeratedType(MinIsWhite) {}
+        Photometric(Photometric::Code value) : EnumeratedType(value) {}
+        Photometric(const Photometric &inst)
+            : EnumeratedType(inst.value()) {}
+        ~Photometric() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // PlanarConfig class - Planar configuration codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class PlanarConfig : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value    Library Use / Notes
+            Single         = 1,  // single image plane
+            Separate       = 2,  // separate planes of data
+
+        };
+
+        PlanarConfig() : EnumeratedType(Single) {}
+        PlanarConfig(PlanarConfig::Code value) : EnumeratedType(value) {}
+        PlanarConfig(const PlanarConfig &inst)
+            : EnumeratedType(inst.value()) {}
+        ~PlanarConfig() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // ResolutionUnit class - Resolution Unit codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class ResolutionUnit : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value    Library Use / Notes
+            None           = 1,  // no meaningful units
+            Inch           = 2,  // Imperial
+            Centimeter     = 3,  // Metric
+
+        };
+
+        ResolutionUnit() : EnumeratedType(None) {}
+        ResolutionUnit(ResolutionUnit::Code value) : EnumeratedType(value) {}
+        ResolutionUnit(const ResolutionUnit &inst)
+            : EnumeratedType(inst.value()) {}
+        ~ResolutionUnit() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // SampleFormat class - Sample format codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class SampleFormat : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned int {
+        //  Format Name    Value      Library Use / Notes
+            Uint           = 1,    // unsigned integer data
+            Int            = 2,    // signed integer data
+            IEEEFP         = 3,    // IEEE floating point data
+            Void           = 4,    // untyped data
+            ComplexInt     = 5,    // complex signed int data
+            ComplexIEEEFP  = 6,    // complex ieee floating point data
+
+        };
+
+        SampleFormat() : EnumeratedType(Uint) {}
+        SampleFormat(SampleFormat::Code value) : EnumeratedType(value) {}
+        SampleFormat(const SampleFormat &inst)
+            : EnumeratedType(inst.value()) {}
+        ~SampleFormat() {}
+
+        // Methods
+        std::string str() const;
+        const char* c_str() const { return str().c_str(); }
+
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // TIFFTag class - TIFF tag codes values
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class TIFFTag : EnumeratedType<unsigned int>{
+    public:
+        enum Code: unsigned long int {
+        //  Tag Name                  Value         R/W    Library Use / Notes
+            None                      = 0,
+            Artist                    = 315,
+            BadFaxLines               = 326,
+            BitsPerSample             = 258,
+            CellLength                = 265,     //        parsed but ignored
+            CellWidth                 = 264,     //        parsed but ignored
+            CleanFaxData              = 327,     // R/W
+            ColorMap                  = 320,     // R/W
+            ColorResponseUnit         = 300,     //        parsed but ignored
+            Compression               = 259,     // R/W    choosing codec
+            ConsecutiveBadFaxLines    = 328,     // R/W
+            Copyright                 = 33432,   // R/W
+            DataType                  = 32996,   // R      obsoleted by SampleFormat tag
+            DateTime                  = 306,     // R/W
+            DocumentName              = 269,     // R/W
+            DotRange                  = 336,     // R/W
+            ExtraSamples              = 338,     // R/W    lots
+            FaxRecvParams             = 34908,   // R/W
+            FaxSubAddress             = 34909,   // R/W
+            FaxRecvTime               = 34910,   // R/W
+            FillOrder                 = 266,     // R/W    control bit order
+            FreeByteCounts            = 289,     //        parsed but ignored
+            FreeOffsets               = 288,     //        parsed but ignored
+            GrayResponseCurve         = 291,     //        parsed but ignored
+            GrayResponseUnit          = 290,     //        parsed but ignored
+            Group3Options             = 292,     // R/W    used by Group 3 codec
+            Group4Options             = 293,     // R/W
+            HostComputer              = 316,     // R/W
+            ImageDepth                = 32997,   // R/W    tile/strip calculations
+            ImageDescription          = 270,     // R/W
+            ImageLength               = 257,     // R/W    lots
+            ImageWidth                = 256,     // R/W    lots
+            InkNames                  = 333,     // R/W
+            InkSet                    = 332,     // R/W
+            JPEGTables                = 347,     // R/W    used by JPEG codec
+            Make                      = 271,     // R/W
+            Matteing                  = 32995,   // R      obsoleted by ExtraSamples tag
+            MaxSampleValue            = 281,     // R/W
+            MinSampleValue            = 280,     // R/W
+            Model                     = 272,     // R/W
+            NewSubFileType            = 254,     // R/W    called SubFileType in spec
+            NumberOfInks              = 334,     // R/W
+            Orientation               = 274,     // R/W
+            PageName                  = 285,     // R/W
+            PageNumber                = 297,     // R/W
+            PhotometricInterpretation = 262,     // R/W    used by Group 3 and JPEG codecs
+            PlanarConfiguration       = 284,     // R/W    data i/o
+            Predictor                 = 317,     // R/W    used by LZW and Deflate codecs
+            PrimaryChromacities       = 319,     // R/W
+            ReferenceBlackWhite       = 532,     // R/W
+            ResolutionUnit            = 296,     // R/W    used by Group 3 codec
+            RowsPerStrip              = 278,     // R/W    data i/o
+            SampleFormat              = 339,     // R/W
+            SamplesPerPixel           = 277,     // R/W    lots
+            SMinSampleValue           = 340,     // R/W
+            SMaxSampleValue           = 341,     // R/W
+            Software                  = 305,     // R/W
+            StoNits                   = 37439,   // R/W
+            StripByteCounts           = 279,     // R/W    data i/o
+            StripOffsets              = 273,     // R/W    data i/o
+            SubFileType               = 255,     // R/W    called OSubFileType in spec
+            TargetPrinter             = 337,     // R/W
+            Thresholding              = 263,     // R/W
+            TileByteCounts            = 324,     // R/W    data i/o
+            TileDepth                 = 32998,   // R/W    tile/strip calculations
+            TileLength                = 323,     // R/W    data i/o
+            TileOffsets               = 324,     // R/W    data i/o
+            TileWidth                 = 322,     // R/W    data i/o
+            TransferFunction          = 301,     // R/W
+            WhitePoint                = 318,     // R/W
+            XPosition                 = 286,     // R/W
+            XResolution               = 282,     // R/W
+            YCbCrCoefficients         = 529,     // R/W    used by TIFFRGBAImage support
+            YCbCrPositioning          = 531,     // R/W    tile/strip size calulcations
+            YCbCrSubsampling          = 530,     // R/W
+            YPosition                 = 286,     // R/W
+            YResolution               = 283,     // R/W    used by Group 3 codec
+
+        };
+
+        TIFFTag() : EnumeratedType(None) {}
+        TIFFTag(TIFFTag::Code value) : EnumeratedType(value) {}
+        TIFFTag(const TIFFTag &inst)
+            : EnumeratedType(inst.value()) {}
+        ~TIFFTag() {}
+
+        // Methods
+        std::string str() const { return std::string("None"); }
+        const char* c_str() const { return str().c_str(); }
+
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -465,8 +641,6 @@ public:
 
     // Methods
     void close();
-    std::string compressionString const ();
-    std::string imageOrientationString const ();
     template <class T> bool modifyTagValue(const TIFFTag tag, T* fld_val);
     bool open();
     void printErrors(bool val) { print_errors_ = val; }
@@ -474,7 +648,6 @@ public:
     void printWarnings(bool val) { print_warnings_ = val; }
     bool printWarnings() const { return print_warnings_; }
     template <class T> bool readTagValue(const TIFFTag tag, T* fld_val);
-    std::string resolutionUnitsString const ();
     bool save();
 
     TIFFIOObject::StatusInformation statusInformation();
@@ -495,8 +668,124 @@ static TIFFIOObject* pointer_to_instance;
 
 
 // ============================================================================
-// TIFFIOObject::FileAccessMode class definitions
+// Named constants methods definitions
 // ============================================================================
+
+// ============================================================================
+// TIFFIOObject::Compression public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of image data compression scheme code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::Compression::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::Compression::None:
+            return std::string("None");
+        case TIFFIOObject::Compression::CCITTRLE:
+            return std::string("Modified Huffman");
+        case TIFFIOObject::Compression::CCITT_T4:
+            return std::string("CCITT T.4");
+        case TIFFIOObject::Compression::CCITT_T6:
+            return std::string("CCITT T.6");
+        case TIFFIOObject::Compression::LZW:
+            return std::string("Lempel-Ziv & Welch");
+        case TIFFIOObject::Compression::JPEG:
+            return std::string("JPEG 6.0");
+        case TIFFIOObject::Compression::JPEG_DCT:
+            return std::string("JPEG DCT compression");
+        case TIFFIOObject::Compression::AdobeDeflate:
+            return std::string("Adobe Deflate");
+        case TIFFIOObject::Compression::TIFFFX_T85:
+            return std::string("TIFF/FX T.85 JBIG");
+        case TIFFIOObject::Compression::TIFFFX_T43:
+            return std::string("TIFF/FX T.43 JBIG");
+        case TIFFIOObject::Compression::NeXT:
+            return std::string("NeXT 2-bit RLE");
+        case TIFFIOObject::Compression::CCITTRLEW:
+            return std::string("#1 w/ word alignment");
+        case TIFFIOObject::Compression::PackBits:
+            return std::string("PackBits (Macintosh RLE)");
+        case TIFFIOObject::Compression::ThunderScan:
+            return std::string("ThunderScan RLE");
+        case TIFFIOObject::Compression::ANSI_IT8CTPAD:
+            return std::string("ANSI IT8 CT w/padding");
+        case TIFFIOObject::Compression::ANSI_IT8LW:
+            return std::string("ANSI IT8 Linework RLE");
+        case TIFFIOObject::Compression::ANSI_IT8MP:
+            return std::string("ANSI IT8 Monochrome picture");
+        case TIFFIOObject::Compression::ANSI_IT8BL:
+            return std::string("ANSI IT8 Binary line art");
+        case TIFFIOObject::Compression::PixarFilm:
+            return std::string("Pixar companded 10bit LZW");
+        case TIFFIOObject::Compression::PixarLog:
+            return std::string("Pixar companded 11bit ZIP");
+        case TIFFIOObject::Compression::Deflate:
+            return std::string("Deflate");
+        case TIFFIOObject::Compression::KodakDCS:
+            return std::string("Kodak DCS");
+        case TIFFIOObject::Compression::ISO_JBIG:
+            return std::string("ISO JBIG");
+        case TIFFIOObject::Compression::SGILog:
+            return std::string("SGI Log Luminance RLE");
+        case TIFFIOObject::Compression::SGILog24:
+            return std::string("SGI Log 24-bit packed");
+        case TIFFIOObject::Compression::JPEG2000:
+            return std::string("Leadtools JPEG2000");
+        case TIFFIOObject::Compression::ESRILerc7:
+            return std::string("ESRI Lerc");
+        case TIFFIOObject::Compression::ESRILerc8:
+            return std::string("ESRI Lerc");
+        case TIFFIOObject::Compression::ESRILerc9:
+            return std::string("ESRI Lerc");
+        case TIFFIOObject::Compression::LZMA2:
+            return std::string("LZMA2");
+        case TIFFIOObject::Compression::ZSTD:
+            return std::string("ZSTD");
+        case TIFFIOObject::Compression::WEBP:
+            return std::string("WEBP");
+        case TIFFIOObject::Compression::JXL:
+            return std::string("JPEGXL");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::FillOrder public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of byte fill order scheme code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::FillOrder::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::FillOrder::MSB2LSB:
+            return std::string("most significant -> least significant");
+        case TIFFIOObject::FillOrder::LSB2MSB:
+            return std::string("least significant -> most significant");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
 
 // ============================================================================
 // TIFFIOObject::FileAccessMode public methods definitions
@@ -504,21 +793,203 @@ static TIFFIOObject* pointer_to_instance;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Returns value of file access mode paramter constuction as 'C'string for
+// Return value of file access mode parameter constuction as 'C++'string for
 // passing to the native libtiff calls (i.e. TIFFOpen())
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const char* TIFFIOObject::FileAccessMode::c_str()
+std::string TIFFIOObject::FileAccessMode::str() const
 {
     switch(value_) {
-        case Append: return "a";
-        case ReadWrite: return "r+";
-        case Write: return "w";
+        case Append:
+            return std::string("a");
+        case ReadWrite:
+            return std::string("r+");
+        case Write:
+            return std::string("w");
         default: break;
     }
 
-    return "r";
+    return std::string("r");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::ImageOrientation public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of image orientation code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::ImageOrientation::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::ImageOrientation::TopLeft:
+            return std::string("Top-Left");
+        case TIFFIOObject::ImageOrientation::TopRight:
+            return std::string("Top-Right");
+        case TIFFIOObject::ImageOrientation::BottomRight:
+            return std::string("Bottom-Right");
+        case TIFFIOObject::ImageOrientation::BottomLeft:
+            return std::string("Bottom-Left");
+        case TIFFIOObject::ImageOrientation::LeftTop:
+            return std::string("Left-Top");
+        case TIFFIOObject::ImageOrientation::RightTop:
+            return std::string("Right-Top");
+        case TIFFIOObject::ImageOrientation::RightBottom:
+            return std::string("Right-Bottom");
+        case TIFFIOObject::ImageOrientation::LeftBottom:
+            return std::string("Left-Bottom");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::Photometric public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of photometric interpretation code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::Photometric::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::Photometric::MinIsWhite:
+            return std::string("min value is white");
+        case TIFFIOObject::Photometric::MinIsBlack:
+            return std::string("min value is black");
+        case TIFFIOObject::Photometric::RGB:
+            return std::string("RGB color model");
+        case TIFFIOObject::Photometric::Palette:
+            return std::string("color map indexed");
+        case TIFFIOObject::Photometric::Mask:
+            return std::string("holdout mask");
+        case TIFFIOObject::Photometric::Separated:
+            return std::string("color separations");
+        case TIFFIOObject::Photometric::YCBCR:
+            return std::string("CCIR 601");
+        case TIFFIOObject::Photometric::CIELab:
+            return std::string("1976 CIE L*a*b*");
+        case TIFFIOObject::Photometric::ICCLab:
+            return std::string("ICC L*a*b* [Adobe TIFF Technote 4]");
+        case TIFFIOObject::Photometric::ITULab:
+            return std::string("ITU L*a*b*");
+        case TIFFIOObject::Photometric::CFA:
+            return std::string("color filter array");
+        case TIFFIOObject::Photometric::CIELogL:
+            return std::string("CIE Log2(L)");
+        case TIFFIOObject::Photometric::CIELogLUV:
+            return std::string("CIE Log2(L) (u',v')");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::PlanarConfig public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of planar configuration code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::PlanarConfig::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::PlanarConfig::Single:
+            return std::string("single image plane");
+        case TIFFIOObject::PlanarConfig::Separate:
+            return std::string("separate planes of data");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::ResolutionUnit public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of resolution unit code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::ResolutionUnit::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::ResolutionUnits::None:
+            return std::string("None");
+        case TIFFIOObject::ResolutionUnits::Inch:
+            return std::string("inches");
+        case TIFFIOObject::ResolutionUnits::Centimeter:
+            return std::string("cm");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
+
+}
+
+
+// ============================================================================
+// TIFFIOObject::SampleFormat public methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return string representation of sample format code
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFIOObject::SampleFormat::str() const
+{
+    switch(value_) {
+        case TIFFIOObject::SampleFormat::Uint:
+            return std::string("unsigned integer data");
+        case TIFFIOObject::SampleFormat::Int:
+            return std::string("signed integer data");
+        case TIFFIOObject::SampleFormat::IEEEFP:
+            return std::string("IEEE floating point data");
+        case TIFFIOObject::SampleFormat::Void:
+            return std::string("untyped data");
+        case TIFFIOObject::SampleFormat::ComplexInt:
+            return std::string("complex signed integer data");
+        case TIFFIOObject::SampleFormat::ComplexIEEEFP:
+            return std::string("complex ieee floating point data");
+        default:
+            break;
+
+    }
+
+    return std::string("Undefined");
 
 }
 
@@ -859,142 +1330,6 @@ void TIFFIOObject::close()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Read compression code from image tag and return compression description
-// string. It calls readTagValue() method to retrieve compression code from
-// image data.
-//
-// All error messages are directed to the errorHandler() method. Likewise,
-// warning messages are directed to the warningHandler() method.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-std::string TIFFIOObject::compressionString()
-{
-    unsigned int code = 0;
-    if(readTagValue<unsigned int>(TIFFIOObject::TIFFTag::Compression, &code)) {
-        switch(code) {
-            case TIFFIOObject::Compression::None:
-                return std::string("None");
-            case TIFFIOObject::Compression::CCITTRLE:
-                return std::string("Modified Huffman");
-            case TIFFIOObject::Compression::CCITT_T4:
-                return std::string("CCITT T.4");
-            case TIFFIOObject::Compression::CCITT_T6:
-                return std::string("CCITT T.6");
-            case TIFFIOObject::Compression::LZW:
-                return std::string("Lempel-Ziv & Welch");
-            case TIFFIOObject::Compression::JPEG:
-                return std::string("JPEG 6.0");
-            case TIFFIOObject::Compression::JPEG_DCT:
-                return std::string("JPEG DCT compression");
-            case TIFFIOObject::Compression::AdobeDeflate:
-                return std::string("Adobe Deflate");
-            case TIFFIOObject::Compression::TIFFFX_T85:
-                return std::string("TIFF/FX T.85 JBIG");
-            case TIFFIOObject::Compression::TIFFFX_T43:
-                return std::string("TIFF/FX T.43 JBIG");
-            case TIFFIOObject::Compression::NeXT:
-                return std::string("NeXT 2-bit RLE");
-            case TIFFIOObject::Compression::CCITTRLEW:
-                return std::string("#1 w/ word alignment");
-            case TIFFIOObject::Compression::PackBits:
-                return std::string("PackBits (Macintosh RLE)");
-            case TIFFIOObject::Compression::ThunderScan:
-                return std::string("ThunderScan RLE");
-            case TIFFIOObject::Compression::ANSI_IT8CTPAD:
-                return std::string("ANSI IT8 CT w/padding");
-            case TIFFIOObject::Compression::ANSI_IT8LW:
-                return std::string("ANSI IT8 Linework RLE");
-            case TIFFIOObject::Compression::ANSI_IT8MP:
-                return std::string("ANSI IT8 Monochrome picture");
-            case TIFFIOObject::Compression::ANSI_IT8BL:
-                return std::string("ANSI IT8 Binary line art");
-            case TIFFIOObject::Compression::PixarFilm:
-                return std::string("Pixar companded 10bit LZW");
-            case TIFFIOObject::Compression::PixarLog:
-                return std::string("Pixar companded 11bit ZIP");
-            case TIFFIOObject::Compression::Deflate:
-                return std::string("Deflate");
-            case TIFFIOObject::Compression::KodakDCS:
-                return std::string("Kodak DCS");
-            case TIFFIOObject::Compression::ISO_JBIG:
-                return std::string("ISO JBIG");
-            case TIFFIOObject::Compression::SGILog:
-                return std::string("SGI Log Luminance RLE");
-            case TIFFIOObject::Compression::SGILog24:
-                return std::string("SGI Log 24-bit packed");
-            case TIFFIOObject::Compression::JPEG2000:
-                return std::string("Leadtools JPEG2000");
-            case TIFFIOObject::Compression::ESRILerc7:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::ESRILerc8:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::ESRILerc9:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::LZMA2:
-                return std::string("LZMA2");
-            case TIFFIOObject::Compression::ZSTD:
-                return std::string("ZSTD");
-            case TIFFIOObject::Compression::WEBP:
-                return std::string("WEBP");
-            case TIFFIOObject::Compression::JXL:
-                return std::string("JPEGXL");
-            default:
-                return std::string("Undefined");
-
-        }
-
-    }
-
-    return std::string("");
-
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Read image orientation code from image tag and return image orientation
-// description string. It calls readTagValue() method to retrieve compression
-// code from image data.
-//
-// All error messages are directed to the errorHandler() method. Likewise,
-// warning messages are directed to the warningHandler() method.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-std::string TIFFIOObject::imageOrientationString() {
-    unsigned int code = 0;
-    if(readTagValue<unsigned int>(TIFFIOObject::TIFFTag::Orientation, &code)) {
-        switch(code) {
-            case TIFFIOObject::ImageOrientation::TopLeft:
-                return std::string("Top-Left");
-            case TIFFIOObject::ImageOrientation::TopRight:
-                return std::string("Top-Right");
-            case TIFFIOObject::ImageOrientation::BottomRight:
-                return std::string("Bottom-Right");
-            case TIFFIOObject::ImageOrientation::BottomLeft:
-                return std::string("Bottom-Left");
-            case TIFFIOObject::ImageOrientation::LeftTop:
-                return std::string("Left-Top");
-            case TIFFIOObject::ImageOrientation::RightTop:
-                return std::string("Right-Top");
-            case TIFFIOObject::ImageOrientation::RightBottom:
-                return std::string("Right-Bottom");
-            case TIFFIOObject::ImageOrientation::LeftBottom:
-                return std::string("Left-Bottom");
-            default: return std::string("Undefined");
-
-        }
-
-    }
-
-    return std::string("");
-
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
 // Open a TIFF file for reading or writing
 //
 // This is a wrapper for the TIFFOpen function. It opens a file asociated
@@ -1083,43 +1418,6 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
     }
 
     return success;
-
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Read resolution units code from image tag and return resolution units
-// string. It calls readTagValue() method to retrieve resolution units code
-// from image data.
-//
-// All error messages are directed to the errorHandler() method. Likewise,
-// warning messages are directed to the warningHandler() method.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-std::string TIFFIOObject::resolutionUnitsString()
-{
-    unsigned int code = 0;
-    if(readTagValue<unsigned int>(
-                TIFFIOObject::TIFFTag::ResolutionUnit,
-                &code
-                )) {
-        switch(code) {
-            case TIFFIOObject::ResolutionUnits::None:
-                return std::string("None");
-            case TIFFIOObject::ResolutionUnits::Inch:
-                return std::string("dpi");
-            case TIFFIOObject::ResolutionUnits::Centimeter:
-                return std::string("dots/cm");
-            default:
-                return std::string("Undefined");
-
-        }
-
-    }
-
-    return std::string("");
 
 }
 
@@ -1239,77 +1537,7 @@ std::string TIFFObjectInfo::compression(const TIFFIOObject &obj)
                 TIFFIOObject::TIFFTag::Compression,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::Compression::None:
-                return std::string("None");
-            case TIFFIOObject::Compression::CCITTRLE:
-                return std::string("Modified Huffman");
-            case TIFFIOObject::Compression::CCITT_T4:
-                return std::string("CCITT T.4");
-            case TIFFIOObject::Compression::CCITT_T6:
-                return std::string("CCITT T.6");
-            case TIFFIOObject::Compression::LZW:
-                return std::string("Lempel-Ziv & Welch");
-            case TIFFIOObject::Compression::JPEG:
-                return std::string("JPEG 6.0");
-            case TIFFIOObject::Compression::JPEG_DCT:
-                return std::string("JPEG DCT compression");
-            case TIFFIOObject::Compression::AdobeDeflate:
-                return std::string("Adobe Deflate");
-            case TIFFIOObject::Compression::TIFFFX_T85:
-                return std::string("TIFF/FX T.85 JBIG");
-            case TIFFIOObject::Compression::TIFFFX_T43:
-                return std::string("TIFF/FX T.43 JBIG");
-            case TIFFIOObject::Compression::NeXT:
-                return std::string("NeXT 2-bit RLE");
-            case TIFFIOObject::Compression::CCITTRLEW:
-                return std::string("#1 w/ word alignment");
-            case TIFFIOObject::Compression::PackBits:
-                return std::string("PackBits (Macintosh RLE)");
-            case TIFFIOObject::Compression::ThunderScan:
-                return std::string("ThunderScan RLE");
-            case TIFFIOObject::Compression::ANSI_IT8CTPAD:
-                return std::string("ANSI IT8 CT w/padding");
-            case TIFFIOObject::Compression::ANSI_IT8LW:
-                return std::string("ANSI IT8 Linework RLE");
-            case TIFFIOObject::Compression::ANSI_IT8MP:
-                return std::string("ANSI IT8 Monochrome picture");
-            case TIFFIOObject::Compression::ANSI_IT8BL:
-                return std::string("ANSI IT8 Binary line art");
-            case TIFFIOObject::Compression::PixarFilm:
-                return std::string("Pixar companded 10bit LZW");
-            case TIFFIOObject::Compression::PixarLog:
-                return std::string("Pixar companded 11bit ZIP");
-            case TIFFIOObject::Compression::Deflate:
-                return std::string("Deflate");
-            case TIFFIOObject::Compression::KodakDCS:
-                return std::string("Kodak DCS");
-            case TIFFIOObject::Compression::ISO_JBIG:
-                return std::string("ISO JBIG");
-            case TIFFIOObject::Compression::SGILog:
-                return std::string("SGI Log Luminance RLE");
-            case TIFFIOObject::Compression::SGILog24:
-                return std::string("SGI Log 24-bit packed");
-            case TIFFIOObject::Compression::JPEG2000:
-                return std::string("Leadtools JPEG2000");
-            case TIFFIOObject::Compression::ESRILerc7:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::ESRILerc8:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::ESRILerc9:
-                return std::string("ESRI Lerc");
-            case TIFFIOObject::Compression::LZMA2:
-                return std::string("LZMA2");
-            case TIFFIOObject::Compression::ZSTD:
-                return std::string("ZSTD");
-            case TIFFIOObject::Compression::WEBP:
-                return std::string("WEBP");
-            case TIFFIOObject::Compression::JXL:
-                return std::string("JPEGXL");
-            default:
-                return std::string("Undefined");
-
-        }
+        return TIFFIOObject::Compression(code).str();
 
     }
 
@@ -1332,21 +1560,21 @@ std::string TIFFObjectInfo::dimensions(const TIFFIOObject &obj) {
     unsigned int widht  = 0;  // ImageWidth
     unsigned int length = 0;  // ImageLength
 
-    if(obj.readTagValue<unsigned int>(
-                TIFFIOObject::TIFFTag::BitsPerSample,
-                &val
-                )) {
-        std::string result = std::to_string(width)
-            + std::string(" pixels")
-            + std::string(" X ")
-            + std::to_string(length)
-            + std::string(" pixels");
+    obj.readTagValue<unsigned long int>(
+            TIFFIOObject::TIFFTag::ImageWidth,
+            &width
+            );
+    obj.readTagValue<unsigned long int>(
+            TIFFIOObject::TIFFTag::ImageLength,
+            &length
+            );
+    std::string result = std::to_string(width)
+        + std::string(" pixels")
+        + std::string(" X ")
+        + std::to_string(length)
+        + std::string(" pixels");
 
-        return result;
-
-    }
-
-    return std::string("Error");
+    return result;
 
 };
 
@@ -1368,18 +1596,7 @@ std::string TIFFObjectInfo::fillOrder(const TIFFIOObject &obj) {
                 TIFFIOObject::TIFFTag::FillOrder,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::FillOrder::MSB2LSB:
-                return std::string(
-                        "most significant bit -> least significant bit"
-                        );
-            case TIFFIOObject::FillOrder::LSB2MSB:
-                return std::string(
-                        "least significant bit -> most significant bit"
-                        );
-            default: return std::string("Undefined");
-
-        }
+        return TIFFIOObject::FillOrder(code).str();
 
     }
 
@@ -1406,26 +1623,7 @@ std::string TIFFObjectInfo::orientation(const TIFFIOObject &obj) {
                 TIFFIOObject::TIFFTag::Orientation,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::ImageOrientation::TopLeft:
-                return std::string("Top-Left");
-            case TIFFIOObject::ImageOrientation::TopRight:
-                return std::string("Top-Right");
-            case TIFFIOObject::ImageOrientation::BottomRight:
-                return std::string("Bottom-Right");
-            case TIFFIOObject::ImageOrientation::BottomLeft:
-                return std::string("Bottom-Left");
-            case TIFFIOObject::ImageOrientation::LeftTop:
-                return std::string("Left-Top");
-            case TIFFIOObject::ImageOrientation::RightTop:
-                return std::string("Right-Top");
-            case TIFFIOObject::ImageOrientation::RightBottom:
-                return std::string("Right-Bottom");
-            case TIFFIOObject::ImageOrientation::LeftBottom:
-                return std::string("Left-Bottom");
-            default: return std::string("Undefined");
-
-        }
+        return TIFFIOObject::ImageOrientation(code).str();
 
     }
 
@@ -1453,37 +1651,7 @@ std::string TIFFObjectInfo::photometric(const TIFFIOObject &obj)
                 TIFFIOObject::TIFFTag::PhotometricInterpretation,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::Photometric::MinIsWhite:
-                return std::string("min value is white");
-            case TIFFIOObject::Photometric::MinIsBlack:
-                return std::string("min value is black");
-            case TIFFIOObject::Photometric::RGB:
-                return std::string("RGB color model");
-            case TIFFIOObject::Photometric::Palette:
-                return std::string("color map indexed");
-            case TIFFIOObject::Photometric::Mask:
-                return std::string("holdout mask");
-            case TIFFIOObject::Photometric::Separated:
-                return std::string("color separations");
-            case TIFFIOObject::Photometric::YCBCR:
-                return std::string("CCIR 601");
-            case TIFFIOObject::Photometric::CIELab:
-                return std::string("1976 CIE L*a*b*");
-            case TIFFIOObject::Photometric::ICCLab:
-                return std::string("ICC L*a*b* [Adobe TIFF Technote 4]");
-            case TIFFIOObject::Photometric::ITULab:
-                return std::string("ITU L*a*b*");
-            case TIFFIOObject::Photometric::CFA:
-                return std::string("color filter array");
-            case TIFFIOObject::Photometric::CIELogL:
-                return std::string("CIE Log2(L)");
-            case TIFFIOObject::Photometric::CIELogLUV:
-                return std::string("CIE Log2(L) (u',v')");
-            default:
-                return std::string("Undefined");
-
-        }
+        return TIFFIOObject::Photometric(code).str();
 
     }
 
@@ -1510,18 +1678,7 @@ std::string TIFFObjectInfo::planarConfig(const TIFFIOObject &obj) {
                 TIFFIOObject::TIFFTag::PlanarConfiguration,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::PlanarConfig::Single:
-                return std::string(
-                        "single image plane"
-                        );
-            case TIFFIOObject::PlanarConfig::Separate:
-                return std::string(
-                        "separate planes of data"
-                        );
-            default: return std::string("Undefined");
-
-        }
+        return TIFFIOObject::PlanarConfig(code).str();
 
     }
 
@@ -1540,35 +1697,41 @@ std::string TIFFObjectInfo::planarConfig(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::resolution()
+std::string TIFFObjectInfo::resolution(const TIFFIOObject &obj)
 {
-    float        x_resolution     = 0.0; // XResolution
-    float        y_resolution     = 0.0; // YResolution
-    unsigned int resolution_units = 0;   // ResolutionUnit
+    unsigned int code = 0;  // ResolutionUnit
 
-    if(readTagValue<unsigned int>(
+    if(obj.readTagValue<unsigned int>(
                 TIFFIOObject::TIFFTag::ResolutionUnit,
-                &resolution_units
+                &code
                 )) {
-        std::string units {""};
+        TIFFIOObject::ResolutionUnit unit {code};
 
-        switch(resolution_units) {
-            case TIFFIOObject::ResolutionUnits::None:
-                units.append("none");
-            case TIFFIOObject::ResolutionUnits::Inch:
-                units.append("dpi");
-            case TIFFIOObject::ResolutionUnits::Centimeter:
-                units.append("dots/cm");
+        if(TIFFIOObject::ResolutionUnit::Inch == unit
+                || TIFFIOObject::ResolutionUnit::Centimeter == unit) {
+            float x_resolution = 0.0; // XResolution
+            float y_resolution = 0.0; // YResolution
+
+            obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::XResolution,
+                &x_resolution
+                );
+            obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::YResolution,
+                &y_resolution
+                );
+            std::string result = std::to_string(x_resolution)
+                + unit.str()
+                + std::string(" X ")
+                + std::to_string(y_resolution)
+                + unit.str();
+
+            return result;
+
+        } else {
+            return std::string("None");
 
         }
-
-        std::string result = std::to_string(x_resolution)
-            + units
-            + std::string(" X ")
-            + std::to_string(y_resolution)
-            + wunits;
-
-        return result;
 
     }
 
@@ -1579,7 +1742,7 @@ std::string TIFFObjectInfo::resolution()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Read resolution units code from image tag and return resolution units
+// Read resolution unit code from image tag and return resolution units
 // string. It calls readTagValue() method to retrieve data from image.
 //
 // All error messages are directed to the errorHandler() method. Likewise,
@@ -1587,7 +1750,7 @@ std::string TIFFObjectInfo::resolution()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::resolutionUnits()
+std::string TIFFObjectInfo::resolutionUnit(const TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
@@ -1595,17 +1758,7 @@ std::string TIFFObjectInfo::resolutionUnits()
                 TIFFIOObject::TIFFTag::ResolutionUnit,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::ResolutionUnits::None:
-                return std::string("None");
-            case TIFFIOObject::ResolutionUnits::Inch:
-                return std::string("dpi");
-            case TIFFIOObject::ResolutionUnits::Centimeter:
-                return std::string("dots/cm");
-            default:
-                return std::string("Undefined");
-
-        }
+        return TIFFIOObject::ResolutionUnit(code).str();
 
     }
 
@@ -1624,31 +1777,15 @@ std::string TIFFObjectInfo::resolutionUnits()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::sampleFormat()
+std::string TIFFObjectInfo::sampleFormat(const TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
-    if(readTagValue<unsigned int>(
+    if(obj.readTagValue<unsigned int>(
                 TIFFIOObject::TIFFTag::SampleFormat,
                 &code
                 )) {
-        switch(code) {
-            case TIFFIOObject::SampleFormat::Uint:
-                return std::string("unsigned integer data");
-            case TIFFIOObject::SampleFormat::Int:
-                return std::string("signed integer data");
-            case TIFFIOObject::SampleFormat::IEEEFP:
-                return std::string("IEEE floating point data");
-            case TIFFIOObject::SampleFormat::Void:
-                return std::string("untyped data");
-            case TIFFIOObject::SampleFormat::ComplexInt:
-                return std::string("complex signed integer data");
-            case TIFFIOObject::SampleFormat::ComplexIEEEFP:
-                return std::string("complex ieee floating point data");
-            default:
-                return std::string("Undefined");
-
-        }
+        return TIFFIOObject::SampleFormat(code).str();
 
     }
 
@@ -1669,37 +1806,57 @@ std::string TIFFObjectInfo::sampleFormat()
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string TIFFObjectInfo::size(const TIFFIOObject &obj) {
-    unsigned int widht            = 0;   // ImageWidth
-    unsigned int length           = 0;   // ImageLength
-    float        x_resolution     = 0.0; // XResolution
-    float        y_resolution     = 0.0; // YResolution
-    unsigned int resolution_units = 0;   // ResolutionUnit
+    unsigned int unit_code    = 0;   // ResolutionUnit
 
     if(obj.readTagValue<unsigned int>(
                 TIFFIOObject::TIFFTag::ResolutionUnit,
-                &resolution_units
+                &unit_code
                 )) {
-        float w = static_cast<float>(width) / x_resolution;
-        float h = static_cast<float>(height) / y_resolution;
-        std::string units {""};
+        unsigned long int widht = 0;   // ImageWidth
+        unsigned long int length = 0;   // ImageLength
+        TIFFIOObject::ResolutionUnit unit {unit_code};
 
-        switch(resolution_units) {
-            case TIFFIOObject::ResolutionUnits::None:
-                units.append("none");
-            case TIFFIOObject::ResolutionUnits::Inch:
-                units.append("dpi");
-            case TIFFIOObject::ResolutionUnits::Centimeter:
-                units.append("dots/cm");
+        // Read dimension
+        obj.readTagValue<unsigned long int>(
+                TIFFIOObject::TIFFTag::ImageWidth,
+                &width
+                );
+        obj.readTagValue<unsigned long int>(
+                TIFFIOObject::TIFFTag::ImageLength,
+                &length
+                );
+
+        // Check if resolution is set
+        if(TIFFIOObject::ResolutionUnit::Inch == unit
+                || TIFFIOObject::ResolutionUnit::Centimeter == unit) {
+            float x_resolution = 0.0; // XResolution
+            float y_resolution = 0.0; // YResolution
+
+            // Read resolution
+            obj.readTagValue<float>(
+                    TIFFIOObject::TIFFTag::XResolution,
+                    &x_resolution
+                    );
+            obj.readTagValue<float>(
+                    TIFFIOObject::TIFFTag::YResolution,
+                    &y_resolution
+                    );
+
+            float w = static_cast<float>(width) / x_resolution;
+            float h = static_cast<float>(height) / y_resolution;
+
+            std::string result = std::to_string(w)
+                + unit.str()
+                + std::string(" X ")
+                + std::to_string(l)
+                + wunit.str();
+
+            return result;
+
+        } else {
+            return TIFFObjectInfo::dimensions(obj);
 
         }
-
-        std::string result = std::to_string(w)
-            + units
-            + std::string(" X ")
-            + std::to_string(l)
-            + wunits;
-
-        return result;
 
     }
 
