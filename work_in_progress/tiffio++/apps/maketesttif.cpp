@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// tifinfo - Shows info for the given tif file
+// maketesttif - Creates and saves a test TIFF file
 //
 //  Copyright (C) 2021 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
 //
@@ -22,9 +22,9 @@
 
 // ============================================================================
 //
-// 2021-07-27 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
+// 2021-10-16 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
 //
-// * tifinfo.cpp: created.
+// * maketesttif.cpp: created.
 //
 // ============================================================================
 
@@ -78,13 +78,13 @@ namespace fs = std::filesystem;
 // Global constants section
 // ============================================================================
 
-const std::string kAppName = "tifinfo";
+const std::string kAppName = "maketesttif";
 const std::string kVersionString = "0.1";
 const std::string kYearString = "2021";
 const std::string kAuthorName = "Ljubomir Kurij";
 const std::string kAuthorEmail = "ljubomir_kurij@protonmail.com";
 const std::string kAppDoc = "\
-Shows info for the given tif file.\n\n\
+Creates test TIFF file for the given file name.\n\n\
 Mandatory arguments to long options are mandatory for short options too.\n";
 const std::string kLicense = "\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
@@ -132,24 +132,24 @@ int main(int argc, char *argv[])
         bool        show_help;
         bool        print_usage;
         bool        show_version;
-        std::string input_file;
+        std::string output_file;
     };
 
     struct OptionValidators {
-        PathValidator                        input_file;
+        PathValidator                        output_file;
     };
 
     CLIArguments user_options {false, false, false, ""};
 
-    PathValidatorFlags input_file_flags {
+    PathValidatorFlags output_file_flags {
             false,  // We don't accept empty path
-            false,  // We don't accept nonexistent files
-            false   // We don't accept empty files
+            true,   // We accept nonexistent files
+            true    // We accept empty files
     };
-    FileValidatorImp           input_file_imp {""};
+    FileValidatorImp           output_file_imp {""};
 
     OptionValidators validators{
-        PathValidator(input_file_imp, input_file_flags),
+        PathValidator(output_file_imp, output_file_flags),
     };
 
     // Unsupported options aggregator.
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         // Must have more than one option
         // Take care not to omitt value filter when using
         // path input options
-        clipp::opt_value(istarget, "TIF_FILE", user_options.input_file)
+        clipp::opt_value(istarget, "TIF_FILE", user_options.output_file)
             .doc("tif image file"),
         (
             clipp::option("-h", "--help").set(user_options.show_help)
@@ -200,8 +200,8 @@ int main(int argc, char *argv[])
 
         // Validate user input for 'input file' cmd line option
         try {
-            input_file_imp = FileValidatorImp(user_options.input_file);
-            validators.input_file.validate();
+            output_file_imp = FileValidatorImp(user_options.output_file);
+            validators.output_file.validate();
 
         } catch (PathValidatorImp::EmptyPath) {
             auto fmt = clipp::doc_formatting {}
@@ -213,23 +213,10 @@ int main(int argc, char *argv[])
 
             return EXIT_FAILURE;
 
-        } catch (PathValidatorImp::NonExistent) {
-            std::cerr << exec_name << ": (ERROR) File \'"
-                << validators.input_file.value() << "\' does not exist!\n";
-
-            return EXIT_FAILURE;
-
         } catch (FileValidatorImp::NotRegularFile) {
             std::cerr << exec_name << ": (ERROR) File \'"
-                << validators.input_file.value()
+                << validators.output_file.value()
                 << "\' is not an regular file!\n";
-
-            return EXIT_FAILURE;
-
-        } catch (PathValidatorImp::EmptyStorage) {
-            std::cerr << exec_name << ": (ERROR) File \'"
-                << validators.input_file.value()
-                << "\' contains no data (empty file)!\n";
 
             return EXIT_FAILURE;
 
@@ -263,17 +250,17 @@ int main(int argc, char *argv[])
     }
 
     TIFFIOObject tif {
-        validators.input_file.value(),
-            TIFFIOObject::FileAccessMode::Read
+        validators.output_file.value(),
+            TIFFIOObject::FileAccessMode::Write
     };
     tif.printWarnings(false);
     tif.printErrors(false);
 
     // Print report and exit application
     std::cout << exec_name << ": Opening file '"
-        << validators.input_file.value() << "' for reading ...\n";
+        << validators.output_file.value() << "' for writing ...\n";
 
-    // Try to open given file
+    // Try to open file
     try {
         tif.open();
     } catch (TIFFIOObject::LibtiffWarning w) {
@@ -291,10 +278,17 @@ int main(int argc, char *argv[])
 
     }
 
-    // Try to read file flags
-    std::cout << exec_name << ": Reading TIFF info ...\n";
+    // Try to write data to the file
+    std::cout << exec_name << ": Writing data ...\n";
     try {
+        unsigned long int strip_size = 0;
         TIFFObjectInfo tifinfo;
+        TIFFIOObject::StatusInformation statinfo;
+
+        obj.readTagValue<unsigned long int>(
+                TIFFIOObject::TIFFTag::StripByteSize,
+                &strip_size
+                ));
 
         if(std::string("Error") != tifinfo.size(tif)) {
             std::cout << "                  size: "
@@ -322,6 +316,16 @@ int main(int argc, char *argv[])
         std::cout << "           orientation: "
             << tif.orientation(tif)
             << "\n\n";
+        std::cout << "                 tiled: "
+            << (statinfo.is_tiled ? "true" : "false")
+            << "\n";
+        std::cout << "      number of strips: "
+            << statinfo.number_of_strips
+            << "\n";
+        std::cout << "          byte swapped: "
+            << (statinfo.is_byte_swapped ? "true" : "false")
+            << "\n";
+        std::cout << "            strip size: " << strip_size << "\n";
 
     } catch (TIFFIOObject::LibtiffWarning w) {
         std::cerr << exec_name << ": " << w.message() << "\n";
@@ -332,7 +336,9 @@ int main(int argc, char *argv[])
 
     } catch (...) {
         std::cerr << exec_name
-            << ": (ERROR) Unknown exception reading TIFF info\n\n";
+            << ": (ERROR) Unknown exception creating the file '"
+            << validators.output_file.value()
+            << "\n\n";
 
         return EXIT_FAILURE;
 
@@ -350,7 +356,7 @@ int main(int argc, char *argv[])
 
     } catch (...) {
         std::cerr << exec_name
-            << ": (ERROR) Unknown exception closing file\n\n";
+            << ": (ERROR) Unknown exception closing the file\n\n";
 
         return EXIT_FAILURE;
 

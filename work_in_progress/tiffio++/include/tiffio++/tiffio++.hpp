@@ -88,7 +88,109 @@ public:
     // Named constants
     //
     ///////////////////////////////////////////////////////////////////////////
-    enum TIFFTag: unsigned long {
+    enum Compression: unsigned int {
+    //  Format Name    Value        Library Use / Notes
+        None           = 1,      // dump mode
+        CCITTRLE       = 2,      // CCITT modified Huffman RLE
+        CCITT_T4       = 3,      // CCITT T.4 (TIFF 6 name)
+        CCITT_T6       = 4,      // CCITT T.6 (TIFF 6 name)
+        LZW            = 5,      // Lempel-Ziv  & Welch
+        JPEG           = 6,      // 6.0 JPEG
+        JPEG_DCT       = 7,      // JPEG DCT compression
+        AdobeDeflate   = 8,      // Deflate compression as recognized by Adobe
+        TIFFFX_T85     = 9,      // TIFF/FX T.85 JBIG compression
+        TIFFFX_T43     = 10,     // TIFF/FX T.43 colour by layered JBIG compression
+        NeXT           = 32766,  // NeXT 2-bit RLE
+        CCITTRLEW      = 32771,  // #1 w/ word alignment
+        PackBits       = 32773,  // Macintosh RLE
+        ThunderScan    = 32809,  // ThunderScan RLE
+        ANSI_IT8CTPAD  = 32895,  // ANSI IT8 CT w/padding
+        ANSI_IT8LW     = 32896,  // ANSI IT8 Linework RLE
+        ANSI_IT8MP     = 32897,  // ANSI IT8 Monochrome picture
+        ANSI_IT8BL     = 32898,  // ANSI IT8 Binary line art
+        PixarFilm      = 32908,  // Pixar companded 10bit LZW
+        PixarLog       = 32909,  // Pixar companded 11bit ZIP
+        Deflate        = 32946,  // Deflate compression
+        KodakDCS       = 32947,  // Kodak DCS encoding
+        ISO_JBIG       = 34661,  // ISO JBIG
+        SGILog         = 34676,  // SGI Log Luminance RLE
+        SGILog24       = 34677,  // SGI Log 24-bit packed
+        JPEG2000       = 34712,  // Leadtools JPEG2000
+        ESRILerc7      = 34887,  // ESRI Lerc codec: https://github.com/Esri/lerc
+        ESRILerc8      = 34888,  // ESRI Lerc codec: https://github.com/Esri/lerc
+        ESRILerc9      = 34889,  // ESRI Lerc codec: https://github.com/Esri/lerc
+        LZMA2          = 34925,  // LZMA2
+        ZSTD           = 50000,  // ZSTD: WARNING not registered in Adobe-maintained registry
+        WEBP           = 50001,  // WEBP: WARNING not registered in Adobe-maintained registry
+        JPEGXL         = 50002,  // JPEGXL: WARNING not registered in Adobe-maintained registry
+
+    };
+
+    enum FillOrder: unsigned int {
+    //  Format Name    Value    Library Use / Notes
+        MSB2LSB        = 1,  // most significant -> least significant
+        LSB2MSB        = 2,  // least significant -> most significant
+
+    };
+
+    enum ImageOrientation: unsigned int {
+    //  Format Name    Value    Library Use / Notes
+        TopLeft        = 1,  // row 0 top, col 0 lhs
+        TopRight       = 2,  // row 0 top, col 0 rhs
+        BottomRight    = 3,  // row 0 bottom, col 0 rhs
+        BottomLeft     = 4,  // row 0 bottom, col 0 lhs
+        LeftTop        = 5,  // row 0 lhs, col 0 top
+        RightTop       = 6,  // row 0 rhs, col 0 top
+        RightBottom    = 7,  // row 0 rhs, col 0 bottom
+        LeftBottom     = 8,  // row 0 lhs, col 0 bottom
+
+    };
+
+    enum Photometric: unsigned int {
+    //  Format Name    Value        Library Use / Notes
+        MinIsWhite         = 0,      // min value is white
+        MinIsBlack         = 1,      // min value is black
+        RGB                = 2,      // RGB color model
+        Palette            = 3,      // color map indexed
+        Mask               = 4,      // holdout mask
+        Separated          = 5,      // color separations
+        YCBCR              = 6,      // CCIR 601
+        CIELab             = 8,      // 1976 CIE L*a*b*
+        ICCLab             = 9,      // ICC L*a*b* [Adobe TIFF Technote 4]
+        ITULab             = 10,     // ITU L*a*b*
+        CFA                = 32803,  // color filter array
+        CIELogL            = 32844,  // CIE Log2(L)
+        CIELogLUV          = 32845,  // CIE Log2(L) (u',v')
+
+    };
+
+    enum PlanarConfig: unsigned int {
+    //  Format Name    Value    Library Use / Notes
+        Single         = 1,  // single image plane
+        Separate       = 2,  // separate planes of data
+
+    };
+
+    enum ResolutionUnits: unsigned int {
+    //  Format Name    Value    Library Use / Notes
+        None           = 1,  // no meaningful units
+        Inch           = 2,  // Imperial
+        Centimeter     = 3,  // Metric
+
+    };
+
+    enum SampleFormat: unsigned int {
+    //  Format Name    Value      Library Use / Notes
+        Uint           = 1,    // unsigned integer data
+        Int            = 2,    // signed integer data
+        IEEEFP         = 3,    // IEEE floating point data
+        Void           = 4,    // untyped data
+        ComplexInt     = 5,    // complex signed int data
+        ComplexIEEEFP  = 6,    // complex ieee floating point data
+
+    };
+
+    enum TIFFTag: unsigned long int {
     //  Tag Name                  Value         R/W    Library Use / Notes
         Artist                    = 315,
         BadFaxLines               = 326,
@@ -166,6 +268,7 @@ public:
         YCbCrSubsampling          = 530,     // R/W
         YPosition                 = 286,     // R/W
         YResolution               = 283,     // R/W    used by Group 3 codec
+
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -182,6 +285,7 @@ public:
         TIFFIOException(std::string message) : message_(message) {}
         ~TIFFIOException() {}
         std::string message() const { return message_; }
+
     };
 
     class NotImplemented : public TIFFIOException {
@@ -190,6 +294,7 @@ public:
         NotImplemented(std::string message)
             : TIFFIOException(message) {}
         ~NotImplemented() {}
+
     };
 
     class LibtiffError : public TIFFIOException {
@@ -201,6 +306,7 @@ public:
                     + message
                     ) {}
         ~LibtiffError() {}
+
     };
 
     class LibtiffWarning : public TIFFIOException {
@@ -212,6 +318,7 @@ public:
                     + message
                     ) {}
         ~LibtiffWarning() {}
+
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -306,6 +413,18 @@ public:
         bool operator!=(FileAccessMode other) { return !equalTo(other); }
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Status Information structure - auxilary structure to store status
+    // information from open file.
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    struct StatusInformation {
+        bool is_byte_swapped = false;
+        bool is_tiled = false;
+        unsigned long int number_of_strips = 0;
+    };
+
 private:
     TIFF* tif_handle_;
     TIFFErrorHandler old_error_handler_, old_warning_handler_;
@@ -314,6 +433,9 @@ private:
     FileAccessMode mode_;
 
     void errorHandler(const char* module, const char* fmt, va_list args);
+    bool isByteSwapped const ();
+    bool isTiled const ();
+    unsigned long int numberOfStrips const ();
     void restoreHandlers();
     void saveHandlers();
     void warningHandler(const char* module, const char* fmt, va_list args);
@@ -343,15 +465,19 @@ public:
 
     // Methods
     void close();
-    std::string compression();
-    std::string imageOrientation();
+    std::string compressionString const ();
+    std::string imageOrientationString const ();
+    template <class T> bool modifyTagValue(const TIFFTag tag, T* fld_val);
     bool open();
     void printErrors(bool val) { print_errors_ = val; }
-    bool printErrors() { return print_errors_; }
+    bool printErrors() const { return print_errors_; }
     void printWarnings(bool val) { print_warnings_ = val; }
-    bool printWarnings() { return print_warnings_; }
+    bool printWarnings() const { return print_warnings_; }
     template <class T> bool readTagValue(const TIFFTag tag, T* fld_val);
-    std::string resolutionUnits();
+    std::string resolutionUnitsString const ();
+    bool save();
+
+    TIFFIOObject::StatusInformation statusInformation();
 
 };
 
@@ -393,6 +519,7 @@ const char* TIFFIOObject::FileAccessMode::c_str()
     }
 
     return "r";
+
 }
 
 
@@ -446,6 +573,7 @@ void TIFFIOObject::errorHandler(
 
     if (print_errors_) std::cout << error.message() << '\n';
     else throw error;
+
 }
 
 
@@ -459,6 +587,7 @@ void TIFFIOObject::restoreHandlers()
 {
     TIFFSetErrorHandler(old_error_handler_);
     TIFFSetWarningHandler(old_warning_handler_);
+
 }
 
 
@@ -478,6 +607,7 @@ void TIFFIOObject::saveHandlers()
 
     old_error_handler_ = TIFFSetErrorHandler(error_handler_);
     old_warning_handler_ = TIFFSetWarningHandler(warning_handler_);
+
 }
 
 
@@ -523,6 +653,79 @@ void TIFFIOObject::warningHandler(
 
     if (print_warnings_) std::cout << warning.message() << '\n';
     else throw warning;
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Compares byte-ordering of the open image data and of the host machine. Zero
+// is returned if open file and local host byte-orders are the same.
+//
+// This is a wrapper for the TIFFIsByteSwapped function. No diagnostic messages
+// are directed to neither errorHandler(), nor warningHandler() so there is no
+// need to redirect anything to the class error and warning handlers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+bool TIFFIOObject::isByteSwapped()
+{
+    bool result = false;
+
+    if(0 != TIFFIsByteSwapped(tif_handle_)) {
+        result = true;
+    }
+
+    return result;
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Returns 'true' if the image data of the open file has a tiled organization.
+// Otherwise it returns 'false' (files written line by line are considered
+// striped too).
+//
+// This is a wrapper for the TIFFIsTiled function. No diagnostic messages
+// are directed to neither errorHandler(), nor warningHandler() so there is no
+// need to redirect anything to the class error and warning handlers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+bool TIFFIOObject::isTiled() {
+    bool result = false;
+
+    if(0 != TIFFIsTiled(tif_handle_)) {
+        result = true;
+    }
+
+    return result;
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Get number of strips
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+unsigned long int TIFFIOObject::numberOfStrips()
+{
+    unsigned long int result = 0;
+
+    if(file_opened_) {
+        saveHandlers();
+        result = TIFFNumberOfStrips(tif_handle_);
+        restoreHandlers();
+    }
+
+    return result;
+
 }
 
 
@@ -544,6 +747,7 @@ TIFFIOObject::TIFFIOObject()
     print_errors_ = true;
     print_warnings_ = true;
     tif_handle_ = nullptr;
+
 }
 
 
@@ -566,6 +770,7 @@ TIFFIOObject::TIFFIOObject(
     tif_handle_ = nullptr;
 
     // open();
+    //
 }
 
 
@@ -594,6 +799,7 @@ void TIFFIOObject::errorHandlerInterface(
 
     // Call  acctual error handler
     myself->errorHandler(module, format, args);
+
 }
 
 
@@ -621,6 +827,7 @@ void TIFFIOObject::warningHandlerInterface(
 
     // Call  acctual warning handler
     myself->warningHandler(module, format, args);
+
 }
 
 
@@ -644,7 +851,9 @@ void TIFFIOObject::close()
         restoreHandlers();
 
         file_opened_ = false;
+
     }
+
 }
 
 
@@ -654,52 +863,91 @@ void TIFFIOObject::close()
 // string. It calls readTagValue() method to retrieve compression code from
 // image data.
 //
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFIOObject::compression()
+std::string TIFFIOObject::compressionString()
 {
     unsigned int code = 0;
-    if(readTagValue<unsigned int>(TIFFIOObject::Compression, &code)) {
+    if(readTagValue<unsigned int>(TIFFIOObject::TIFFTag::Compression, &code)) {
         switch(code) {
-            case 1: return std::string("None");
-            case 2: return std::string("Modified Huffman");
-            case 3: return std::string("CCITT T.4");
-            case 4: return std::string("CCITT T.6");
-            case 5: return std::string("Lempel-Ziv & Welch");
-            case 6: return std::string("JPEG 6.0");
-            case 7: return std::string("JPEG DCT compression");
-            case 8: return std::string("Adobe Deflate");
-            case 9: return std::string("TIFF/FX T.85 JBIG");
-            case 10: return std::string("TIFF/FX T.43 JBIG");
-            case 32766: return std::string("NeXT 2-bit RLE");
-            case 32771: return std::string("#1 w/ word alignment");
-            case 32773: return std::string("PackBits (Macintosh RLE)");
-            case 32809: return std::string("ThunderScan RLE");
-            case 32895: return std::string("ANSI IT8 CT w/padding");
-            case 32896: return std::string("ANSI IT8 Linework RLE");
-            case 32897: return std::string("ANSI IT8 Monochrome picture");
-            case 32898: return std::string("ANSI IT8 Binary line art");
-            case 32908: return std::string("Pixar companded 10bit LZW");
-            case 32909: return std::string("Pixar companded 11bit ZIP");
-            case 32946: return std::string("Deflate");
-            case 32947: return std::string("Kodak DCS");
-            case 34661: return std::string("ISO JBIG");
-            case 34676: return std::string("SGI Log Luminance RLE");
-            case 34677: return std::string("SGI Log 24-bit packed");
-            case 34712: return std::string("Leadtools JPEG2000");
-            case 34887: return std::string("ESRI Lerc");
-            case 34888: return std::string("ESRI Lerc");
-            case 34889: return std::string("ESRI Lerc");
-            case 34925: return std::string("LZMA2");
-            case 50000: return std::string("ZSTD");
-            case 50001: return std::string("WEBP");
-            case 50002: return std::string("JPEGXL");
-            default: return std::string("Unknown");
+            case TIFFIOObject::Compression::None:
+                return std::string("None");
+            case TIFFIOObject::Compression::CCITTRLE:
+                return std::string("Modified Huffman");
+            case TIFFIOObject::Compression::CCITT_T4:
+                return std::string("CCITT T.4");
+            case TIFFIOObject::Compression::CCITT_T6:
+                return std::string("CCITT T.6");
+            case TIFFIOObject::Compression::LZW:
+                return std::string("Lempel-Ziv & Welch");
+            case TIFFIOObject::Compression::JPEG:
+                return std::string("JPEG 6.0");
+            case TIFFIOObject::Compression::JPEG_DCT:
+                return std::string("JPEG DCT compression");
+            case TIFFIOObject::Compression::AdobeDeflate:
+                return std::string("Adobe Deflate");
+            case TIFFIOObject::Compression::TIFFFX_T85:
+                return std::string("TIFF/FX T.85 JBIG");
+            case TIFFIOObject::Compression::TIFFFX_T43:
+                return std::string("TIFF/FX T.43 JBIG");
+            case TIFFIOObject::Compression::NeXT:
+                return std::string("NeXT 2-bit RLE");
+            case TIFFIOObject::Compression::CCITTRLEW:
+                return std::string("#1 w/ word alignment");
+            case TIFFIOObject::Compression::PackBits:
+                return std::string("PackBits (Macintosh RLE)");
+            case TIFFIOObject::Compression::ThunderScan:
+                return std::string("ThunderScan RLE");
+            case TIFFIOObject::Compression::ANSI_IT8CTPAD:
+                return std::string("ANSI IT8 CT w/padding");
+            case TIFFIOObject::Compression::ANSI_IT8LW:
+                return std::string("ANSI IT8 Linework RLE");
+            case TIFFIOObject::Compression::ANSI_IT8MP:
+                return std::string("ANSI IT8 Monochrome picture");
+            case TIFFIOObject::Compression::ANSI_IT8BL:
+                return std::string("ANSI IT8 Binary line art");
+            case TIFFIOObject::Compression::PixarFilm:
+                return std::string("Pixar companded 10bit LZW");
+            case TIFFIOObject::Compression::PixarLog:
+                return std::string("Pixar companded 11bit ZIP");
+            case TIFFIOObject::Compression::Deflate:
+                return std::string("Deflate");
+            case TIFFIOObject::Compression::KodakDCS:
+                return std::string("Kodak DCS");
+            case TIFFIOObject::Compression::ISO_JBIG:
+                return std::string("ISO JBIG");
+            case TIFFIOObject::Compression::SGILog:
+                return std::string("SGI Log Luminance RLE");
+            case TIFFIOObject::Compression::SGILog24:
+                return std::string("SGI Log 24-bit packed");
+            case TIFFIOObject::Compression::JPEG2000:
+                return std::string("Leadtools JPEG2000");
+            case TIFFIOObject::Compression::ESRILerc7:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::ESRILerc8:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::ESRILerc9:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::LZMA2:
+                return std::string("LZMA2");
+            case TIFFIOObject::Compression::ZSTD:
+                return std::string("ZSTD");
+            case TIFFIOObject::Compression::WEBP:
+                return std::string("WEBP");
+            case TIFFIOObject::Compression::JXL:
+                return std::string("JPEGXL");
+            default:
+                return std::string("Undefined");
+
         }
 
     }
 
     return std::string("");
+
 }
 
 
@@ -709,26 +957,39 @@ std::string TIFFIOObject::compression()
 // description string. It calls readTagValue() method to retrieve compression
 // code from image data.
 //
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFIOObject::imageOrientation() {
+std::string TIFFIOObject::imageOrientationString() {
     unsigned int code = 0;
-    if(readTagValue<unsigned int>(TIFFIOObject::Orientation, &code)) {
+    if(readTagValue<unsigned int>(TIFFIOObject::TIFFTag::Orientation, &code)) {
         switch(code) {
-            case 1: return std::string("Top-Left");
-            case 2: return std::string("Top-Right");
-            case 3: return std::string("Bottom-Right");
-            case 4: return std::string("Bottom-Left");
-            case 5: return std::string("Left-Top");
-            case 6: return std::string("Right-Top");
-            case 7: return std::string("Right-Bottom");
-            case 8: return std::string("Left-Bottom");
-            default: return std::string("Unknown");
+            case TIFFIOObject::ImageOrientation::TopLeft:
+                return std::string("Top-Left");
+            case TIFFIOObject::ImageOrientation::TopRight:
+                return std::string("Top-Right");
+            case TIFFIOObject::ImageOrientation::BottomRight:
+                return std::string("Bottom-Right");
+            case TIFFIOObject::ImageOrientation::BottomLeft:
+                return std::string("Bottom-Left");
+            case TIFFIOObject::ImageOrientation::LeftTop:
+                return std::string("Left-Top");
+            case TIFFIOObject::ImageOrientation::RightTop:
+                return std::string("Right-Top");
+            case TIFFIOObject::ImageOrientation::RightBottom:
+                return std::string("Right-Bottom");
+            case TIFFIOObject::ImageOrientation::LeftBottom:
+                return std::string("Left-Bottom");
+            default: return std::string("Undefined");
+
         }
 
     }
 
     return std::string("");
+
 }
 
 
@@ -757,16 +1018,50 @@ bool TIFFIOObject::open()
     else file_opened_ = false;
 
     return file_opened_;
+
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Get the value(s) of a tag in an open TIFF file
+// Modify value(s) of a tag in an open TIFF file
 //
-// This is a wrapper for the TIFFGetField function. It returns the value of a
+// This is a wrapper for the TIFFSetField function. It sets the value of a
 // tag or pseudo-tag associated with the the current directory of the open TIFF
-// file. It returns 'true' if the tag is defined in the current directory,
+// file and the 'tag' argument. It returns 'true' on success, otherwise it
+// returns 'false'.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+bool TIFFIOObject::modifyTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
+{
+    bool success = false;
+
+    if(file_opened_) {
+        saveHandlers();
+        if(TIFFSetField(tif_handle_, tag, fld_val)) {
+            success = true;
+        }
+        restoreHandlers();
+    }
+
+    return success;
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Get value(s) of a tag in an open TIFF file
+//
+// This is a wrapper for the TIFFGetField function. It stores the value of a
+// tag or pseudo-tag associated with the the current directory of the open TIFF
+// file and the 'tag' argument into memory location pointed by 'fld_val'
+// argument. It returns 'true' if the tag is defined in the current directory,
 // otherwise a 'false' is returned.
 //
 // All error messages are directed to the errorHandler() method. Likewise,
@@ -788,6 +1083,7 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
     }
 
     return success;
+
 }
 
 
@@ -797,23 +1093,619 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
 // string. It calls readTagValue() method to retrieve resolution units code
 // from image data.
 //
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFIOObject::resolutionUnits()
+std::string TIFFIOObject::resolutionUnitsString()
 {
     unsigned int code = 0;
-    if(readTagValue<unsigned int>(TIFFIOObject::ResolutionUnit, &code)) {
+    if(readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::ResolutionUnit,
+                &code
+                )) {
         switch(code) {
-            case 1: return std::string("None");
-            case 2: return std::string("dpi");
-            case 3: return std::string("dots/cm");
-            default: return std::string("Unknown");
+            case TIFFIOObject::ResolutionUnits::None:
+                return std::string("None");
+            case TIFFIOObject::ResolutionUnits::Inch:
+                return std::string("dpi");
+            case TIFFIOObject::ResolutionUnits::Centimeter:
+                return std::string("dots/cm");
+            default:
+                return std::string("Undefined");
+
         }
 
     }
 
     return std::string("");
+
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Save all modifications made to the image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+bool TIFFIOObject::save() {
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Return status information (is tiled, is byte swapped, number of stripes)
+// of open TIFF file. It access data returned by the private class methods.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+TIFFIOObject::StatusInformation TIFFIOObject::statusInformation()
+{
+    TIFFIOObject::StatusInformation result;
+
+    result.is_byte_swapped = isByteSwapped();
+    result.is_tiled = isTiled();
+    if(!result.is_tiled) {
+        result.number_of_strips = numberOfStrips();
+    }
+
+    return result;
+
+}
+
+
+
+
+// ============================================================================
+// TIFFObjectInfo struct
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// TODO: Put documentation string here
+//
+///////////////////////////////////////////////////////////////////////////////
+
+struct TIFFObjectInfo {
+    std::string bitsPerSample(const TIFFIOObject &obj);
+    std::string compression(const TIFFIOObject &obj);
+    std::string dimensions(const TIFFIOObject &obj);
+    std::string fillOrder(const TIFFIOObject &obj);
+    std::string orientation(const TIFFIOObject &obj);
+    std::string photometric(const TIFFIOObject &obj);
+    std::string planarConfig(const TIFFIOObject &obj);
+    std::string resolution(const TIFFIOObject &obj);
+    std::string resolutionUnits(const TIFFIOObject &obj);
+    std::string sampleFormat(const TIFFIOObject &obj);
+    std::string samplesPerPixel(const TIFFIOObject &obj);
+    std::string size(const TIFFIOObject &obj);
+
+};
+
+
+// ============================================================================
+// TIFFObjectInfo methods definitions
+// ============================================================================
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read bits per sample value from image and return bits per sample string. It
+// calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::bitsPerSample(const TIFFIOObject &obj) {
+    unsigned int val = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::BitsPerSample,
+                &val
+                )) {
+        return std::to_string(val);
+
+    }
+
+    return std::string("Error");
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read compression code from image and return compression description string.
+// It calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::compression(const TIFFIOObject &obj)
+{
+    unsigned int code = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::Compression,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::Compression::None:
+                return std::string("None");
+            case TIFFIOObject::Compression::CCITTRLE:
+                return std::string("Modified Huffman");
+            case TIFFIOObject::Compression::CCITT_T4:
+                return std::string("CCITT T.4");
+            case TIFFIOObject::Compression::CCITT_T6:
+                return std::string("CCITT T.6");
+            case TIFFIOObject::Compression::LZW:
+                return std::string("Lempel-Ziv & Welch");
+            case TIFFIOObject::Compression::JPEG:
+                return std::string("JPEG 6.0");
+            case TIFFIOObject::Compression::JPEG_DCT:
+                return std::string("JPEG DCT compression");
+            case TIFFIOObject::Compression::AdobeDeflate:
+                return std::string("Adobe Deflate");
+            case TIFFIOObject::Compression::TIFFFX_T85:
+                return std::string("TIFF/FX T.85 JBIG");
+            case TIFFIOObject::Compression::TIFFFX_T43:
+                return std::string("TIFF/FX T.43 JBIG");
+            case TIFFIOObject::Compression::NeXT:
+                return std::string("NeXT 2-bit RLE");
+            case TIFFIOObject::Compression::CCITTRLEW:
+                return std::string("#1 w/ word alignment");
+            case TIFFIOObject::Compression::PackBits:
+                return std::string("PackBits (Macintosh RLE)");
+            case TIFFIOObject::Compression::ThunderScan:
+                return std::string("ThunderScan RLE");
+            case TIFFIOObject::Compression::ANSI_IT8CTPAD:
+                return std::string("ANSI IT8 CT w/padding");
+            case TIFFIOObject::Compression::ANSI_IT8LW:
+                return std::string("ANSI IT8 Linework RLE");
+            case TIFFIOObject::Compression::ANSI_IT8MP:
+                return std::string("ANSI IT8 Monochrome picture");
+            case TIFFIOObject::Compression::ANSI_IT8BL:
+                return std::string("ANSI IT8 Binary line art");
+            case TIFFIOObject::Compression::PixarFilm:
+                return std::string("Pixar companded 10bit LZW");
+            case TIFFIOObject::Compression::PixarLog:
+                return std::string("Pixar companded 11bit ZIP");
+            case TIFFIOObject::Compression::Deflate:
+                return std::string("Deflate");
+            case TIFFIOObject::Compression::KodakDCS:
+                return std::string("Kodak DCS");
+            case TIFFIOObject::Compression::ISO_JBIG:
+                return std::string("ISO JBIG");
+            case TIFFIOObject::Compression::SGILog:
+                return std::string("SGI Log Luminance RLE");
+            case TIFFIOObject::Compression::SGILog24:
+                return std::string("SGI Log 24-bit packed");
+            case TIFFIOObject::Compression::JPEG2000:
+                return std::string("Leadtools JPEG2000");
+            case TIFFIOObject::Compression::ESRILerc7:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::ESRILerc8:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::ESRILerc9:
+                return std::string("ESRI Lerc");
+            case TIFFIOObject::Compression::LZMA2:
+                return std::string("LZMA2");
+            case TIFFIOObject::Compression::ZSTD:
+                return std::string("ZSTD");
+            case TIFFIOObject::Compression::WEBP:
+                return std::string("WEBP");
+            case TIFFIOObject::Compression::JXL:
+                return std::string("JPEGXL");
+            default:
+                return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read image dimensions in pixels from image and image dimensions string. It
+// calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::dimensions(const TIFFIOObject &obj) {
+    unsigned int widht  = 0;  // ImageWidth
+    unsigned int length = 0;  // ImageLength
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::BitsPerSample,
+                &val
+                )) {
+        std::string result = std::to_string(width)
+            + std::string(" pixels")
+            + std::string(" X ")
+            + std::to_string(length)
+            + std::string(" pixels");
+
+        return result;
+
+    }
+
+    return std::string("Error");
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read byte fill order code from image and return byte fill order description
+// string. It calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::fillOrder(const TIFFIOObject &obj) {
+    unsigned int code = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::FillOrder,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::FillOrder::MSB2LSB:
+                return std::string(
+                        "most significant bit -> least significant bit"
+                        );
+            case TIFFIOObject::FillOrder::LSB2MSB:
+                return std::string(
+                        "least significant bit -> most significant bit"
+                        );
+            default: return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read image orientation code from image and return image orientation
+// description string. It calls readTagValue() method to retrieve data from
+// image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::orientation(const TIFFIOObject &obj) {
+    unsigned int code = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::Orientation,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::ImageOrientation::TopLeft:
+                return std::string("Top-Left");
+            case TIFFIOObject::ImageOrientation::TopRight:
+                return std::string("Top-Right");
+            case TIFFIOObject::ImageOrientation::BottomRight:
+                return std::string("Bottom-Right");
+            case TIFFIOObject::ImageOrientation::BottomLeft:
+                return std::string("Bottom-Left");
+            case TIFFIOObject::ImageOrientation::LeftTop:
+                return std::string("Left-Top");
+            case TIFFIOObject::ImageOrientation::RightTop:
+                return std::string("Right-Top");
+            case TIFFIOObject::ImageOrientation::RightBottom:
+                return std::string("Right-Bottom");
+            case TIFFIOObject::ImageOrientation::LeftBottom:
+                return std::string("Left-Bottom");
+            default: return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read photometric interpretation code from image and return photometric
+// interpretation description string. It calls readTagValue() method to
+// retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::photometric(const TIFFIOObject &obj)
+{
+    unsigned int code = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::PhotometricInterpretation,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::Photometric::MinIsWhite:
+                return std::string("min value is white");
+            case TIFFIOObject::Photometric::MinIsBlack:
+                return std::string("min value is black");
+            case TIFFIOObject::Photometric::RGB:
+                return std::string("RGB color model");
+            case TIFFIOObject::Photometric::Palette:
+                return std::string("color map indexed");
+            case TIFFIOObject::Photometric::Mask:
+                return std::string("holdout mask");
+            case TIFFIOObject::Photometric::Separated:
+                return std::string("color separations");
+            case TIFFIOObject::Photometric::YCBCR:
+                return std::string("CCIR 601");
+            case TIFFIOObject::Photometric::CIELab:
+                return std::string("1976 CIE L*a*b*");
+            case TIFFIOObject::Photometric::ICCLab:
+                return std::string("ICC L*a*b* [Adobe TIFF Technote 4]");
+            case TIFFIOObject::Photometric::ITULab:
+                return std::string("ITU L*a*b*");
+            case TIFFIOObject::Photometric::CFA:
+                return std::string("color filter array");
+            case TIFFIOObject::Photometric::CIELogL:
+                return std::string("CIE Log2(L)");
+            case TIFFIOObject::Photometric::CIELogLUV:
+                return std::string("CIE Log2(L) (u',v')");
+            default:
+                return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read planar configuration code from image and return planar configuration
+// description string. It calls readTagValue() method to retrieve data from
+// image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::planarConfig(const TIFFIOObject &obj) {
+    unsigned int code = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::PlanarConfiguration,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::PlanarConfig::Single:
+                return std::string(
+                        "single image plane"
+                        );
+            case TIFFIOObject::PlanarConfig::Separate:
+                return std::string(
+                        "separate planes of data"
+                        );
+            default: return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read resolution values from image and return resolution description string.
+// It calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::resolution()
+{
+    float        x_resolution     = 0.0; // XResolution
+    float        y_resolution     = 0.0; // YResolution
+    unsigned int resolution_units = 0;   // ResolutionUnit
+
+    if(readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::ResolutionUnit,
+                &resolution_units
+                )) {
+        std::string units {""};
+
+        switch(resolution_units) {
+            case TIFFIOObject::ResolutionUnits::None:
+                units.append("none");
+            case TIFFIOObject::ResolutionUnits::Inch:
+                units.append("dpi");
+            case TIFFIOObject::ResolutionUnits::Centimeter:
+                units.append("dots/cm");
+
+        }
+
+        std::string result = std::to_string(x_resolution)
+            + units
+            + std::string(" X ")
+            + std::to_string(y_resolution)
+            + wunits;
+
+        return result;
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read resolution units code from image tag and return resolution units
+// string. It calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::resolutionUnits()
+{
+    unsigned int code = 0;
+
+    if(readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::ResolutionUnit,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::ResolutionUnits::None:
+                return std::string("None");
+            case TIFFIOObject::ResolutionUnits::Inch:
+                return std::string("dpi");
+            case TIFFIOObject::ResolutionUnits::Centimeter:
+                return std::string("dots/cm");
+            default:
+                return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read sample format code from image tag and return sample format description
+// string. It calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::sampleFormat()
+{
+    unsigned int code = 0;
+
+    if(readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::SampleFormat,
+                &code
+                )) {
+        switch(code) {
+            case TIFFIOObject::SampleFormat::Uint:
+                return std::string("unsigned integer data");
+            case TIFFIOObject::SampleFormat::Int:
+                return std::string("signed integer data");
+            case TIFFIOObject::SampleFormat::IEEEFP:
+                return std::string("IEEE floating point data");
+            case TIFFIOObject::SampleFormat::Void:
+                return std::string("untyped data");
+            case TIFFIOObject::SampleFormat::ComplexInt:
+                return std::string("complex signed integer data");
+            case TIFFIOObject::SampleFormat::ComplexIEEEFP:
+                return std::string("complex ieee floating point data");
+            default:
+                return std::string("Undefined");
+
+        }
+
+    }
+
+    return std::string("Error");
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Read image dimensions in pixels from image and convert it to actual image
+// size in inches/centimeters depending on value of ResolutionUnit tag. It
+// calls readTagValue() method to retrieve data from image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::size(const TIFFIOObject &obj) {
+    unsigned int widht            = 0;   // ImageWidth
+    unsigned int length           = 0;   // ImageLength
+    float        x_resolution     = 0.0; // XResolution
+    float        y_resolution     = 0.0; // YResolution
+    unsigned int resolution_units = 0;   // ResolutionUnit
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::ResolutionUnit,
+                &resolution_units
+                )) {
+        float w = static_cast<float>(width) / x_resolution;
+        float h = static_cast<float>(height) / y_resolution;
+        std::string units {""};
+
+        switch(resolution_units) {
+            case TIFFIOObject::ResolutionUnits::None:
+                units.append("none");
+            case TIFFIOObject::ResolutionUnits::Inch:
+                units.append("dpi");
+            case TIFFIOObject::ResolutionUnits::Centimeter:
+                units.append("dots/cm");
+
+        }
+
+        std::string result = std::to_string(w)
+            + units
+            + std::string(" X ")
+            + std::to_string(l)
+            + wunits;
+
+        return result;
+
+    }
+
+    return std::string("Error");
+
+};
 
 
 #endif

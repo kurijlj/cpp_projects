@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// tifinfo - Shows info for the given tif file
+// tifinfoplus - Shows more comprehensive info for the given tif file
 //
 //  Copyright (C) 2021 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
 //
@@ -22,9 +22,9 @@
 
 // ============================================================================
 //
-// 2021-07-27 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
+// 2021-10-15 Ljubomir Kurij <ljubomir_kurij@protonmail.com>
 //
-// * tifinfo.cpp: created.
+// * tifinfoplus.cpp: created.
 //
 // ============================================================================
 
@@ -78,13 +78,13 @@ namespace fs = std::filesystem;
 // Global constants section
 // ============================================================================
 
-const std::string kAppName = "tifinfo";
+const std::string kAppName = "tifinfoplus";
 const std::string kVersionString = "0.1";
 const std::string kYearString = "2021";
 const std::string kAuthorName = "Ljubomir Kurij";
 const std::string kAuthorEmail = "ljubomir_kurij@protonmail.com";
 const std::string kAppDoc = "\
-Shows info for the given tif file.\n\n\
+Shows advanced info for the given tif file.\n\n\
 Mandatory arguments to long options are mandatory for short options too.\n";
 const std::string kLicense = "\
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
@@ -294,7 +294,14 @@ int main(int argc, char *argv[])
     // Try to read file flags
     std::cout << exec_name << ": Reading TIFF info ...\n";
     try {
+        unsigned long int strip_size = 0;
         TIFFObjectInfo tifinfo;
+        TIFFIOObject::StatusInformation statinfo;
+
+        obj.readTagValue<unsigned long int>(
+                TIFFIOObject::TIFFTag::StripByteSize,
+                &strip_size
+                ));
 
         if(std::string("Error") != tifinfo.size(tif)) {
             std::cout << "                  size: "
@@ -322,6 +329,16 @@ int main(int argc, char *argv[])
         std::cout << "           orientation: "
             << tif.orientation(tif)
             << "\n\n";
+        std::cout << "                 tiled: "
+            << (statinfo.is_tiled ? "true" : "false")
+            << "\n";
+        std::cout << "      number of strips: "
+            << statinfo.number_of_strips
+            << "\n";
+        std::cout << "          byte swapped: "
+            << (statinfo.is_byte_swapped ? "true" : "false")
+            << "\n";
+        std::cout << "            strip size: " << strip_size << "\n";
 
     } catch (TIFFIOObject::LibtiffWarning w) {
         std::cerr << exec_name << ": " << w.message() << "\n";

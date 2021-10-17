@@ -1,0 +1,43 @@
+const uint32 width;
+const uint32 height;
+const uint16 bitsperpixel;
+uint16 bitspersample = 16;
+uint16 samplesperpixel = 1;
+uint16 photometric = PHOTOMETRIC_MINISBLACK;
+
+TIFFSetField(tiff, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
+TIFFSetField(out, TIFFTAG_IMAGEWIDTH, width);
+TIFFSetField(out, TIFFTAG_IMAGELENGTH, height);
+TIFFSetField(out, TIFFTAG_SAMPLESPERPIXEL, samplesperpixel);
+TIFFSetField(out, TIFFTAG_BITSPERSAMPLE, bitspersample);
+TIFFSetField(out, TIFFTAG_PHOTOMETRIC, photometric);
+TIFFSetField(out, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);  // single image plane 
+TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+TIFFSetField(out, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
+TIFFSetField(out, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(out, (uint32) -1));
+
+// Set resolution if required
+double res;
+TIFFSetField(tiff, TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH);
+TIFFSetField(tiff, TIFFTAG_XRESOLUTION, res);
+TIFFSetField(tiff, TIFFTAG_YRESOLUTION, res);
+
+
+// just dump the dib (tiff supports all dib types)
+BYTE *buffer = (BYTE *)malloc(pitch * sizeof(BYTE));
+if(buffer == NULL) {
+    throw FI_MSG_ERROR_MEMORY;
+}
+
+for (uint32 y = 0; y < height; y++) {
+    // get a copy of the scanline
+    memcpy(buffer, FreeImage_GetScanLine(dib, height - y - 1), pitch);
+    // write the scanline to disc
+    TIFFWriteScanline(out, buffer, y, 0);
+}
+free(buffer);
+
+
+// Added later
+int TIFFIsTiled(TIFF* tif)
+int TIFFIsByteSwapped(TIFF* tif)
