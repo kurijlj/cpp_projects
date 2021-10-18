@@ -176,7 +176,7 @@ public:
     // Compression class - Image data compression codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class Compression : EnumeratedType<unsigned int>{
+    class Compression : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value        Library Use / Notes
@@ -217,7 +217,7 @@ public:
         };
 
         Compression() : EnumeratedType(Compression::None) {}
-        Compression(Compression::Code value) : EnumeratedType(value) {}
+        Compression(unsigned int value) : EnumeratedType(value) {}
         Compression(const Compression &inst)
             : EnumeratedType(inst.value()) {}
         ~Compression() {}
@@ -233,7 +233,7 @@ public:
     // FillOrder class - Image byte fill order codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class FillOrder : EnumeratedType<unsigned int>{
+    class FillOrder : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value    Library Use / Notes
@@ -243,7 +243,7 @@ public:
         };
 
         FillOrder() : EnumeratedType(MSB2LSB) {}
-        FillOrder(FillOrder::Code value) : EnumeratedType(value) {}
+        FillOrder(unsigned int value) : EnumeratedType(value) {}
         FillOrder(const FillOrder &inst)
             : EnumeratedType(inst.value()) {}
         ~FillOrder() {}
@@ -320,12 +320,12 @@ public:
     //     c  - Disable the use of strip chopping when reading images.
     //
     ///////////////////////////////////////////////////////////////////////////
-    class FileAccessMode : EnumeratedType<unsigned short>{
+    class FileAccessMode : public EnumeratedType<unsigned short>{
     public:
         enum Mode: unsigned short {Append, Read, ReadWrite, Write};
 
         FileAccessMode() : EnumeratedType(FileAccessMode::Read) {}
-        FileAccessMode(FileAccessMode::Mode value) : EnumeratedType(value) {}
+        FileAccessMode(unsigned short value) : EnumeratedType(value) {}
         FileAccessMode(const FileAccessMode &inst)
             : EnumeratedType(inst.value()) {}
         ~FileAccessMode() {}
@@ -341,7 +341,7 @@ public:
     // ImageOrientation class - Image dorientation codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class ImageOrientation : EnumeratedType<unsigned int>{
+    class ImageOrientation : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value    Library Use / Notes
@@ -357,7 +357,7 @@ public:
         };
 
         ImageOrientation() : EnumeratedType(TopLeft) {}
-        ImageOrientation(ImageOrintation::Code value) : EnumeratedType(value) {}
+        ImageOrientation(unsigned int value) : EnumeratedType(value) {}
         ImageOrientation(const ImageOrientation &inst)
             : EnumeratedType(inst.value()) {}
         ~ImageOrientation() {}
@@ -373,7 +373,7 @@ public:
     // Photometric class - Photometric interpretation codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class Photometric : EnumeratedType<unsigned int>{
+    class Photometric : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value        Library Use / Notes
@@ -394,7 +394,7 @@ public:
         };
 
         Photometric() : EnumeratedType(MinIsWhite) {}
-        Photometric(Photometric::Code value) : EnumeratedType(value) {}
+        Photometric(unsigned int value) : EnumeratedType(value) {}
         Photometric(const Photometric &inst)
             : EnumeratedType(inst.value()) {}
         ~Photometric() {}
@@ -410,7 +410,7 @@ public:
     // PlanarConfig class - Planar configuration codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class PlanarConfig : EnumeratedType<unsigned int>{
+    class PlanarConfig : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value    Library Use / Notes
@@ -420,7 +420,7 @@ public:
         };
 
         PlanarConfig() : EnumeratedType(Single) {}
-        PlanarConfig(PlanarConfig::Code value) : EnumeratedType(value) {}
+        PlanarConfig(unsigned int value) : EnumeratedType(value) {}
         PlanarConfig(const PlanarConfig &inst)
             : EnumeratedType(inst.value()) {}
         ~PlanarConfig() {}
@@ -436,7 +436,7 @@ public:
     // ResolutionUnit class - Resolution Unit codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class ResolutionUnit : EnumeratedType<unsigned int>{
+    class ResolutionUnit : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value    Library Use / Notes
@@ -447,7 +447,7 @@ public:
         };
 
         ResolutionUnit() : EnumeratedType(None) {}
-        ResolutionUnit(ResolutionUnit::Code value) : EnumeratedType(value) {}
+        ResolutionUnit(unsigned int value) : EnumeratedType(value) {}
         ResolutionUnit(const ResolutionUnit &inst)
             : EnumeratedType(inst.value()) {}
         ~ResolutionUnit() {}
@@ -463,7 +463,7 @@ public:
     // SampleFormat class - Sample format codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class SampleFormat : EnumeratedType<unsigned int>{
+    class SampleFormat : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned int {
         //  Format Name    Value      Library Use / Notes
@@ -477,7 +477,7 @@ public:
         };
 
         SampleFormat() : EnumeratedType(Uint) {}
-        SampleFormat(SampleFormat::Code value) : EnumeratedType(value) {}
+        SampleFormat(unsigned int value) : EnumeratedType(value) {}
         SampleFormat(const SampleFormat &inst)
             : EnumeratedType(inst.value()) {}
         ~SampleFormat() {}
@@ -493,7 +493,7 @@ public:
     // TIFFTag class - TIFF tag codes values
     //
     ///////////////////////////////////////////////////////////////////////////
-    class TIFFTag : EnumeratedType<unsigned int>{
+    class TIFFTag : public EnumeratedType<unsigned int>{
     public:
         enum Code: unsigned long int {
         //  Tag Name                  Value         R/W    Library Use / Notes
@@ -578,7 +578,7 @@ public:
         };
 
         TIFFTag() : EnumeratedType(None) {}
-        TIFFTag(TIFFTag::Code value) : EnumeratedType(value) {}
+        TIFFTag(unsigned long int value) : EnumeratedType(value) {}
         TIFFTag(const TIFFTag &inst)
             : EnumeratedType(inst.value()) {}
         ~TIFFTag() {}
@@ -609,9 +609,9 @@ private:
     FileAccessMode mode_;
 
     void errorHandler(const char* module, const char* fmt, va_list args);
-    bool isByteSwapped const ();
-    bool isTiled const ();
-    unsigned long int numberOfStrips const ();
+    bool isByteSwapped () const;
+    bool isTiled () const;
+    unsigned long int numberOfStrips ();
     void restoreHandlers();
     void saveHandlers();
     void warningHandler(const char* module, const char* fmt, va_list args);
@@ -748,7 +748,7 @@ std::string TIFFIOObject::Compression::str() const
             return std::string("ZSTD");
         case TIFFIOObject::Compression::WEBP:
             return std::string("WEBP");
-        case TIFFIOObject::Compression::JXL:
+        case TIFFIOObject::Compression::JPEGXL:
             return std::string("JPEGXL");
         default:
             break;
@@ -943,11 +943,11 @@ std::string TIFFIOObject::PlanarConfig::str() const
 std::string TIFFIOObject::ResolutionUnit::str() const
 {
     switch(value_) {
-        case TIFFIOObject::ResolutionUnits::None:
+        case TIFFIOObject::ResolutionUnit::None:
             return std::string("None");
-        case TIFFIOObject::ResolutionUnits::Inch:
+        case TIFFIOObject::ResolutionUnit::Inch:
             return std::string("inches");
-        case TIFFIOObject::ResolutionUnits::Centimeter:
+        case TIFFIOObject::ResolutionUnit::Centimeter:
             return std::string("cm");
         default:
             break;
@@ -1139,7 +1139,7 @@ void TIFFIOObject::warningHandler(
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-bool TIFFIOObject::isByteSwapped()
+bool TIFFIOObject::isByteSwapped() const
 {
     bool result = false;
 
@@ -1164,7 +1164,8 @@ bool TIFFIOObject::isByteSwapped()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-bool TIFFIOObject::isTiled() {
+bool TIFFIOObject::isTiled() const
+{
     bool result = false;
 
     if(0 != TIFFIsTiled(tif_handle_)) {
@@ -1345,7 +1346,7 @@ bool TIFFIOObject::open()
 {
     if(!file_opened_) {
         saveHandlers();
-        tif_handle_ = TIFFOpen(file_name_.c_str(), mode_.c_str());
+        tif_handle_ = TIFFOpen(file_name_.c_str(), mode_.str().c_str());
         restoreHandlers();
     }
 
@@ -1411,7 +1412,7 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
 
     if(file_opened_) {
         saveHandlers();
-        if(TIFFGetField(tif_handle_, tag, fld_val)) {
+        if(TIFFGetField(tif_handle_, tag.value(), fld_val)) {
             success = true;
         }
         restoreHandlers();
@@ -1432,6 +1433,7 @@ bool TIFFIOObject::readTagValue(const TIFFIOObject::TIFFTag tag, T* fld_val)
 ///////////////////////////////////////////////////////////////////////////////
 
 bool TIFFIOObject::save() {
+    return false;
 }
 
 
@@ -1473,18 +1475,18 @@ TIFFIOObject::StatusInformation TIFFIOObject::statusInformation()
 ///////////////////////////////////////////////////////////////////////////////
 
 struct TIFFObjectInfo {
-    std::string bitsPerSample(const TIFFIOObject &obj);
-    std::string compression(const TIFFIOObject &obj);
-    std::string dimensions(const TIFFIOObject &obj);
-    std::string fillOrder(const TIFFIOObject &obj);
-    std::string orientation(const TIFFIOObject &obj);
-    std::string photometric(const TIFFIOObject &obj);
-    std::string planarConfig(const TIFFIOObject &obj);
-    std::string resolution(const TIFFIOObject &obj);
-    std::string resolutionUnits(const TIFFIOObject &obj);
-    std::string sampleFormat(const TIFFIOObject &obj);
-    std::string samplesPerPixel(const TIFFIOObject &obj);
-    std::string size(const TIFFIOObject &obj);
+    std::string bitsPerSample(TIFFIOObject &obj);
+    std::string compression(TIFFIOObject &obj);
+    std::string dimensions(TIFFIOObject &obj);
+    std::string fillOrder(TIFFIOObject &obj);
+    std::string orientation(TIFFIOObject &obj);
+    std::string photometric(TIFFIOObject &obj);
+    std::string planarConfig(TIFFIOObject &obj);
+    std::string resolution(TIFFIOObject &obj);
+    std::string resolutionUnit(TIFFIOObject &obj);
+    std::string sampleFormat(TIFFIOObject &obj);
+    std::string samplesPerPixel(TIFFIOObject &obj);
+    std::string size(TIFFIOObject &obj);
 
 };
 
@@ -1503,7 +1505,7 @@ struct TIFFObjectInfo {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::bitsPerSample(const TIFFIOObject &obj) {
+std::string TIFFObjectInfo::bitsPerSample(TIFFIOObject &obj) {
     unsigned int val = 0;
 
     if(obj.readTagValue<unsigned int>(
@@ -1529,7 +1531,7 @@ std::string TIFFObjectInfo::bitsPerSample(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::compression(const TIFFIOObject &obj)
+std::string TIFFObjectInfo::compression(TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
@@ -1556,9 +1558,9 @@ std::string TIFFObjectInfo::compression(const TIFFIOObject &obj)
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::dimensions(const TIFFIOObject &obj) {
-    unsigned int widht  = 0;  // ImageWidth
-    unsigned int length = 0;  // ImageLength
+std::string TIFFObjectInfo::dimensions(TIFFIOObject &obj) {
+    unsigned long int width  = 0;  // ImageWidth
+    unsigned long int length = 0;  // ImageLength
 
     obj.readTagValue<unsigned long int>(
             TIFFIOObject::TIFFTag::ImageWidth,
@@ -1589,7 +1591,7 @@ std::string TIFFObjectInfo::dimensions(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::fillOrder(const TIFFIOObject &obj) {
+std::string TIFFObjectInfo::fillOrder(TIFFIOObject &obj) {
     unsigned int code = 0;
 
     if(obj.readTagValue<unsigned int>(
@@ -1616,7 +1618,7 @@ std::string TIFFObjectInfo::fillOrder(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::orientation(const TIFFIOObject &obj) {
+std::string TIFFObjectInfo::orientation(TIFFIOObject &obj) {
     unsigned int code = 0;
 
     if(obj.readTagValue<unsigned int>(
@@ -1643,7 +1645,7 @@ std::string TIFFObjectInfo::orientation(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::photometric(const TIFFIOObject &obj)
+std::string TIFFObjectInfo::photometric(TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
@@ -1671,7 +1673,7 @@ std::string TIFFObjectInfo::photometric(const TIFFIOObject &obj)
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::planarConfig(const TIFFIOObject &obj) {
+std::string TIFFObjectInfo::planarConfig(TIFFIOObject &obj) {
     unsigned int code = 0;
 
     if(obj.readTagValue<unsigned int>(
@@ -1697,7 +1699,7 @@ std::string TIFFObjectInfo::planarConfig(const TIFFIOObject &obj) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::resolution(const TIFFIOObject &obj)
+std::string TIFFObjectInfo::resolution(TIFFIOObject &obj)
 {
     unsigned int code = 0;  // ResolutionUnit
 
@@ -1707,16 +1709,16 @@ std::string TIFFObjectInfo::resolution(const TIFFIOObject &obj)
                 )) {
         TIFFIOObject::ResolutionUnit unit {code};
 
-        if(TIFFIOObject::ResolutionUnit::Inch == unit
-                || TIFFIOObject::ResolutionUnit::Centimeter == unit) {
+        if(TIFFIOObject::ResolutionUnit::Inch == unit.value()
+                || TIFFIOObject::ResolutionUnit::Centimeter == unit.value()) {
             float x_resolution = 0.0; // XResolution
             float y_resolution = 0.0; // YResolution
 
-            obj.readTagValue<unsigned int>(
+            obj.readTagValue<float>(
                 TIFFIOObject::TIFFTag::XResolution,
                 &x_resolution
                 );
-            obj.readTagValue<unsigned int>(
+            obj.readTagValue<float>(
                 TIFFIOObject::TIFFTag::YResolution,
                 &y_resolution
                 );
@@ -1750,11 +1752,11 @@ std::string TIFFObjectInfo::resolution(const TIFFIOObject &obj)
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::resolutionUnit(const TIFFIOObject &obj)
+std::string TIFFObjectInfo::resolutionUnit(TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
-    if(readTagValue<unsigned int>(
+    if(obj.readTagValue<unsigned int>(
                 TIFFIOObject::TIFFTag::ResolutionUnit,
                 &code
                 )) {
@@ -1777,7 +1779,7 @@ std::string TIFFObjectInfo::resolutionUnit(const TIFFIOObject &obj)
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::sampleFormat(const TIFFIOObject &obj)
+std::string TIFFObjectInfo::sampleFormat(TIFFIOObject &obj)
 {
     unsigned int code = 0;
 
@@ -1796,6 +1798,33 @@ std::string TIFFObjectInfo::sampleFormat(const TIFFIOObject &obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Read how many color samples are per image pixel from image and return
+// samples count string. It calls readTagValue() method to retrieve data from
+// image.
+//
+// All error messages are directed to the errorHandler() method. Likewise,
+// warning messages are directed to the warningHandler() method.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+std::string TIFFObjectInfo::samplesPerPixel(TIFFIOObject &obj) {
+    unsigned int val = 0;
+
+    if(obj.readTagValue<unsigned int>(
+                TIFFIOObject::TIFFTag::SamplesPerPixel,
+                &val
+                )) {
+        return std::to_string(val);
+
+    }
+
+    return std::string("Error");
+
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Read image dimensions in pixels from image and convert it to actual image
 // size in inches/centimeters depending on value of ResolutionUnit tag. It
 // calls readTagValue() method to retrieve data from image.
@@ -1805,14 +1834,14 @@ std::string TIFFObjectInfo::sampleFormat(const TIFFIOObject &obj)
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string TIFFObjectInfo::size(const TIFFIOObject &obj) {
+std::string TIFFObjectInfo::size(TIFFIOObject &obj) {
     unsigned int unit_code    = 0;   // ResolutionUnit
 
     if(obj.readTagValue<unsigned int>(
                 TIFFIOObject::TIFFTag::ResolutionUnit,
                 &unit_code
                 )) {
-        unsigned long int widht = 0;   // ImageWidth
+        unsigned long int width = 0;   // ImageWidth
         unsigned long int length = 0;   // ImageLength
         TIFFIOObject::ResolutionUnit unit {unit_code};
 
@@ -1827,8 +1856,8 @@ std::string TIFFObjectInfo::size(const TIFFIOObject &obj) {
                 );
 
         // Check if resolution is set
-        if(TIFFIOObject::ResolutionUnit::Inch == unit
-                || TIFFIOObject::ResolutionUnit::Centimeter == unit) {
+        if(TIFFIOObject::ResolutionUnit::Inch == unit.value()
+                || TIFFIOObject::ResolutionUnit::Centimeter == unit.value()) {
             float x_resolution = 0.0; // XResolution
             float y_resolution = 0.0; // YResolution
 
@@ -1843,13 +1872,13 @@ std::string TIFFObjectInfo::size(const TIFFIOObject &obj) {
                     );
 
             float w = static_cast<float>(width) / x_resolution;
-            float h = static_cast<float>(height) / y_resolution;
+            float l = static_cast<float>(length) / y_resolution;
 
             std::string result = std::to_string(w)
                 + unit.str()
                 + std::string(" X ")
                 + std::to_string(l)
-                + wunit.str();
+                + unit.str();
 
             return result;
 

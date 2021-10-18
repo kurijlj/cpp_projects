@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 
     TIFFIOObject tif {
         validators.output_file.value(),
-            TIFFIOObject::FileAccessMode::Write
+        TIFFIOObject::FileAccessMode(TIFFIOObject::FileAccessMode::Write)
     };
     tif.printWarnings(false);
     tif.printErrors(false);
@@ -285,14 +285,14 @@ int main(int argc, char *argv[])
         TIFFObjectInfo tifinfo;
         TIFFIOObject::StatusInformation statinfo;
 
-        obj.readTagValue<unsigned long int>(
-                TIFFIOObject::TIFFTag::StripByteSize,
+        tif.readTagValue<unsigned long int>(
+                TIFFIOObject::TIFFTag::StripByteCounts,
                 &strip_size
-                ));
+                );
 
         if(std::string("Error") != tifinfo.size(tif)) {
             std::cout << "                  size: "
-                << tifinfo.size(itf)
+                << tifinfo.size(tif)
                 << "\n";
         };
         std::cout << "            dimensions: "
@@ -308,13 +308,13 @@ int main(int argc, char *argv[])
             << tifinfo.bitsPerSample(tif)
             << "\n";
         std::cout << "  planar configuration: "
-            << tifinfo.planarConfig(itf)
+            << tifinfo.planarConfig(tif)
             << "\n";
         std::cout << "            resolution: "
             << tifinfo.resolution(tif)
             << "\n";
         std::cout << "           orientation: "
-            << tif.orientation(tif)
+            << tifinfo.orientation(tif)
             << "\n\n";
         std::cout << "                 tiled: "
             << (statinfo.is_tiled ? "true" : "false")
