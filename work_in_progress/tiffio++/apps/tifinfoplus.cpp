@@ -294,15 +294,16 @@ int main(int argc, char *argv[])
     // Try to read file flags
     std::cout << exec_name << ": Reading TIFF info ...\n";
     try {
-        unsigned long int strip_size = 0;
+        unsigned long int *strip_size = nullptr;
+        bool strip_size_defined = false;
         TIFFObjectInfo tifinfo;
         TIFFIOObject::StatusInformation statinfo;
 
-        if(!tif.readTagValue<unsigned long int>(
+        if(!tif.readTagValue<unsigned long int *>(
                 TIFFIOObject::TIFFTag::StripByteCounts,
                 &strip_size
                 )) {
-            strip_size = 0;
+            bool strip_size_defined = true;
         }
 
         if(std::string("Error") != tifinfo.size(tif)) {
@@ -340,7 +341,11 @@ int main(int argc, char *argv[])
         std::cout << "          byte swapped: "
             << (statinfo.is_byte_swapped ? "true" : "false")
             << "\n";
-        std::cout << "            strip size: " << strip_size << "\n";
+        std::cout << "            strip size: "
+            << (strip_size_defined
+                    ? std::to_string(strip_size[0])
+                    : std::string("Not defined"))
+            << "\n";
 
     } catch (TIFFIOObject::LibtiffWarning w) {
         std::cerr << exec_name << ": " << w.message() << "\n";

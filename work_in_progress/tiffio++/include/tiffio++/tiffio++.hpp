@@ -1516,7 +1516,7 @@ std::string TIFFObjectInfo::bitsPerSample(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 };
 
@@ -1543,7 +1543,7 @@ std::string TIFFObjectInfo::compression(TIFFIOObject &obj)
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1602,7 +1602,7 @@ std::string TIFFObjectInfo::fillOrder(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 };
 
@@ -1629,7 +1629,7 @@ std::string TIFFObjectInfo::orientation(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1657,7 +1657,7 @@ std::string TIFFObjectInfo::photometric(TIFFIOObject &obj)
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1684,7 +1684,7 @@ std::string TIFFObjectInfo::planarConfig(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 };
 
@@ -1723,10 +1723,10 @@ std::string TIFFObjectInfo::resolution(TIFFIOObject &obj)
                 &y_resolution
                 );
             std::string result = std::to_string(x_resolution)
-                + unit.str()
+                + std::string(" ") + unit.str()
                 + std::string(" X ")
                 + std::to_string(y_resolution)
-                + unit.str();
+                + std::string(" ") + unit.str();
 
             return result;
 
@@ -1737,7 +1737,7 @@ std::string TIFFObjectInfo::resolution(TIFFIOObject &obj)
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1764,7 +1764,7 @@ std::string TIFFObjectInfo::resolutionUnit(TIFFIOObject &obj)
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1791,7 +1791,7 @@ std::string TIFFObjectInfo::sampleFormat(TIFFIOObject &obj)
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 }
 
@@ -1818,7 +1818,7 @@ std::string TIFFObjectInfo::samplesPerPixel(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 };
 
@@ -1875,10 +1875,10 @@ std::string TIFFObjectInfo::size(TIFFIOObject &obj) {
             float l = static_cast<float>(length) / y_resolution;
 
             std::string result = std::to_string(w)
-                + unit.str()
+                + std::string(" ") + unit.str()
                 + std::string(" X ")
                 + std::to_string(l)
-                + unit.str();
+                + std::string(" ") + unit.str();
 
             return result;
 
@@ -1889,7 +1889,7 @@ std::string TIFFObjectInfo::size(TIFFIOObject &obj) {
 
     }
 
-    return std::string("Error");
+    return std::string("Not defined");
 
 };
 
