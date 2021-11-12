@@ -299,11 +299,11 @@ int main(int argc, char *argv[])
         TIFFObjectInfo tifinfo;
         TIFFIOObject::StatusInformation statinfo;
 
-        if(!tif.readTagValue<unsigned long int *>(
+        if(tif.readTagValue<unsigned long int *>(
                 TIFFIOObject::TIFFTag::StripByteCounts,
                 &strip_size
                 )) {
-            bool strip_size_defined = true;
+            strip_size_defined = true;
         }
 
         if(std::string("Error") != tifinfo.size(tif)) {
