@@ -44,9 +44,11 @@
 //   <https://en.cppreference.com/w/cpp/filesystem>.
 //
 // * For how to use libtiff visit:
+//   <https://research.cs.wisc.edu/graphics/Courses/638-f1999/libtiff_tutorial.htm>
 //   <http://www.libtiff.org/libtiff.html>
 //   <http://www.libtiff.org/man/index.html>
 //   <https://ncbi.github.io/cxx-toolkit/>
+//   <https://freeimage.sourceforge.io/index.html>
 //
 // ============================================================================
 
@@ -206,9 +208,9 @@ public:
             SGILog         = 34676,  // SGI Log Luminance RLE
             SGILog24       = 34677,  // SGI Log 24-bit packed
             JPEG2000       = 34712,  // Leadtools JPEG2000
-            ESRILerc7      = 34887,  // ESRI Lerc codec: https://github.com/Esri/lerc
-            ESRILerc8      = 34888,  // ESRI Lerc codec: https://github.com/Esri/lerc
-            ESRILerc9      = 34889,  // ESRI Lerc codec: https://github.com/Esri/lerc
+            ESRILerc7      = 34887,  // ESRI Lerc codec: <https://github.com/Esri/lerc>
+            ESRILerc8      = 34888,  // ESRI Lerc codec: <https://github.com/Esri/lerc>
+            ESRILerc9      = 34889,  // ESRI Lerc codec: <https://github.com/Esri/lerc>
             LZMA2          = 34925,  // LZMA2
             ZSTD           = 50000,  // ZSTD: WARNING not registered in Adobe-maintained registry
             WEBP           = 50001,  // WEBP: WARNING not registered in Adobe-maintained registry
@@ -1894,4 +1896,4 @@ std::string TIFFObjectInfo::size(TIFFIOObject &obj) {
 };
 
 
-#endif
+#endif  // _TIFFIOPP_HPP
