@@ -1,7 +1,7 @@
 # Note that headers are optional, and do not affect add_library, but they will
 # not show up in IDEs unless they are listed in add_library.
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/extern/lest/lest.hpp")
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/include/tiffio++/tiffio++.hpp")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/extern/lest/lest.hpp")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/include/tiffio++/tiffio++.hpp")
 
 # Tests need to be added as executables first
 add_executable(test_exception_class test_exception_class.cpp)
@@ -44,5 +44,5 @@ add_test(NAME test_tiffio_tag COMMAND test_tiffio_tag) # Command can be a target
 
 # Copy test data to binary tree
 # file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/data")
-file(COPY "${CLI_App_Framework_SOURCE_DIR}/tests/data" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${tiffio++_SOURCE_DIR}/tests/data" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 # file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/data/empty_dir")
