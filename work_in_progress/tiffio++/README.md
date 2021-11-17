@@ -1,7 +1,5 @@
-# CLI Single Parser App Framework [CMake clipp]
-Small C++ single parser app framework for developing CLI applications using
-"clipp" command line argument parsing library and "CMake" build system.
-
+# tiffio++
+A C++ wrapper library for the libtiff library calls
 
 ## Compiling Instructions
 Build as regular CMake project:

@@ -7,9 +7,9 @@ cmake_minimum_required(VERSION 3.15...3.20)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
-    CLI_App_Framework
+    tiffio++
     VERSION 0.1
-    DESCRIPTION "Custom framework for developing CLI applications"
+    DESCRIPTION "A C++ wrapper library for the libtiff library calls"
     LANGUAGES C CXX)
 
 # Append custom flags

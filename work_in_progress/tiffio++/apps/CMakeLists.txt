@@ -1,8 +1,8 @@
 
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/extern/clipp/clipp.hpp")
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/extern/libtiff/tiffio.h")
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/include/input_validators++/validators.hpp")
-set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/include/tiffio++/tiffio++.hpp")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/extern/clipp/clipp.hpp")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/extern/libtiff/tiffio.h")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/include/input_validators++/validators.hpp")
+set(HEADER_LIST "${tiffio++_SOURCE_DIR}/include/tiffio++/tiffio++.hpp")
 
 add_executable(app app.cpp)
 add_executable(tifinfo tifinfo.cpp)
