@@ -81,6 +81,32 @@ public:
 
         }
     ~BitmapObject() {}
+
+    // Pixel access methods
+    T operator()(unsigned long i, unsigned long j) const {
+        if(w_ <= i || h_ <= j) {
+            // Throw exception
+            throw BitmapObject<T>::IndexOutOfLimits {};
+        }
+
+        unsigned long index = i + j*w_;
+
+        return pd_[index];
+
+    }
+
+    T& operator()(unsigned long i, unsigned long j) {
+        if(w_ <= i || h_ <= j) {
+            // Throw exception
+            throw BitmapObject<T>::IndexOutOfLimits {};
+        }
+
+        unsigned long index = i + j*w_;
+
+        return pd_.at(index);
+
+    }
+
 };
 
 
