@@ -62,27 +62,106 @@
 
 
 // ============================================================================
-// BitmapObject class
+// Voxel class
+// ============================================================================
+
+template <class T>
+class Pixel {
+private:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Attributes
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    T cv_[4];  // color channels
+
+public:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Constructors
+    //
+    ///////////////////////////////////////////////////////////////////////////
+}
+
+
+// ============================================================================
+// VoxelMap2D class
 // ============================================================================
 
 template <class T>
 class BitmapObject {
+public:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Exceptions classes
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    class BitmapObjectException {
+    protected:
+        std::string message_;
+
+    public:
+        BitmapObjectException() : message_("") {}
+        BitmapObjectException(std::string message) : message_(message) {}
+        ~BitmapObjectException() {}
+        std::string message() const { return message_; }
+
+    };
+
+    class NotImplemented : public BitmapObjectException {
+    public:
+        NotImplemented() : BitmapObjectException("Not implemented!") {}
+        NotImplemented(std::string message)
+            : BitmapObjectException(message) {}
+        ~NotImplemented() {}
+
+    };
+
+    class IndexOutOfLimits : public BitmapObjectException {
+    public:
+        IndexOutOfLimits() : BitmapObjectException("Index out of limits") {}
+        IndexOutOfLimits(std::string message)
+            : BitmapObjectException(message) {}
+        ~IndexOutOfLimits() {}
+
+    };
+
 private:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Attributes
+    //
+    ///////////////////////////////////////////////////////////////////////////
     std::vector<T> pd_[4];  // pixeldata
     unsigned long w_, h_;   // width and height
 
 public:
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Constructors
+    //
+    ///////////////////////////////////////////////////////////////////////////
     BitmapObject(unsigned long width, unsigned long height)
         : w_(width), h_(height) {
-            pd_[0] = std::vector<T> pd_[0](width*height, 0);
-            pd_[1] = std::vector<T> pd_[1](width*height, 0);
-            pd_[2] = std::vector<T> pd_[2](width*height, 0);
-            pd_[3] = std::vector<T> pd_[3](width*height, 0);
+            pd_[0] = std::vector<T>(width*height, 0);
+            pd_[1] = std::vector<T>(width*height, 0);
+            pd_[2] = std::vector<T>(width*height, 0);
+            pd_[3] = std::vector<T>(width*height, 0);
 
         }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Destructors
+    //
+    ///////////////////////////////////////////////////////////////////////////
     ~BitmapObject() {}
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
     // Pixel access methods
+    //
+    ///////////////////////////////////////////////////////////////////////////
     T operator()(unsigned long i, unsigned long j) const {
         if(w_ <= i || h_ <= j) {
             // Throw exception
@@ -91,7 +170,7 @@ public:
 
         unsigned long index = i + j*w_;
 
-        return pd_[index];
+        return pd_[0][index];
 
     }
 
@@ -103,7 +182,7 @@ public:
 
         unsigned long index = i + j*w_;
 
-        return pd_.at(index);
+        return pd_[0].at(index);
 
     }
 
