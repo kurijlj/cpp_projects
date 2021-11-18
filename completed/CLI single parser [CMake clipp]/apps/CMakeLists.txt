@@ -2,11 +2,15 @@
 set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/extern/clipp/clipp.hpp")
 set(HEADER_LIST "${CLI_App_Framework_SOURCE_DIR}/include/input_validators++/validators.hpp")
 
-add_executable(app app.cpp)
+SET(APPS app)
 
-target_include_directories(app PRIVATE ../extern/clipp)
-target_include_directories(app PRIVATE ../include)
+SET(INCLUDE_DIRS ../extern/clipp
+    ../include
+    )
 
-target_compile_features(app PRIVATE cxx_std_17)
-
-target_link_libraries(app PRIVATE input_validators++)
+foreach(program ${APPS})
+    add_executable(${program} ${program}.cpp)
+    target_include_directories(${program} PRIVATE ../extern/clipp)
+    target_compile_features(${program} PRIVATE cxx_std_17)
+    target_link_libraries(${program} PRIVATE input_validators++)
+endforeach(program)
