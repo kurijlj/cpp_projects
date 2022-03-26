@@ -14,7 +14,7 @@ elseif(
         "Linux" STREQUAL ${CMAKE_SYSTEM_NAME}
         OR "FreeBSD" STREQUAL ${CMAKE_SYSTEM_NAME}
         )
-    findpackage(ImageMagick)
+    find_package(ImageMagick REQUIRED)
 
 else()
     message("-- Not implemented platform!")
@@ -24,3 +24,4 @@ else()
 endif()
 
 message("ImageMagick home: ${IMAGE_MAGICK_HOME}")
+message("ImageMagick executable path: ${ImageMagick_EXECUTABLE_DIR}")
