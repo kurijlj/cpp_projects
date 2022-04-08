@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.15)
 
 project(
     cmake_opencv_test
@@ -12,9 +12,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find OpenCV components
-find_package(OpenCV COMPONENTS core REQUIRED)
-find_package(OpenCV COMPONENTS imgcodecs REQUIRED)
-find_package(OpenCV COMPONENTS highgui REQUIRED)
+if("Windows" STREQUAL ${CMAKE_SYSTEM_NAME} AND DEFINED OpenCV_PATH)
+    #if("Windows" STREQUAL ${CMAKE_SYSTEM_NAME})
+    find_package(OpenCV COMPONENTS core REQUIRED HINTS ${OpenCV_PATH})
+    find_package(OpenCV COMPONENTS imgcodecs REQUIRED HINTS ${OpenCV_PATH})
+    find_package(OpenCV COMPONENTS highgui REQUIRED HINTS ${OpenCV_PATH})
+else()
+    find_package(OpenCV COMPONENTS core REQUIRED)
+    find_package(OpenCV COMPONENTS imgcodecs REQUIRED)
+    find_package(OpenCV COMPONENTS highgui REQUIRED)
+endif()
 
 # Append custom flags
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

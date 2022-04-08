@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 {
     // Check if we are dealing with an TIFF image
     char mn1, mn2;
-    char endianess[2];
+    char endianess[3];
     unsigned short int magickno;
     std::ifstream imfile;
 
@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     imfile.seekg(0, std::ios::beg);
 
     imfile.read(endianess, 2);
+    endianess[2] = '\0';
     imfile.read(&mn1, 1);
     imfile.read(&mn2, 1);
 
