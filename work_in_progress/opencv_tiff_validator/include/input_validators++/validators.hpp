@@ -443,14 +443,14 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////////////
 class PathValidator {
-private:
+protected:
     PathValidatorImp& imp_;
     PathValidatorFlags& flags_;
 
 public:
     PathValidator(PathValidatorImp& imp, PathValidatorFlags& flags)
         : imp_(imp), flags_(flags) { }
-    ~PathValidator() {  }
+    ~PathValidator() { }
     std::string value() const { return imp_.value(); }
     bool exists() const { return imp_.exists(); }
     bool is_empty_path() const { return imp_.is_empty_path(); }
@@ -459,7 +459,29 @@ public:
     void validate() const;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// class TifValidator
+//
+///////////////////////////////////////////////////////////////////////////////
+class TifValidator: public PathValidator {
+public:
+    class NotTifFile {};
 
+    TifValidator(FileValidatorImp& fvimp, PathValidatorFlags& flags)
+        : PathValidator(fvimp, flags) { }
+    ~TifValidator() { }
+    bool is_big_endian() const;
+    bool is_little_endian() const;
+    bool has_magick_number() const;
+    void validate() const;
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class PathValidator
+//
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CList selection input validators
