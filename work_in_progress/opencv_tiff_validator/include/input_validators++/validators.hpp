@@ -69,7 +69,7 @@
 // Define namespace aliases
 // ============================================================================
 
-namespace fs = std::filesystem;
+namespace fs = std::__fs::filesystem;
 
 
 // ============================================================================
@@ -409,6 +409,26 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// class TifValidatorImp
+//
+///////////////////////////////////////////////////////////////////////////////
+class TifValidatorImp: public FileValidatorImp {
+public:
+    class NotTifFile {};
+
+    TifValidatorImp(std::string path) : FileValidatorImp(path) { }
+    TifValidatorImp(const TifValidatorImp &orig) : FileValidatorImp(orig) { }
+    ~TifValidatorImp() override { }
+    bool is_proper_type() const override { return is_tif_file(); }
+    bool is_big_endian() const;
+    bool is_little_endian() const;
+    bool has_magick_number() const;
+    bool is_tif_file() const { return has_magick_number(); }
+    void type_mismatch_throw() const override { throw NotTifFile {}; }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // class PathValidator
 //
 // Abstract interface class to the actual path validator class. It is to be
@@ -459,29 +479,7 @@ public:
     void validate() const;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// class TifValidator
-//
-///////////////////////////////////////////////////////////////////////////////
-class TifValidator: public PathValidator {
-public:
-    class NotTifFile {};
 
-    TifValidator(FileValidatorImp& fvimp, PathValidatorFlags& flags)
-        : PathValidator(fvimp, flags) { }
-    ~TifValidator() { }
-    bool is_big_endian() const;
-    bool is_little_endian() const;
-    bool has_magick_number() const;
-    void validate() const;
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// class PathValidator
-//
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CList selection input validators

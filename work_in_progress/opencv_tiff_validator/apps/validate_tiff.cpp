@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
             false,  // We don't accept nonexistent files
             false   // We don't accept empty files
     };
-    FileValidatorImp           input_file_imp {""};
+    TifValidatorImp           input_file_imp {""};
 
     OptionValidators validators{
         PathValidator(input_file_imp, input_file_flags),
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
         // Validate user input for 'input file' cmd line option
         try {
-            input_file_imp = FileValidatorImp(user_options.input_file);
+            input_file_imp = TifValidatorImp(user_options.input_file);
             validators.input_file.validate();
 
         } catch (PathValidatorImp::EmptyPath) {
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 
             return EXIT_FAILURE;
 
-        } catch (FileValidatorImp::NotRegularFile) {
+        } catch (TifValidatorImp::NotRegularFile) {
             std::cerr << exec_name << ": (ERROR) File \'"
                 << validators.input_file.value()
                 << "\' is not an regular file!\n";
@@ -229,6 +229,13 @@ int main(int argc, char *argv[])
             std::cerr << exec_name << ": (ERROR) File \'"
                 << validators.input_file.value()
                 << "\' contains no data (empty file)!\n";
+
+            return EXIT_FAILURE;
+
+        } catch (TifValidatorImp::NotTifFile) {
+            std::cerr << exec_name << ": (ERROR) File \'"
+                << validators.input_file.value()
+                << "\' is not a TIF file!\n";
 
             return EXIT_FAILURE;
 

@@ -64,7 +64,7 @@
 // Define namespace aliases
 // ============================================================================
 
-namespace fs = std::filesystem;
+namespace fs = std::__fs::filesystem;
 
 
 // ============================================================================
@@ -99,35 +99,18 @@ bool DirValidatorImp::is_directory() const {
     return false;
 }
 
-void PathValidator::validate() const {
-    if (imp_.is_empty_path()) {
-        if (!flags_.accept_empty_path()) throw PathValidatorImp::EmptyPath {};
-        else return;
-    }
-    if (!imp_.exists()) {
-        if (!flags_.accept_nonexistent())
-            throw PathValidatorImp::NonExistent {};
-        else return;
-    }
-    if (!imp_.is_proper_type()) imp_.type_mismatch_throw();
-    if (imp_.is_empty_storage()) {
-        if (!flags_.accept_empty_storage())
-            throw PathValidatorImp::EmptyStorage {};
-    }
-}
-
-bool TifValidator::is_big_endian() const {
+bool TifValidatorImp::is_big_endian() const {
     bool result = false;
 
-    if (!imp_.is_empty_path()
-            && imp_.exists()
-            && imp_.is_proper_type()
-            && !imp_.is_empty_storage()
+    if (!FileValidatorImp::is_empty_path()
+            && FileValidatorImp::exists()
+            && FileValidatorImp::is_proper_type()
+            && !FileValidatorImp::is_empty_storage()
        ) {
         char buf[3];
         std::ifstream imfstrm;
 
-        imfstrm.open(imp_.value(), std::ios::binary);
+        imfstrm.open(pth_, std::ios::binary);
         imfstrm.seekg(0, std::ios::beg);
         imfstrm.read(buf, 2);
         buf[2] = '\0';
@@ -142,18 +125,18 @@ bool TifValidator::is_big_endian() const {
     return result;
 }
 
-bool TifValidator::is_little_endian() const {
+bool TifValidatorImp::is_little_endian() const {
     bool result = false;
 
-    if (!imp_.is_empty_path()
-            && imp_.exists()
-            && imp_.is_proper_type()
-            && !imp_.is_empty_storage()
+    if (!FileValidatorImp::is_empty_path()
+            && FileValidatorImp::exists()
+            && FileValidatorImp::is_proper_type()
+            && !FileValidatorImp::is_empty_storage()
        ) {
         char buf[3];
         std::ifstream imfstrm;
 
-        imfstrm.open(imp_.value(), std::ios::binary);
+        imfstrm.open(pth_, std::ios::binary);
         imfstrm.seekg(0, std::ios::beg);
         imfstrm.read(buf, 2);
         buf[2] = '\0';
@@ -168,7 +151,7 @@ bool TifValidator::is_little_endian() const {
     return result;
 }
 
-bool TifValidator::has_magick_number() const {
+bool TifValidatorImp::has_magick_number() const {
     bool big_endian = is_big_endian();
     bool little_endian = is_little_endian();
     bool result = false;
@@ -179,17 +162,17 @@ bool TifValidator::has_magick_number() const {
         char b1, b2;
         std::ifstream imfstrm;
 
-        imfstrm.open(imp_.value(), std::ios::binary);
+        imfstrm.open(pth_, std::ios::binary);
         imfstrm.seekg(2, std::ios::beg);
         imfstrm.read(&b1, 1);
         imfstrm.read(&b2, 1);
 
         if (little_endian) {
             // Little endian: leave byte order intact
-            magickno = static_cast<short>((b1 << 8) + b2);
+            magickno = static_cast<short>(b1 + (b2 << 8));
         } else {
             // Big endian: swap byte order
-            magickno = static_cast<short>(b1 + (b2 << 8));
+            magickno = static_cast<short>((b1 << 8) + b2);
         }
 
         if (42 == magickno) {
@@ -203,17 +186,19 @@ bool TifValidator::has_magick_number() const {
     return result;
 }
 
-void TifValidator::validate() const {
-    throw TifValidator::NotTifFile {};
-    PathValidator::validate();
-
-    bool magick_number = has_magick_number();
-
-    if (!magick_number
-            && !flags_.accept_empty_path()
-            && !flags_.accept_nonexistent()
-            && !flags_.accept_empty_storage()
-            ) {
-        throw TifValidator::NotTifFile {};
+void PathValidator::validate() const {
+    if (imp_.is_empty_path()) {
+        if (!flags_.accept_empty_path()) throw PathValidatorImp::EmptyPath {};
+        else return;
+    }
+    if (!imp_.exists()) {
+        if (!flags_.accept_nonexistent())
+            throw PathValidatorImp::NonExistent {};
+        else return;
+    }
+    if (!imp_.is_proper_type()) imp_.type_mismatch_throw();
+    if (imp_.is_empty_storage()) {
+        if (!flags_.accept_empty_storage())
+            throw PathValidatorImp::EmptyStorage {};
     }
 }
