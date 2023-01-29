@@ -1,7 +1,7 @@
 set(HEADER_LIST "${PROJECT_SOURCE_DIR}/extern/clipp/clipp.hpp")
 set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/input_validators++/validators.hpp")
 
-SET(APPS validate_tiff)
+SET(APPS validate_tiff read_tiff)
 
 SET(INCLUDE_DIRS ../extern/clipp
     ../include
