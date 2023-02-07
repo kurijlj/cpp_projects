@@ -179,6 +179,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::openLog()
 {
+    // Change status bar message
+    statusBar()->showMessage(tr("Select log file to open ..."));
+
     // QMessageBox::information(
     //         this,
     //         tr("Not Implemented"),
@@ -196,6 +199,9 @@ void MainWindow::openLog()
         last_log_dir_ = selected_file_name.absolutePath();
         loadLogFile(file_name);
     }
+
+    // Reveret status bar message to "Ready" state
+    statusBar()->showMessage(tr("Ready"));
 }
 
 bool MainWindow::saveSession()
@@ -482,7 +488,7 @@ void MainWindow::loadLogFile(const QString &file_name)
     }
 
     showMessage(
-            tr("Verify file name integrity for \"%1\" ...").arg(
+            tr("Validate file name integrity for \"%1\" ...").arg(
                 QDir::toNativeSeparators(file_name)
                 ),
             MainWindow::Info
