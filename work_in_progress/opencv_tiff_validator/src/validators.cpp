@@ -64,7 +64,8 @@
 // Define namespace aliases
 // ============================================================================
 
-namespace fs = std::__fs::filesystem;
+// namespace fs = std::__fs::filesystem;
+namespace fs = std::filesystem;
 
 
 // ============================================================================

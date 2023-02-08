@@ -51,45 +51,79 @@
 #include <cmath>
 #include "data_model.hpp"
 
-DataModel::DataModel(QObject *parent)
+DataModel::DataModel(QObject *parent, const QString &file_name)
     : QAbstractTableModel(parent)
 {
-    rows_ = 82;
-    columns_ = 4;
-    data_titles_ = QStringList({"X1 [mm]", "Y1 []", "X2 [mm]", "Y2 []"});
-    data_ = std::deque<arma::vec*>(rows_);
-
-    for (unsigned int i=0; i < columns_; i++) {
-        data_.at(i) = new arma::vec(rows_, arma::fill::zeros);
-    }
-
-    for (unsigned int i=0; i < rows_; i++) {
-        double X = (double) i;
-        (*data_.at(0))(i) = (*data_.at(2))(i) = X;
-        (*data_.at(1))(i) = sin(X);
-        (*data_.at(3))(i) = cos(X);
-    }
+    data_titles_ = QStringList({
+            "X_frw [mm]",
+            "Ix_frw",
+            "X_bck [mm]",
+            "Ix_bck",
+            "Y_frw [mm]",
+            "Iy_frw",
+            "Y_bck [mm]",
+            "Iy_bck",
+            "Z_frw [mm]",
+            "Iz_frw",
+            "Z_bck [mm]",
+            "Iz_bck",
+            });
+    data_ = new FocusPrecisionReadout;
+    data_->x_frw_pos = new arma::vec(1, arma::fill::zeros);
+    data_->x_frw_rdg = new arma::vec(1, arma::fill::zeros);
+    data_->x_bck_pos = new arma::vec(1, arma::fill::zeros);
+    data_->x_bck_rdg = new arma::vec(1, arma::fill::zeros);
+    data_->y_frw_pos = new arma::vec(1, arma::fill::zeros);
+    data_->y_frw_rdg = new arma::vec(1, arma::fill::zeros);
+    data_->y_bck_pos = new arma::vec(1, arma::fill::zeros);
+    data_->y_bck_rdg = new arma::vec(1, arma::fill::zeros);
+    data_->z_frw_pos = new arma::vec(1, arma::fill::zeros);
+    data_->z_frw_rdg = new arma::vec(1, arma::fill::zeros);
+    data_->z_bck_pos = new arma::vec(1, arma::fill::zeros);
+    data_->z_bck_rdg = new arma::vec(1, arma::fill::zeros);
 }
 
 
 DataModel::~DataModel()
 {
-    for (unsigned int i=0; i < columns_; i++) {
-        delete data_.at(i);
-    }
-
+    delete data_->x_frw_pos;
+    delete data_->x_frw_rdg;
+    delete data_->x_bck_pos;
+    delete data_->x_bck_rdg;
+    delete data_->y_frw_pos;
+    delete data_->y_frw_rdg;
+    delete data_->y_bck_pos;
+    delete data_->y_bck_rdg;
+    delete data_->z_frw_pos;
+    delete data_->z_frw_rdg;
+    delete data_->z_bck_pos;
+    delete data_->z_bck_rdg;
+    delete data_;
 }
 
 
 int DataModel::rowCount(const QModelIndex & /*parent*/) const
 {
-   return rows_;
+    arma::vec n = arma::vec(12, arma::fill::zeros);
+    n(0)  = data_->x_frw_pos->n_elem();
+    n(1)  = data_->x_frw_rdg->n_elem();
+    n(2)  = data_->x_bck_pos->n_elem();
+    n(3)  = data_->x_bck_rdg->n_elem();
+    n(4)  = data_->y_frw_pos->n_elem();
+    n(5)  = data_->y_frw_rdg->n_elem();
+    n(6)  = data_->y_bck_pos->n_elem();
+    n(7)  = data_->y_bck_rdg->n_elem();
+    n(8)  = data_->z_frw_pos->n_elem();
+    n(9)  = data_->z_frw_rdg->n_elem();
+    n(10) = data_->z_bck_pos->n_elem();
+    n(11) = data_->z_bck_rdg->n_elem();
+    return n.max();
 }
 
 
 int DataModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return columns_;
+    return 12;
 }
 
 
@@ -120,7 +154,20 @@ QVariant DataModel::headerData(
 QVariant DataModel::data(const QModelIndex &index, int role) const
 {
     if (checkIndex(index)) {
+        double val = 0.0;
+
         if (role == Qt::DisplayRole) {
+            switch (index.column()) {
+                case 0:
+                    val = data_->(*x_frw_pos)(index.row());
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+            }
             double val = (*data_.at(index.column()))(index.row());
 
             return QString("%1").arg(val, 8, 'f', 6);

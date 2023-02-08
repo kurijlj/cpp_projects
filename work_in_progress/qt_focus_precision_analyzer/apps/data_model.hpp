@@ -55,16 +55,31 @@
 #include <QAbstractTableModel>
 #include <QStringList>
 
+struct FocusPrecisionReadout {
+    arma::vec *x_frw_pos;
+    arma::vec *x_frw_rdg;
+    arma::vec *x_bck_pos;
+    arma::vec *x_bck_rdg;
+    arma::vec *y_frw_pos;
+    arma::vec *y_frw_rdg;
+    arma::vec *y_bck_pos;
+    arma::vec *y_bck_rdg;
+    arma::vec *z_frw_pos;
+    arma::vec *z_frw_rdg;
+    arma::vec *z_bck_pos;
+    arma::vec *z_bck_rdg;
+}
+
 class DataModel : public QAbstractTableModel
 {
     Q_OBJECT
 private:
-    unsigned int rows_, columns_;
     QStringList data_titles_;
-    std::deque<arma::vec*> data_;
+    FocusPrecisionReadout *data_;
 
 public:
     DataModel(QObject *parent = nullptr);
+    DataModel(QObject *parent = nullptr, const QString &file_name);
     ~DataModel();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
