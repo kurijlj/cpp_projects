@@ -92,6 +92,7 @@ public:
             const QModelIndex &index,
             int role = Qt::DisplayRole
             ) const override;
+    void print() const;
 };
 
 
