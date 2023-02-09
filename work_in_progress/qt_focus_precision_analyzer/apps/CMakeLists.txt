@@ -1,14 +1,16 @@
-
 set(HEADER_LIST "${Focus_Precision_Analyzer_SOURCE_DIR}/extern/clipp/clipp.hpp")
+set(HEADER_LIST "${Focus_Precision_Analyzer_SOURCE_DIR}/extern/armadillo/include/armadillo")
 set(HEADER_LIST "${Focus_Precision_Analyzer_SOURCE_DIR}/include/input_validators++/validators.hpp")
 
 add_executable(app
     app.cpp
     mainwindow.cpp mainwindow.hpp
+    data_model.cpp data_model.hpp
     app.qrc
 )
 
 target_include_directories(app PRIVATE ../extern/clipp)
+target_include_directories(app PRIVATE ../extern/armadillo/include)
 target_include_directories(app PRIVATE ../include)
 
 target_compile_features(app PRIVATE cxx_std_17)

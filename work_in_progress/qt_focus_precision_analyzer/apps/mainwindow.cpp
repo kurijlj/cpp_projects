@@ -114,6 +114,9 @@
 #include <QTime>
 #include <QtWidgets>
 
+// Project headers
+#include "data_model.hpp"  // validate user input
+
 // Class header
 #include "mainwindow.hpp"
 
@@ -738,6 +741,13 @@ void MainWindow::loadLogFile(const QString &file_name)
         );
         showMessage(tr("%1 rows read.").arg(row_count), MainWindow::Info);
     }
+
+    // Load the data
+    DataModel m(nullptr, in);
+    m.print();
+
+    // Close the file
+    log_file.close();
 }
 
 bool MainWindow::saveSessionLog(const QString &file_name)

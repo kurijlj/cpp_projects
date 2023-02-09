@@ -54,6 +54,7 @@
 #include <deque>
 #include <QAbstractTableModel>
 #include <QStringList>
+#include <QTextStream>
 
 struct FocusPrecisionReadout {
     arma::vec *x_frw_pos;
@@ -68,7 +69,7 @@ struct FocusPrecisionReadout {
     arma::vec *z_frw_rdg;
     arma::vec *z_bck_pos;
     arma::vec *z_bck_rdg;
-}
+};
 
 class DataModel : public QAbstractTableModel
 {
@@ -79,7 +80,7 @@ private:
 
 public:
     DataModel(QObject *parent = nullptr);
-    DataModel(QObject *parent = nullptr, const QString &file_name);
+    DataModel(QObject *parent = nullptr, QTextStream &src = QTextStream());
     ~DataModel();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

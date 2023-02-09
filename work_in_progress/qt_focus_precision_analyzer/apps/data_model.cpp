@@ -83,9 +83,122 @@ DataModel::DataModel(QObject *parent) : QAbstractTableModel(parent)
 }
 
 
-DataModel::DataModel(QObject *parent, const QString &file_name)
+DataModel::DataModel(QObject *parent, QTextStream &src)
     : QAbstractTableModel(parent)
 {
+    // Reset stream position to begining of the file
+    src.seek(0);
+
+    // Count the entries for each axis, and each run (forward and backward) ---
+    unsigned int x_frw_n = 0;
+    unsigned int x_bck_n = 0;
+    unsigned int y_frw_n = 0;
+    unsigned int y_bck_n = 0;
+    unsigned int z_frw_n = 0;
+    unsigned int z_bck_n = 0;
+
+    while (!src.atEnd()) {
+        QString line = src.readLine();
+        QStringList fields = line.split(", ");
+
+        if("\"X1-1\"" == fields.at(0)) {
+            x_frw_n++;
+        } else if("\"X1-2\"" == fields.at(0)) {
+            x_bck_n++;
+        } else if("\"Y1-1\"" == fields.at(0)) {
+            y_frw_n++;
+        } else if("\"Y1-2\"" == fields.at(0)) {
+            y_bck_n++;
+        } else if("\"Z1-1\"" == fields.at(0)) {
+            z_frw_n++;
+        } else if("\"Z1-2\"" == fields.at(0)) {
+            z_bck_n++;
+        }
+    }
+
+    // Allocate memory for storing data
+    data_ = new FocusPrecisionReadout;
+    data_->x_frw_pos = new arma::vec(x_frw_n, arma::fill::zeros);
+    data_->x_frw_rdg = new arma::vec(x_frw_n, arma::fill::zeros);
+    data_->x_bck_pos = new arma::vec(x_bck_n, arma::fill::zeros);
+    data_->x_bck_rdg = new arma::vec(x_bck_n, arma::fill::zeros);
+    data_->y_frw_pos = new arma::vec(y_frw_n, arma::fill::zeros);
+    data_->y_frw_rdg = new arma::vec(y_frw_n, arma::fill::zeros);
+    data_->y_bck_pos = new arma::vec(y_bck_n, arma::fill::zeros);
+    data_->y_bck_rdg = new arma::vec(y_bck_n, arma::fill::zeros);
+    data_->z_frw_pos = new arma::vec(z_frw_n, arma::fill::zeros);
+    data_->z_frw_rdg = new arma::vec(z_frw_n, arma::fill::zeros);
+    data_->z_bck_pos = new arma::vec(z_bck_n, arma::fill::zeros);
+    data_->z_bck_rdg = new arma::vec(z_bck_n, arma::fill::zeros);
+
+    // Reset stream position to begining of the file
+    src.seek(0);
+
+    // Reset counters
+    x_frw_n = 0; x_bck_n = 0; y_frw_n = 0; y_bck_n = 0; z_frw_n = 0;
+    z_bck_n = 0;
+
+    // Read data from the file ------------------------------------------------
+    unsigned int current_row = 0;
+
+    while (!src.atEnd()) {
+        QString line = src.readLine();
+        QStringList fields = line.split(", ");
+
+        // Verify row ID
+        if("\"X1-1\"" == fields.at(0)) {
+            (*data_->x_frw_pos)(x_frw_n) = fields.at(1).toDouble();
+            (*data_->x_frw_rdg)(x_frw_n) = fields.at(4).toDouble();
+            x_frw_n++;
+        } else if("\"X1-2\"" == fields.at(0)) {
+            (*data_->x_bck_pos)(x_bck_n) = fields.at(1).toDouble();
+            (*data_->x_bck_rdg)(x_bck_n) = fields.at(4).toDouble();
+            x_bck_n++;
+        } else if("\"Y1-1\"" == fields.at(0)) {
+            (*data_->y_frw_pos)(y_frw_n) = fields.at(2).toDouble();
+            (*data_->y_frw_rdg)(y_frw_n) = fields.at(4).toDouble();
+            y_frw_n++;
+        } else if("\"Y1-2\"" == fields.at(0)) {
+            (*data_->y_bck_pos)(y_bck_n) = fields.at(2).toDouble();
+            (*data_->y_bck_rdg)(y_bck_n) = fields.at(4).toDouble();
+            y_bck_n++;
+        } else if("\"Z1-1\"" == fields.at(0)) {
+            (*data_->z_frw_pos)(z_frw_n) = fields.at(3).toDouble();
+            (*data_->z_frw_rdg)(z_frw_n) = fields.at(4).toDouble();
+            z_frw_n++;
+        } else if("\"Z1-2\"" == fields.at(0)) {
+            (*data_->z_bck_pos)(z_bck_n) = fields.at(3).toDouble();
+            (*data_->z_bck_rdg)(z_bck_n) = fields.at(4).toDouble();
+            z_bck_n++;
+        }
+    }
+
+    // Reverse data for the backward runs
+    arma::vec a;
+
+    a = arma::reverse(*data_->x_bck_pos);
+    delete data_->x_bck_pos;
+    data_->x_bck_pos = &a;
+
+    a = arma::reverse(*data_->x_bck_rdg);
+    delete data_->x_bck_rdg;
+    data_->x_bck_rdg = &a;
+
+    a = arma::reverse(*data_->y_bck_pos);
+    delete data_->y_bck_pos;
+    data_->y_bck_pos = &a;
+
+    a = arma::reverse(*data_->y_bck_rdg);
+    delete data_->y_bck_rdg;
+    data_->y_bck_rdg = &a;
+
+    a = arma::reverse(*data_->z_bck_pos);
+    delete data_->z_bck_pos;
+    data_->z_bck_pos = &a;
+
+    a = arma::reverse(*data_->z_bck_rdg);
+    delete data_->z_bck_rdg;
+    data_->z_bck_rdg = &a;
 }
 
 
@@ -109,19 +222,19 @@ DataModel::~DataModel()
 
 int DataModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    arma::vec n = arma::vec(12, arma::fill::zeros);
-    n(0)  = data_->x_frw_pos->n_elem();
-    n(1)  = data_->x_frw_rdg->n_elem();
-    n(2)  = data_->x_bck_pos->n_elem();
-    n(3)  = data_->x_bck_rdg->n_elem();
-    n(4)  = data_->y_frw_pos->n_elem();
-    n(5)  = data_->y_frw_rdg->n_elem();
-    n(6)  = data_->y_bck_pos->n_elem();
-    n(7)  = data_->y_bck_rdg->n_elem();
-    n(8)  = data_->z_frw_pos->n_elem();
-    n(9)  = data_->z_frw_rdg->n_elem();
-    n(10) = data_->z_bck_pos->n_elem();
-    n(11) = data_->z_bck_rdg->n_elem();
+    arma::vec n(12, arma::fill::zeros);
+    n(0)  = data_->x_frw_pos->n_elem;
+    n(1)  = data_->x_frw_rdg->n_elem;
+    n(2)  = data_->x_bck_pos->n_elem;
+    n(3)  = data_->x_bck_rdg->n_elem;
+    n(4)  = data_->y_frw_pos->n_elem;
+    n(5)  = data_->y_frw_rdg->n_elem;
+    n(6)  = data_->y_bck_pos->n_elem;
+    n(7)  = data_->y_bck_rdg->n_elem;
+    n(8)  = data_->z_frw_pos->n_elem;
+    n(9)  = data_->z_frw_rdg->n_elem;
+    n(10) = data_->z_bck_pos->n_elem;
+    n(11) = data_->z_bck_rdg->n_elem;
     return n.max();
 }
 
@@ -139,13 +252,13 @@ QVariant DataModel::headerData(
         ) const
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-        if (section < columns_) {
+        if (section < this->columnCount()) {
             return data_titles_.at(section);
 
         }
 
     } else if (role == Qt::DisplayRole && orientation == Qt::Vertical) {
-        if (section < rows_) {
+        if (section < this->rowCount()) {
             return QString("%1").arg(section);
 
         }
@@ -165,73 +278,73 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole) {
             switch (index.column()) {
                 case 0:
-                    if(index.row() <= data_->x_frw_pos->n_elem() - 1) {
+                    if(index.row() <= data_->x_frw_pos->n_elem - 1) {
                         val = (*data_->x_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 1:
-                    if(index.row() <= data_->x_frw_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->x_frw_rdg->n_elem - 1) {
                         val = (*data_->x_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 2:
-                    if(index.row() <= data_->x_bck_pos->n_elem() - 1) {
+                    if(index.row() <= data_->x_bck_pos->n_elem - 1) {
                         val = (*data_->x_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 3:
-                    if(index.row() <= data_->x_bck_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->x_bck_rdg->n_elem - 1) {
                         val = (*data_->x_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 4:
-                    if(index.row() <= data_->y_frw_pos->n_elem() - 1) {
+                    if(index.row() <= data_->y_frw_pos->n_elem - 1) {
                         val = (*data_->y_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 5:
-                    if(index.row() <= data_->y_frw_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->y_frw_rdg->n_elem - 1) {
                         val = (*data_->y_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 6:
-                    if(index.row() <= data_->y_bck_pos->n_elem() - 1) {
+                    if(index.row() <= data_->y_bck_pos->n_elem - 1) {
                         val = (*data_->y_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 7:
-                    if(index.row() <= data_->y_bck_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->y_bck_rdg->n_elem - 1) {
                         val = (*data_->y_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 8:
-                    if(index.row() <= data_->z_frw_pos->n_elem() - 1) {
+                    if(index.row() <= data_->z_frw_pos->n_elem - 1) {
                         val = (*data_->z_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 9:
-                    if(index.row() <= data_->z_frw_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->z_frw_rdg->n_elem - 1) {
                         val = (*data_->z_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 10:
-                    if(index.row() <= data_->z_bck_pos->n_elem() - 1) {
+                    if(index.row() <= data_->z_bck_pos->n_elem - 1) {
                         val = (*data_->z_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 11:
-                    if(index.row() <= data_->z_bck_rdg->n_elem() - 1) {
+                    if(index.row() <= data_->z_bck_rdg->n_elem - 1) {
                         val = (*data_->z_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
@@ -253,44 +366,44 @@ void DataModel::print() const
 
     for(int i = 0; i < this->rowCount(); i++) {
         std::cout << i << ":\t";
-        if(index.row() <= data_->x_frw_pos->n_elem() - 1) {
-            v1 = (*data_->x_frw_pos)(index.row());
-            v2 = (*data_->x_frw_rdg)(index.row());
+        if(i <= data_->x_frw_pos->n_elem - 1) {
+            v1 = (*data_->x_frw_pos)(i);
+            v2 = (*data_->x_frw_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";
         }
-        if(index.row() <= data_->x_bck_pos->n_elem() - 1) {
-            v1 = (*data_->x_bck_pos)(index.row());
-            v2 = (*data_->x_bck_rdg)(index.row());
+        if(i <= data_->x_bck_pos->n_elem - 1) {
+            v1 = (*data_->x_bck_pos)(i);
+            v2 = (*data_->x_bck_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";
         }
-        if(index.row() <= data_->y_frw_pos->n_elem() - 1) {
-            v1 = (*data_->y_frw_pos)(index.row());
-            v2 = (*data_->y_frw_rdg)(index.row());
+        if(i <= data_->y_frw_pos->n_elem - 1) {
+            v1 = (*data_->y_frw_pos)(i);
+            v2 = (*data_->y_frw_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";
         }
-        if(index.row() <= data_->y_bck_pos->n_elem() - 1) {
-            v1 = (*data_->y_bck_pos)(index.row());
-            v2 = (*data_->y_bck_rdg)(index.row());
+        if(i <= data_->y_bck_pos->n_elem - 1) {
+            v1 = (*data_->y_bck_pos)(i);
+            v2 = (*data_->y_bck_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";
         }
-        if(index.row() <= data_->z_frw_pos->n_elem() - 1) {
-            v1 = (*data_->z_frw_pos)(index.row());
-            v2 = (*data_->z_frw_rdg)(index.row());
+        if(i <= data_->z_frw_pos->n_elem - 1) {
+            v1 = (*data_->z_frw_pos)(i);
+            v2 = (*data_->z_frw_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";
         }
-        if(index.row() <= data_->z_bck_pos->n_elem() - 1) {
-            v1 = (*data_->z_bck_pos)(index.row());
-            v2 = (*data_->z_bck_rdg)(index.row());
+        if(i <= data_->z_bck_pos->n_elem - 1) {
+            v1 = (*data_->z_bck_pos)(i);
+            v2 = (*data_->z_bck_rdg)(i);
             std::cout << v1 << "\t" << v2 << "\t";
         } else {
             std::cout << "\t\t";

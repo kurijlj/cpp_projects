@@ -14,7 +14,7 @@ $ make
 
 for \*NIX platforms, and:
 ```
-$ cmake -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS:BOOL=FALSE -DBUILD_TESTING:BOOL=FALSE -S ../.. -B .
+$ cmake -DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64 -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS:BOOL=FALSE -DBUILD_TESTING:BOOL=FALSE -S ../.. -B .
 $ msbuild.exe myproject.sln
 ```
 
