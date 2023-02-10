@@ -174,31 +174,31 @@ DataModel::DataModel(QObject *parent, QTextStream &src)
     }
 
     // Reverse data for the backward runs
-    arma::vec a;
+    arma::vec *a;
 
-    a = arma::reverse(*data_->x_bck_pos);
+    a = new arma::vec(arma::reverse(*data_->x_bck_pos));
     delete data_->x_bck_pos;
-    data_->x_bck_pos = &a;
+    data_->x_bck_pos = a;
 
-    a = arma::reverse(*data_->x_bck_rdg);
+    a = new arma::vec(arma::reverse(*data_->x_bck_rdg));
     delete data_->x_bck_rdg;
-    data_->x_bck_rdg = &a;
+    data_->x_bck_rdg = a;
 
-    a = arma::reverse(*data_->y_bck_pos);
+    a = new arma::vec(arma::reverse(*data_->y_bck_pos));
     delete data_->y_bck_pos;
-    data_->y_bck_pos = &a;
+    data_->y_bck_pos = a;
 
-    a = arma::reverse(*data_->y_bck_rdg);
+    a = new arma::vec(arma::reverse(*data_->y_bck_rdg));
     delete data_->y_bck_rdg;
-    data_->y_bck_rdg = &a;
+    data_->y_bck_rdg = a;
 
-    a = arma::reverse(*data_->z_bck_pos);
+    a = new arma::vec(arma::reverse(*data_->z_bck_pos));
     delete data_->z_bck_pos;
-    data_->z_bck_pos = &a;
+    data_->z_bck_pos = a;
 
-    a = arma::reverse(*data_->z_bck_rdg);
+    a = new arma::vec(arma::reverse(*data_->z_bck_rdg));
     delete data_->z_bck_rdg;
-    data_->z_bck_rdg = &a;
+    data_->z_bck_rdg = a;
 }
 
 
@@ -408,5 +408,7 @@ void DataModel::print() const
         } else {
             std::cout << "\t\t";
         }
+
+        std::cout << std::endl;
     }
 }
