@@ -53,8 +53,10 @@
 #include <armadillo>
 #include <deque>
 #include <QAbstractTableModel>
+#include <QDate>
 #include <QStringList>
 #include <QTextStream>
+#include <QTime>
 
 struct FocusPrecisionReadout {
     arma::vec *x_frw_pos;
@@ -76,11 +78,18 @@ class DataModel : public QAbstractTableModel
     Q_OBJECT
 private:
     QStringList data_titles_;
+    QDate *log_date_;
+    QTime *log_time_;
     FocusPrecisionReadout *data_;
 
 public:
     DataModel(QObject *parent = nullptr);
-    DataModel(QObject *parent = nullptr, QTextStream &src = QTextStream());
+    DataModel(
+            QDate &log_date,
+            QTime &log_time,
+            QTextStream &src,
+            QObject *parent = nullptr
+            );
     ~DataModel();
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

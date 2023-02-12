@@ -53,6 +53,10 @@
 
 DataModel::DataModel(QObject *parent) : QAbstractTableModel(parent)
 {
+    QDate cd = QDate::currentDate();
+    QTime ct = QTime::currentTime();
+    log_date_ = new QDate(cd.year(), cd.month(), cd.day());
+    log_time_ = new QTime(ct.hour(), ct.minute(), ct.second());
     data_titles_ = QStringList({
             "X_frw [mm]",
             "Ix_frw",
@@ -83,8 +87,15 @@ DataModel::DataModel(QObject *parent) : QAbstractTableModel(parent)
 }
 
 
-DataModel::DataModel(QObject *parent, QTextStream &src)
-    : QAbstractTableModel(parent)
+DataModel::DataModel(
+        QDate &log_date,
+        QTime &log_time,
+        QTextStream &src,
+        QObject *parent
+        ) :
+    log_date_(new QDate(log_date.year(), log_date.month(), log_date.day())),
+    log_time_(new QTime(log_time.hour(), log_time.minute(), log_time.second())),
+    QAbstractTableModel(parent)
 {
     // Reset stream position to begining of the file
     src.seek(0);
@@ -139,8 +150,6 @@ DataModel::DataModel(QObject *parent, QTextStream &src)
     z_bck_n = 0;
 
     // Read data from the file ------------------------------------------------
-    unsigned int current_row = 0;
-
     while (!src.atEnd()) {
         QString line = src.readLine();
         QStringList fields = line.split(", ");
@@ -217,6 +226,8 @@ DataModel::~DataModel()
     delete data_->z_bck_pos;
     delete data_->z_bck_rdg;
     delete data_;
+    delete log_time_;
+    delete log_date_;
 }
 
 
@@ -278,73 +289,85 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole) {
             switch (index.column()) {
                 case 0:
-                    if(index.row() <= data_->x_frw_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->x_frw_pos->n_elem - 1) {
                         val = (*data_->x_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 1:
-                    if(index.row() <= data_->x_frw_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->x_frw_rdg->n_elem - 1) {
                         val = (*data_->x_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 2:
-                    if(index.row() <= data_->x_bck_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->x_bck_pos->n_elem - 1) {
                         val = (*data_->x_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 3:
-                    if(index.row() <= data_->x_bck_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->x_bck_rdg->n_elem - 1) {
                         val = (*data_->x_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 4:
-                    if(index.row() <= data_->y_frw_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->y_frw_pos->n_elem - 1) {
                         val = (*data_->y_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 5:
-                    if(index.row() <= data_->y_frw_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->y_frw_rdg->n_elem - 1) {
                         val = (*data_->y_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 6:
-                    if(index.row() <= data_->y_bck_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->y_bck_pos->n_elem - 1) {
                         val = (*data_->y_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 7:
-                    if(index.row() <= data_->y_bck_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->y_bck_rdg->n_elem - 1) {
                         val = (*data_->y_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 8:
-                    if(index.row() <= data_->z_frw_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->z_frw_pos->n_elem - 1) {
                         val = (*data_->z_frw_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 9:
-                    if(index.row() <= data_->z_frw_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->z_frw_rdg->n_elem - 1) {
                         val = (*data_->z_frw_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 10:
-                    if(index.row() <= data_->z_bck_pos->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->z_bck_pos->n_elem - 1) {
                         val = (*data_->z_bck_pos)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
                     break;
                 case 11:
-                    if(index.row() <= data_->z_bck_rdg->n_elem - 1) {
+                    if(static_cast<unsigned long long>(index.row())
+                            <= data_->z_bck_rdg->n_elem - 1) {
                         val = (*data_->z_bck_rdg)(index.row()) / 1000.0;
                         sval = QString("%1").arg(val, 8, 'f', 6);
                     }
@@ -364,7 +387,14 @@ void DataModel::print() const
 {
     double v1, v2;
 
-    for(int i = 0; i < this->rowCount(); i++) {
+    std::cout << log_date_->toString("d. MMMM yyyy").toStdString() << " " <<
+        log_time_->toString("h:mm:ss").toStdString() << std::endl;
+
+    for(
+            unsigned long long i = 0;
+            i < static_cast<unsigned long long>(this->rowCount());
+            i++
+            ) {
         std::cout << i << ":\t";
         if(i <= data_->x_frw_pos->n_elem - 1) {
             v1 = (*data_->x_frw_pos)(i);

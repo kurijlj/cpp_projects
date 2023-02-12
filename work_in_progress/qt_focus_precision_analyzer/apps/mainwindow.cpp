@@ -743,8 +743,11 @@ void MainWindow::loadLogFile(const QString &file_name)
     }
 
     // Load the data
-    DataModel m(nullptr, in);
-    m.print();
+    DataModel m1;
+    DataModel m2(log_date, log_time, in);
+    m1.print();
+    std::cout << std::endl;
+    m2.print();
 
     // Close the file
     log_file.close();
