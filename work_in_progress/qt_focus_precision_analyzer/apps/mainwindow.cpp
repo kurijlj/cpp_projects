@@ -115,7 +115,7 @@
 #include <QtWidgets>
 
 // Project headers
-#include "data_model.hpp"  // validate user input
+#include "table_view_widget.hpp"  // validate user input
 
 // Class header
 #include "mainwindow.hpp"
@@ -742,12 +742,9 @@ void MainWindow::loadLogFile(const QString &file_name)
         showMessage(tr("%1 rows read.").arg(row_count), MainWindow::Info);
     }
 
-    // Load the data
-    DataModel m1;
-    DataModel m2(log_date, log_time, in);
-    m1.print();
-    std::cout << std::endl;
-    m2.print();
+    // Spawn the table view window
+    TableViewWidget tw(log_date, log_time, in, this);
+    tw.show();
 
     // Close the file
     log_file.close();

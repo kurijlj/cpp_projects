@@ -84,6 +84,7 @@ DataModel::DataModel(QObject *parent) : QAbstractTableModel(parent)
     data_->z_frw_rdg = new arma::vec(1, arma::fill::zeros);
     data_->z_bck_pos = new arma::vec(1, arma::fill::zeros);
     data_->z_bck_rdg = new arma::vec(1, arma::fill::zeros);
+    cell_color_map_ = new  QMultiHash<QString, QRect>;
 }
 
 
@@ -208,6 +209,8 @@ DataModel::DataModel(
     a = new arma::vec(arma::reverse(*data_->z_bck_rdg));
     delete data_->z_bck_rdg;
     data_->z_bck_rdg = a;
+
+    cell_color_map_ = new  QMultiHash<QString, QRect>;
 }
 
 
@@ -228,6 +231,7 @@ DataModel::~DataModel()
     delete data_;
     delete log_time_;
     delete log_date_;
+    delete cell_color_map_;
 }
 
 
@@ -375,11 +379,26 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
             }
 
             return sval;
+
+        } else if (role == Qt::BackgroundRole) {
+            for (const QRect &rect : *cell_color_map_) {
+                if (rect.contains(index.column(), index.row()))
+                    return QColor(cell_color_map_->key(rect));
+            }
+
+            // cell not mapped return white color
+            return QColor(Qt::white);
         }
 
     }
 
     return QVariant();
+}
+
+
+void DataModel::addCellColorMap(QString color, QRect area)
+{
+    cell_color_map_->insert(color, area);
 }
 
 

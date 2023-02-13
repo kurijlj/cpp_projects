@@ -1,30 +1,28 @@
 #ifndef TABLEVIEWWIDGET_HPP
 #define TABLEVIEWWIDGET_HPP
 
-#include <QTableView>
-#include <QVBoxLayout>
-#include <QWidget>
-
-#include "custom_header_view.hpp"
-#include "data_model.hpp"
-
 class TableViewWidget : public QWidget
 {
     Q_OBJECT
 
 private:
-    DataModel*        data_model_;
-    CustomHeaderView* header_;
-    QTableView*       view_;
-    QVBoxLayout*      layout_;
+    // DataModel        *data_model_;
+    // CustomHeaderView *header_;
+    // QTableView       *table_view_;
+    // QChart           *chart_;
+    // QChartView       *chart_view_;
+    // QGridLayout      *main_layout_;
 
 protected:
 
 public:
-        TableViewWidget(QWidget *parent = nullptr);
-        ~TableViewWidget();
-
-        void show();
+    TableViewWidget(
+            QDate &log_date,
+            QTime &log_time,
+            QTextStream &src,
+            QWidget *parent = nullptr
+            );
+        ~TableViewWidget() { };
 
 };
 

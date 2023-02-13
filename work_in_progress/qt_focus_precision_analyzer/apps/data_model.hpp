@@ -53,7 +53,10 @@
 #include <armadillo>
 #include <deque>
 #include <QAbstractTableModel>
+#include <QColor>
 #include <QDate>
+#include <QMultiHash>
+#include <QRect>
 #include <QStringList>
 #include <QTextStream>
 #include <QTime>
@@ -80,6 +83,7 @@ private:
     QStringList data_titles_;
     QDate *log_date_;
     QTime *log_time_;
+    QMultiHash<QString, QRect> *cell_color_map_;
     FocusPrecisionReadout *data_;
 
 public:
@@ -102,6 +106,7 @@ public:
             const QModelIndex &index,
             int role = Qt::DisplayRole
             ) const override;
+    void addCellColorMap(QString color, QRect area);
     void print() const;
 };
 

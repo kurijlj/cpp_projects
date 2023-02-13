@@ -5,6 +5,8 @@ set(HEADER_LIST "${Focus_Precision_Analyzer_SOURCE_DIR}/include/input_validators
 add_executable(app
     app.cpp
     mainwindow.cpp mainwindow.hpp
+    custom_header_view.cpp custom_header_view.hpp
+    table_view_widget.cpp table_view_widget.hpp
     data_model.cpp data_model.hpp
     app.qrc
 )
@@ -16,6 +18,7 @@ target_include_directories(app PRIVATE ../include)
 target_compile_features(app PRIVATE cxx_std_17)
 
 target_link_libraries(app PRIVATE
+    Qt::Charts
     Qt::Core
     Qt::Gui
     Qt::Widgets
