@@ -51,8 +51,12 @@
 #include <cmath>
 #include "data_model.hpp"
 
+#include <iostream>
+
 DataModel::DataModel(QObject *parent) : QAbstractTableModel(parent)
 {
+    std::cout << "Calling default constructor ... \n";
+
     QDate cd = QDate::currentDate();
     QTime ct = QTime::currentTime();
     log_date_ = new QDate(cd.year(), cd.month(), cd.day());
@@ -98,6 +102,8 @@ DataModel::DataModel(
     log_time_(new QTime(log_time.hour(), log_time.minute(), log_time.second())),
     QAbstractTableModel(parent)
 {
+    std::cout << "Calling constructor ... \n";
+
     // Reset stream position to begining of the file
     src.seek(0);
 
@@ -127,6 +133,21 @@ DataModel::DataModel(
             z_bck_n++;
         }
     }
+
+    data_titles_ = QStringList({
+            "X_frw [mm]",
+            "Ix_frw",
+            "X_bck [mm]",
+            "Ix_bck",
+            "Y_frw [mm]",
+            "Iy_frw",
+            "Y_bck [mm]",
+            "Iy_bck",
+            "Z_frw [mm]",
+            "Iz_frw",
+            "Z_bck [mm]",
+            "Iz_bck",
+            });
 
     // Allocate memory for storing data
     data_ = new FocusPrecisionReadout;
@@ -216,6 +237,8 @@ DataModel::DataModel(
 
 DataModel::~DataModel()
 {
+    std::cout << "Calling destructor ... \n";
+
     delete data_->x_frw_pos;
     delete data_->x_frw_rdg;
     delete data_->x_bck_pos;
@@ -237,6 +260,8 @@ DataModel::~DataModel()
 
 int DataModel::rowCount(const QModelIndex & /*parent*/) const
 {
+    std::cout << "Calling rowCount ... \n";
+
     arma::vec n(12, arma::fill::zeros);
     n(0)  = data_->x_frw_pos->n_elem;
     n(1)  = data_->x_frw_rdg->n_elem;
@@ -256,6 +281,8 @@ int DataModel::rowCount(const QModelIndex & /*parent*/) const
 
 int DataModel::columnCount(const QModelIndex & /*parent*/) const
 {
+    std::cout << "Calling columnCount ... \n";
+
     return 12;
 }
 
@@ -266,6 +293,8 @@ QVariant DataModel::headerData(
         int role
         ) const
 {
+    std::cout << "Calling headerData ... \n";
+
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         if (section < this->columnCount()) {
             return data_titles_.at(section);
@@ -286,6 +315,8 @@ QVariant DataModel::headerData(
 
 QVariant DataModel::data(const QModelIndex &index, int role) const
 {
+    std::cout << "Calling data ... \n";
+
     if (checkIndex(index)) {
         double val = 0.0;
         QString sval("");
@@ -398,12 +429,16 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
 void DataModel::addCellColorMap(QString color, QRect area)
 {
+    std::cout << "Calling addCellColorMap ... \n";
+
     cell_color_map_->insert(color, area);
 }
 
 
 void DataModel::print() const
 {
+    std::cout << "Calling print ... \n";
+
     double v1, v2;
 
     std::cout << log_date_->toString("d. MMMM yyyy").toStdString() << " " <<

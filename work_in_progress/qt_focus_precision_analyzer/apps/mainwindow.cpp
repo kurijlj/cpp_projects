@@ -120,6 +120,7 @@
 // Class header
 #include "mainwindow.hpp"
 
+#include <iostream>
 
 // ============================================================================
 // Constructors and Destrucors section
@@ -743,8 +744,12 @@ void MainWindow::loadLogFile(const QString &file_name)
     }
 
     // Spawn the table view window
-    TableViewWidget tw(log_date, log_time, in, this);
-    tw.show();
+    std::cout << "Creating table window ...\n";
+    TableViewWidget *tw = new TableViewWidget(log_date, log_time, in);
+    std::cout << "Displaying table window ...\n";
+    tw->show();
+
+    std::cout << "Closing the file ...\n";
 
     // Close the file
     log_file.close();

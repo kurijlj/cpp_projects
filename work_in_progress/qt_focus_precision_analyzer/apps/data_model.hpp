@@ -51,7 +51,7 @@
 #ifndef DATA_MODEL_HPP
 #define DATA_MODEL_HPP
 #include <armadillo>
-#include <deque>
+// #include <deque>
 #include <QAbstractTableModel>
 #include <QColor>
 #include <QDate>

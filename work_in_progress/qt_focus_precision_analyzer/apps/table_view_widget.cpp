@@ -11,6 +11,8 @@
 #include "custom_header_view.hpp"
 #include "data_model.hpp"
 
+#include <iostream>
+
 // QT_USE_NAMESPACE
 using namespace QtCharts;
 
@@ -28,12 +30,27 @@ TableViewWidget::TableViewWidget(
     QChartView*       chart_view_  =  new QChartView(chart_);
     QGridLayout*      main_layout_ = new QGridLayout;
 
-    table_view_->setHorizontalHeader(header_);
+    std::cout << "Initialization over ...\n";
+
     table_view_->setModel(data_model_);
+
+    std::cout << "Model set ...\n";
+
+    table_view_->setHorizontalHeader(header_);
+
+    std::cout << "Header set ...\n";
+
     table_view_->resizeRowsToContents();
+
+    std::cout << "Row resize set ...\n";
+
     table_view_->resizeColumnsToContents();
 
+    std::cout << "Column resize set ...\n";
+
     chart_->setAnimationOptions(QChart::AllAnimations);
+
+    std::cout << "Initializing series X1 ...\n";
 
     QLineSeries *series = new QLineSeries;
     series->setName("X1");
@@ -49,6 +66,8 @@ TableViewWidget::TableViewWidget(
     seriesColorHex = "#" + QString::number(series->pen().color().rgb(), 16).right(6).toUpper();
     data_model_->addCellColorMap(seriesColorHex, QRect(0, 0, 2, data_model_->rowCount()));
 
+    std::cout << "Initializing series X2 ...\n";
+
     series = new QLineSeries;
     series->setName("X2");
 
@@ -61,6 +80,8 @@ TableViewWidget::TableViewWidget(
 
     seriesColorHex = "#" + QString::number(series->pen().color().rgb(), 16).right(6).toUpper();
     data_model_->addCellColorMap(seriesColorHex, QRect(2, 0, 2, data_model_->rowCount()));
+
+    std::cout << "Initializing series Y1 ...\n";
 
     series = new QLineSeries;
     series->setName("Y1");
@@ -75,6 +96,8 @@ TableViewWidget::TableViewWidget(
     seriesColorHex = "#" + QString::number(series->pen().color().rgb(), 16).right(6).toUpper();
     data_model_->addCellColorMap(seriesColorHex, QRect(2, 0, 2, data_model_->rowCount()));
 
+    std::cout << "Initializing series Y2 ...\n";
+
     series = new QLineSeries;
     series->setName("Y2");
 
@@ -88,6 +111,8 @@ TableViewWidget::TableViewWidget(
     seriesColorHex = "#" + QString::number(series->pen().color().rgb(), 16).right(6).toUpper();
     data_model_->addCellColorMap(seriesColorHex, QRect(2, 0, 2, data_model_->rowCount()));
 
+    std::cout << "Initializing series Z1 ...\n";
+
     series = new QLineSeries;
     series->setName("Z1");
 
@@ -100,6 +125,8 @@ TableViewWidget::TableViewWidget(
 
     seriesColorHex = "#" + QString::number(series->pen().color().rgb(), 16).right(6).toUpper();
     data_model_->addCellColorMap(seriesColorHex, QRect(2, 0, 2, data_model_->rowCount()));
+
+    std::cout << "Initializing series Z2 ...\n";
 
     series = new QLineSeries;
     series->setName("Z2");
