@@ -26,7 +26,9 @@ set(CMAKE_AUTOUIC ON)
 #     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # endif()
 
+find_package(Qt5 COMPONENTS Charts REQUIRED)
 find_package(Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt5 COMPONENTS Gui REQUIRED)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 # Append custom flags

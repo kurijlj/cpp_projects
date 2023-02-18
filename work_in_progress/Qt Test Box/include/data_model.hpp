@@ -4,8 +4,8 @@
 
 class DataModel : public QAbstractTableModel
 {
-    Q_OBJECT
 private:
+    Q_OBJECT
     unsigned int data_;
 
 public:
